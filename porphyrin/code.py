@@ -1,16 +1,17 @@
 import main
+import text
+import block
+import error
 
-class Formula(main.Piece)
-   def __init__(self, string_in, head):
-      self.head = head
-      self.string_in = string_in
-      self.list_inline = []
+class Code(Piece)
 
-   def run():
-   while !self.end():
-      self.parse_inline()
-      self.process_inline()
+   self.PALEOZOIC = 6
+   self.MESOZOIC = 7
+   self.CENOZOIC = 8
 
-class Kind_formula(Enum)
-   Roman = 0
+   def __init__(self, kind):
+      super(Code, self).__init__(source, place)
+      self.kind = kind
+
+
 

@@ -1,17 +1,20 @@
-from enum import Enum
+import main
+import code
+import block
+import error
 
 class Text(Piece)
-   def __init__(self, string_in, head):
-      self.head = head
-      self.string_in = string_in
-      self.list_inline = []
 
+   self.SERIF_ROMAN = 0
+   self.SERIF_ITALIC = 1
+   self.SERIF_BOLD = 2
+   self.SANS_ROMAN = 3
+   self.SANS_BOLD = 4
+   self.MONOSPACE = 5
+   self.SPACE = 6
 
-class Kind_text(object)
-   SERIF_ROMAN = 0
-   SERIF_ITALIC = 1
-   SERIF_BOLD = 2
-   SANS_ROMAN = 3
-   SANS_BOLD = 4
+   def __init__(self, **kwargs):
+      self.kind = kwargs.pop("kind", 0)
+      super(Text, self).__init__(source, place)
 
 
