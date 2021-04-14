@@ -1,15 +1,10 @@
-import main
-import text
-import code
+import branch
+import leaf
 import error
+import main
 
 
-class Block(main.Piece)
-   PARAGRAPH = 0
-   LINE = 1
-   ROW = 2
-   IMAGE = 3
-   BREAK = 3
+class Twig(Piece):
 
    def process(self, prefix, suffix):
       while not self.source:
