@@ -3,52 +3,87 @@ import twig
 import leaf
 import main
 
+def warn(**arguments):
+   place = arguments.pop(place, Place())
+   fragment_left = arguments.pop(fragment_left, '')
+   token = arguments.pop(token, '')
+   fragment_right = arguments.pop(fragment_right, '')
+   message_left = arguments.pop(message_left, '')
+   message_right = arguments.pop(message_right, '')
+   STRESS = "\033[93m"
+   NORMAL = "\033[0m"
+   print("At ", place.emit(), ":\n")
+   print(
+         "      ", fragment_left, ' ',
+         STRESS, token, NORMAL, ' ',
+         fragment_left, '\n')
+   print(message_left, STRESS, token, NORMAL, message_right)
 
-class Error(Exception):
 
-   def __init__(self, **arguments):
-      self.place = arguments.pop("place", Place())
-      self.remain_left = arguments.pop("remain_left", '')
-      self.token = arguments.pop("token", '')
-      self.remain_right = arguments.pop("remain_right", '')
-      self.message_left = ''
-      self.message_right = ''
+def not_recognized_mark_branch(**arguments):
+   place = arguments.pop(place, Place())
+   fragment_left = arguments.pop(fragment_left, '')
+   token = arguments.pop(token, '')
+   fragment_right = arguments.pop(fragment_right, '')
+   message_left = "Token"
+   message_right = "is not a branch opening mark."
+   warn(
+         place = place,
+         fragment_left = fragment_left,
+         fragment_right = fragment_right,
+         message_left = message_left,
+         message_right = message_right)
+   cease()
 
-   def output():
-       print("At ", place.write(), ":\n")
-       print("    ", self.remain_left, self.token, self.remain_right)
-       print("    ", self.message_left, self.token, self.message_right)
 
-class Error_wrong_boundary_twig(Error):
+def not_matched_mark_branch(Error):
+   place = arguments.pop(place, Place())
+   fragment_left = arguments.pop(fragment_left, '')
+   token = arguments.pop(token, '')
+   fragment_right = arguments.pop(fragment_right, '')
+   message_left = "Branch opening mark"
+   message_right = "is not matched."
+   warn(
+         place = place,
+         fragment_left = fragment_left,
+         fragment_right = fragment_right,
+         message_left = message_left,
+         message_right = message_right)
+   cease()
 
-   message_first = "Token"
-   message_second = "is not a twig boundary."
 
-   def __init__(self, **arguments):
-      Error.__init__(**arguments)
+def not_recognized_mark_leaf(Error):
+   place = arguments.pop(place, Place())
+   fragment_left = arguments.pop(fragment_left, '')
+   token = arguments.pop(token, '')
+   fragment_right = arguments.pop(fragment_right, '')
+   message_left = "Token"
+   message_right = "is not an leaf opening mark."
+   warn(
+         place = place,
+         fragment_left = fragment_left,
+         fragment_right = fragment_right,
+         message_left = message_left,
+         message_right = message_right)
+   cease()
 
-class Error_match_boundary_twig(Error):
+def not_matched_mark_leaf(Error):
+   place = arguments.pop(place, Place())
+   fragment_left = arguments.pop(fragment_left, '')
+   token = arguments.pop(token, '')
+   fragment_right = arguments.pop(fragment_right, '')
+   message_left = "Leaf opening mark"
+   message_right = "is not matched."
+   warn(
+         place = place,
+         fragment_left = fragment_left,
+         fragment_right = fragment_right,
+         message_left = message_left,
+         message_right = message_right)
+   cease()
 
-   message_first = "Twig boundary"
-   message_second = "is not matched."
+def cease():
+   raise SystemExit()
 
-   def __init__(self, **arguments):
-      Error.__init__(self, **arguments)
-
-class Error_wrong_boundary_leaf(Error):
-
-   message_first = "Token"
-   message_second = "is not a leaf boundary."
-
-   def __init__(self, **arguments):
-      Error.__init__(self, **arguments)
-
-class Error_match_boundary_leaf(Error):
-
-   message_first = "Leaf boundary"
-   message_second = "is not matched."
-
-   def __init__(self, **arguments):
-      Error.__init__(self, **arguments)
 
 

@@ -4,7 +4,7 @@ import error
 import main
 
 
-class Twig(Piece):
+class Twig(object):
 
    def process(self, prefix, suffix):
       while not self.source:

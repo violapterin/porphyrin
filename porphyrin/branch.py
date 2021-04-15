@@ -5,14 +5,16 @@ import error
 
 class Branch(object):
 
-   def __init__(self, **kwargs):
-      self.kind = kwargs.pop("kind", 0)
-      super(Text, self).__init__(source, place)
+   tag = "BRANCH"
 
+   def __init__(self, **arguments):
+      self.source = arguments.pop("source", ''),
+      self.place = Place()
+      self.pile = []
+      self.fragment_global_left = ''
+      self.fragment_global_right = ''
+      self.head = 0
 
-def create(mark, content):
-
-   return leaf
 
 def get_leaf_mark_from_tag(tag):
    marks = get_leaf_marks()
@@ -37,9 +39,9 @@ def get_leaf_tags():
       '#': "SERIF_BOLD",
       '$': "SANS_NORMAL",
       '&': "SANS_BOLD",
-      '^': "PALEOZOIC",
-      '*': "MESOZOIC",
-      '+': "CENOZOIC",
+      '^': "TRADITIONAL",
+      '*': "ALTERNATIVE",
+      '+': "VERBATIM",
       '`': "MONOSPACE",
       '_': "TAB",
       '\'': "PAUSE",
