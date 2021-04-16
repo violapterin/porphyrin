@@ -7,9 +7,7 @@ import twig
 import leaf
 import error
 
-class Tree(object):
-
-   tag = "TREE"
+class Tree(Piece):
 
    def __init__(self, **arguments):
       self.source = arguments.pop("source", ''),
@@ -21,20 +19,39 @@ class Tree(object):
 
    def process(self):
       while not self.source:
-         mark, content = self.snip()
-         tag = get_tag_from_mark(mark)
-         if (tag == 0):
-             error.Outer_leaf(
+         self.content, self.mark = self.snip()
+         label = get_label_branch_from_mark(mark)
+         fragment_left = self.get_fragment_left()
+         fragment_right = self.get_fragment_right()
+         if (label == 0):
+             error.outer_scope_leaf(
                    place = self.place,
-                   fragment_left = get_fragment_left(self),
+                   fragment_left = fragment_left,
                    mark = mark,
-                   fragment_right = get_fragment_right(self))
-
-         if (tag == "SERIF_ROMAN"): leaf = Serif_roman(content)
-         elif (tag == "SERIF_ITALIC"): leaf = Serif_roman(content)
+                   fragment_right = fragment_right)
+         if (label == "SERIF_ROMAN"):
+            leaf = Serif_roman(content, place, )
+         elif (label == "SERIF_ITALIC"):
+            leaf = Serif_roman(content)
          # ...
 
          self.push(leaf)
+
+   def write(self):
+      result = ''
+      for branch in self.branches:
+         result += branch.write()
+      return result
+
+class Piece(object):
+
+   def __init__(self, **arguments):
+      self.source = '',
+      self.place = Place()
+      self.pile = []
+      self.fragment_left_global = ''
+      self.fragment_right_global = ''
+      self.head = 0
 
    def snip(self):
       right = self.get_right()
@@ -48,24 +65,23 @@ class Tree(object):
       segments = right.split(mark, 2)
       content = segments[1]
       content = self.trim(content)
-      whole = mark + content + mark
-      head += whole.size
-      self.place.increase(whole)
-      return mark, content
-
+      thing = mark + content + mark
+      self.head += thing.size
+      self.place.increase(thing)
+      return content, mark
 
    def get_left(self):
-      return self.source[: self.head + 1]
+      return self.source[: self.head + 1] + self.fragment_left_global
 
    def get_right(self):
-      return self.source[self.head + 1: ]
+      return self.source[self.head + 1: ] + self.fragment_right_global
 
-   def get_left_fragment(self):
+   def get_fragment_left(self):
       left = self.get_left()
       segments = self.left.rsplit('\n')
       return segments[-1]
 
-   def get_right_fragment(self):
+   def get_fragment_right(_self):
       right = self.get_right()
       segments = self.right.split('\n')
       return segments[0]
@@ -78,25 +94,20 @@ class Tree(object):
       mark = right[: probe]
 
 
-   def write(self):
-      result = ''
-      for branch in self.branches:
-         result += branch.write()
-      return result
-
-
-
-
 class Place(object):
 
    def __init__(self, line, character):
       self.count_line = count_line
       self.count_character = count_character
 
-   def increase(self, source):
-      segments = source.split('\n')
-      self.count_line += segments.size
-      self.count_character = segments[-1].size - 1
+   def increase(self, thing):
+      segments = thing.split('\n')
+      size = segments.size
+      if (segments.size == 0):
+         self.count_character += segments[-1].size - 1
+      elif
+         self.count_line += size - 1
+         self.count_character = segments[-1].size - 1
 
    def emit():
       result = ''
@@ -105,11 +116,7 @@ class Place(object):
       return result
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def trim(source):
-   result = source.translate(source.maketrans({'\n': ' ', '\t': ' '}))
-   return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

@@ -5,31 +5,54 @@ import error
 
 class Branch(object):
 
-   tag = "BRANCH"
+   label = "BRANCH"
 
    def __init__(self, **arguments):
       self.source = arguments.pop("source", ''),
-      self.place = Place()
+      self.place = arguments.pop("place", Place()),
       self.pile = []
       self.fragment_global_left = ''
       self.fragment_global_right = ''
       self.head = 0
 
+   def write_block(self, content, kind)
+      result = ''
+      result += "<div" + ' '
+      result += "class=" + kind + ">"
+      for twig in pile:
+         result += twig.write()
+      result += "<class" + "/>"
 
-def get_leaf_mark_from_tag(tag):
+
+   def print(self):
+      pass
+
+class Paragraph(object):
+
+class Line(object):
+
+class Table(object):
+
+class Image(object):
+
+class Break(object):
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def get_leaf_mark_from_label(label):
    marks = get_leaf_marks()
-   if tag not in marks:
+   if label not in marks:
       return 0
-   return marks[tag]
+   return marks[label]
 
-def get_leaf_tag_from_mark(mark):
-   tags = get_leaf_tags()
-   if mark not in tags:
+def get_leaf_label_from_mark(mark):
+   labels = get_leaf_labels()
+   if mark not in labels:
       return 0
-   return tags[mark]
+   return labels[mark]
 
-def get_leaf_tags():
-   tags = {
+def get_leaf_labels():
+   labels = {
       '=': "PARAGRAPH",
       '/': "LINE",
       '\"': "ROW",
@@ -50,11 +73,11 @@ def get_leaf_tags():
       '<': "COMMENT_LEFT",
       '>': "COMMENT_RIGHT",
    }
-   return tags
+   return labels
 
 def give_leaf_marks():
-   tags = get_tags_from_mark()
-   marks = {tag: token for token, tag in my_map.items()}
+   labels = get_labels_from_mark()
+   marks = {label: token for token, label in my_map.items()}
    return marks
 
 

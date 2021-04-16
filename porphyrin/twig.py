@@ -6,14 +6,16 @@ import main
 
 class Twig(object):
 
-   def process(self, prefix, suffix):
-      while not self.source:
-         left = source[0]
-         segment, self.source = self.snip(head, self.source)
-         if (head == Boundary.serif_roman):
-            self.push.Serif_roman(segment)
-         elif (head == Boundary.link):
-            self.stack.back.create_link(segment)
+   def __init__(self, **arguments):
+      self.source = arguments.pop("source", ''),
+      self.place = arguments.pop("place", Place()),
+
+
+
+   def write_content(self):
+      result = ''
+      for leaf in self.pile:
+         result += leaf.write()
 
 
 
