@@ -2,12 +2,16 @@
 
 import sys
 
-import branch
-import twig
+import tree
+import bough
 import leaf
 import error
 
-class Tree(Piece):
+# section, paragraph, sentence
+# stanza, line, verse
+# table, row, cell
+
+class Forest(Piece):
 
    def __init__(self, **arguments):
       self.source = arguments.pop("source", ''),
@@ -20,18 +24,18 @@ class Tree(Piece):
    def process(self):
       while not self.source:
          self.content, self.mark = self.snip()
-         label = get_label_branch_from_mark(mark)
+         kind = get_kind_tree_from_mark(mark)
          fragment_left = self.get_fragment_left()
          fragment_right = self.get_fragment_right()
-         if (label == 0):
+         if (kind == 0):
              error.outer_scope_leaf(
                    place = self.place,
                    fragment_left = fragment_left,
                    mark = mark,
                    fragment_right = fragment_right)
-         if (label == "SERIF_ROMAN"):
+         if (kind == "SERIF_ROMAN"):
             leaf = Serif_roman(content, place, )
-         elif (label == "SERIF_ITALIC"):
+         elif (kind == "SERIF_ITALIC"):
             leaf = Serif_roman(content)
          # ...
 
@@ -39,8 +43,8 @@ class Tree(Piece):
 
    def write(self):
       result = ''
-      for branch in self.branches:
-         result += branch.write()
+      for tree in self.treees:
+         result += tree.write()
       return result
 
 class Piece(object):
@@ -57,7 +61,7 @@ class Piece(object):
       right = self.get_right()
       mark = probe_mark(right)
       if (segments.size == 1):
-         error.Match_boundary_twig(
+         error.Match_boundary_bough(
                place = self.place,
                fragment_left = get_left_fragment(self),
                mark = mark,
@@ -121,15 +125,13 @@ class Place(object):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 
-'''
 text_in = sys.argv[1]
 file_out = sys.argv[2]
 
 
-with open(sys.argv[1], 'r') as file:
+with open(sys.argv[1], 'r') as text_in:
     for line in file:
        pass
-'''
 
 
 

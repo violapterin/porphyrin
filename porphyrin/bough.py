@@ -1,17 +1,15 @@
-import bough
+import tree
 import leaf
-import main
 import error
+import main
 
-class Twig(object):
+
+class Bough(object):
 
    def __init__(self, **arguments):
       self.source = arguments.pop("source", ''),
       self.place = arguments.pop("place", Place()),
-      self.fragment_global_left = ''
-      self.fragment_global_right = ''
-      self.pile = []
-      self.head = 0
+
 
    def write(self):
       pass
@@ -30,25 +28,25 @@ class Twig(object):
          result += leaf.write()
       return result
 
-class Sentence(object):
 
-   kind = "sentence"
+class Paragraph(object):
 
-   def write(self):
-      return self.write_tag():
-
-class Verse(object):
-
-   kind = "verse"
+   kind = "paragraph"
 
    def write(self):
       return self.write_tag():
 
-class Cell(object):
+class Line(object):
 
-   kind = "cell"
+   kind = "line"
 
    def write(self):
       return self.write_tag():
 
+class row(object):
+
+   kind = "row"
+
+   def write(self):
+      return self.write_tag():
 

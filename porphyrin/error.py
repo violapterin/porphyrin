@@ -1,16 +1,16 @@
-import branch
-import twig
+import tree
+import bough
 import leaf
 import main
 
 
-def not_recognized_mark_branch(**arguments):
+def not_recognized_mark_tree(**arguments):
    place = arguments.pop(place, Place())
    fragment_left = arguments.pop(fragment_left, '')
    mark = arguments.pop(mark, '')
    fragment_right = arguments.pop(fragment_right, '')
    message_left = "Token"
-   message_right = "is not a branch opening mark."
+   message_right = "is not a tree opening mark."
    warn(
          place = place,
          fragment_left = fragment_left,
@@ -19,12 +19,12 @@ def not_recognized_mark_branch(**arguments):
          message_right = message_right)
 
 
-def warn_not_matched_mark_branch(**arguments):
+def warn_not_matched_mark_tree(**arguments):
    place = arguments.pop(place, Place())
    fragment_left = arguments.pop(fragment_left, '')
    mark = arguments.pop(mark, '')
    fragment_right = arguments.pop(fragment_right, '')
-   message_left = "Branch opening mark"
+   message_left = "Tree opening mark"
    message_right = "is not matched."
    warn(
          place = place,
@@ -78,12 +78,12 @@ def warn_outer_scope_leaf(**arguments):
          message_left = message_left,
          message_right = message_right)
 
-def warn_inner_scope_branch(**arguments):
+def warn_inner_scope_tree(**arguments):
    place = arguments.pop(place, Place())
    fragment_left = arguments.pop(fragment_left, '')
    mark = arguments.pop(mark, '')
    fragment_right = arguments.pop(fragment_right, '')
-   message_left = "Branch"
+   message_left = "Tree"
    message_right = "cannot occur in the outer scope."
    warn(
          place = place,

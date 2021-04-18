@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
-#import branch
-#import twig
+#import tree
+#import bough
 #import leaf
 #import error
 #import main
