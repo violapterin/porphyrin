@@ -6,19 +6,44 @@
 #import error
 #import main
 
-def f(a):
-    if (a >3):
-        print ("Custom Error")
-        raise ValueError()
+class Cat():
+   kind = "cat"
+   def __init__(self, color):
+      self.color = color
+   def call(self):
+      print("meow")
+   def copy(self):
+      return Cat(self.color)
+
+class Dog():
+   kind = "dog"
+   def __init__(self, color):
+      self.color = color
+   def call(self):
+      print("bark")
+
+class Bird():
+   def __init__(self, **args):
+      self.a = args.pop("a", 0)
+      self.b = args.pop("b", 0)
+
+c = Cat("black")
+d = c.copy()
+print (d.color)
 
 '''
-a = 5
-print(a)
-try:
-    raise SystemExit(1)
-except:
-    pass
-print("And?")
+c1 = Bird(a=3,b=5)
+kw = {"a":3, "b":5}
+c2 = Bird(**kw)
+print(c1.a)
+print(c2.a)
+'''
+
+
+'''
+str = "Cat"
+c = (eval(str))("red")
+c.call()
 '''
 
 '''

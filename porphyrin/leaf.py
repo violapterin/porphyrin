@@ -3,34 +3,66 @@ import tree
 import bough
 import error
 
-class Leaf(main.Piece):
+class Leaflet(tree.Tissue):
 
-   def __init__(self, **arguments):
-      self.source = arguments.pop("source", ''),
-      self.place = arguments.pop("place", Place()),
-      self.fragment_global_left = ''
-      self.fragment_global_right = ''
-      self.pile = []
-      self.head = 0
+   def parse(self):
+      while not self.source:
+         self.element, self.mark = self.snip()
+         label = get_label_from_mark(mark)
+         fragment_left = self.find_fragment_left()
+         fragment_right = self.find_fragment_right()
+         data = {
+             "place" : self.place,
+             "fragment_left" : fragment_left,
+             "mark" : mark,
+             "fragment_right" : fragment_right
+         }
+         if (be_leaf_label(label)):
+             error.outer_scope_leaf(**data)
+         if (label == "serif-roman"):
+            leaf = Serif_roman()
+         elif (label == "serif-italic"):
+            label = Serif_italic
+         elif (label == "serif-bold"):
+            label = Serif_bold
+         elif (label == "sans-normal"):
+            label = Sans_normal
+         elif (label == "sans-bold"):
+            label = Sans_bold
+         # ...
 
-   def write_tag(self, content, kind):
+         self.push(leaf)
+
+   def write(self):
+      pass
+
+   def write_tag(self, element, kind):
       result = ''
       result += "<span" + ' '
       result += "class=" + kind + ">"
-      for leaf in self.pile:
+      for leaf in self.sink:
          result += leaf.write()
-      result += "<class" + "/>"
+      result += "<span" + "/>"
       return result
 
-   def remove_character(source, group):
-      for symbol in group:
-         source = source.translate(source.maketrans(symbol: ''))
-      return source
+'''
+   def write_comment(self, element):
+      result = ''
+      result += "<!-- "
+      for leaf in self.sink:
+         result += leaf.write()
+      result += " -->"
+      return result
+'''
 
-   def erase_character(source, group):
-      for symbol in group:
-         source = source.translate(source.maketrans(symbol: ' '))
-      return source
+   def tune_text(source):
+      result = ignore_mark_text(source)
+      result = adjust_space(result)
+      return result
+
+   def tune_code(source):
+      result = adjust_space(source)
+      return result
 
    def adjust_space(source):
       spaces = {'\n', '\t'}
@@ -43,94 +75,71 @@ class Leaf(main.Piece):
       result = erase_character(source, marks_ignored)
       return result
 
-   def tune_text(source):
-      result = ignore_mark_text(source)
-      result = adjust_space(result)
-      return result
+   def remove_character(source, group):
+      for symbol in group:
+         source = source.translate(source.maketrans(symbol: ''))
+      return source
 
-   def tune_code(source):
-      result = adjust_space(source)
-      return result
-
-   def write(self):
-      pass
-
-class Serif_roman(main.Piece):
-
-   kind = "serif-roman"
-
-   def __init__(self, **arguments):
-      self.source = arguments.pop("source", ''),
-      self.place = arguments.pop("place", Place())
-      self.fragment_left_global = arguments.pop("fragment_left", '')
-      self.fragment_right_global = arguments.pop("fragment_right", '')
-      self.pile = []
-      self.head = 0
-
-   def write(self):
-      sink = self.source
-      sink = self.tune_text(sink)
-      return self.write_inner(sink, self.kind):
-
-class Serif_italic(main.Piece):
-
-   kind = "serif-italic"
-
-   def __init__(self, **arguments):
-      self.source = arguments.pop("source", ''),
-      self.place = arguments.pop("place", Place())
-      self.fragment_left_global = arguments.pop("fragment_left", '')
-      self.fragment_right_global = arguments.pop("fragment_right", '')
-      self.pile = []
-      self.head = 0
-
-   def write(self):
-      sink = self.source
-      sink = self.tune_text(sink)
-      return self.write_inner(sink, self.kind):
-
+   def erase_character(source, group):
+      for symbol in group:
+         source = source.translate(source.maketrans(symbol: ' '))
+      return source
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-def get_leaf_label(mark):
-   labels = get_leaf_labels()
-   if mark not in labels:
-      return 0
-   return labels[mark]
+class Serif_roman(Leaf):
 
-def get_leaf_mark(label):
-   marks = get_leaf_marks()
-   if label not in marks:
-      return 0
-   return marks[label]
+   def __init__(self, **data):
+      self.source = data.pop("source", ''),
+      self.place = data.pop("place", Place())
+      self.leftmost = data.pop("fragment_left", '')
+      self.rightmost = data.pop("fragment_right", '')
+      self.content = ''
+      self.head = 0
 
-def give_leaf_labels():
-   labels = {
-      '=': "PARAGRAPH",
-      '/': "LINE",
-      '\"': "ROW",
-      '|': "IMAGE",
-      '@': "SERIF_NORMAL",
-      '%': "SERIF_ITALIC",
-      '#': "SERIF_BOLD",
-      '$': "SANS_NORMAL",
-      '&': "SANS_BOLD",
-      '^': "PALEOZOIC",
-      '*': "MESOZOIC",
-      '+': "CENOZOIC",
-      '`': "MONOSPACE",
-      '_': "TAB",
-      '\'': "PAUSE",
-      '~': "BREAK",
-      '\\': "LINK",
-      '<': "COMMENT_LEFT",
-      '>': "COMMENT_RIGHT",
-   }
-   return labels
+   def parse(self):
+      content = self.source
+      self.content = self.tune_text(content)
 
-def give_leaf_marks():
-   labels = get_labels_from_mark()
-   marks = {label: token for token, label in my_map.items()}
-   return marks
+   def write(self):
+      return self.write_tag(self.content, "serif-roman"):
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Serif_italic(Leaf):
+
+   def __init__(self, **data):
+      self.source = data.pop("source", ''),
+      self.place = data.pop("place", Place())
+      self.leftmost = data.pop("fragment_left", '')
+      self.rightmost = data.pop("fragment_right", '')
+      self.content = ''
+      self.head = 0
+
+   def parse(self):
+      content = self.source
+      self.content = self.tune_text(content)
+
+   def write(self):
+      return self.write_tag(self.content, "serif-italic"):
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Serif_bold(Leaf):
+
+   def __init__(self, **data):
+      self.source = data.pop("source", ''),
+      self.place = data.pop("place", Place())
+      self.leftmost = data.pop("fragment_left", '')
+      self.rightmost = data.pop("fragment_right", '')
+      self.content = ''
+      self.head = 0
+
+   def parse(self):
+      content = self.source
+      self.content = self.tune_text(content)
+
+   def write(self):
+      return self.write_tag(self.content, "serif-bold"):
 
 
