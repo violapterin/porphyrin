@@ -1,6 +1,25 @@
+import tissue
+import tree
+import leaf
+import error
 
-class Leaf(tree.Flesh):
 
-class Vein(tree.Flesh):
+class Verbatim(Leaf):
 
-class Apex(tree.Skin):
+   def write(self):
+      pass
+
+class Alternative(Leaf):
+
+   def write(self):
+      pass
+
+class Traditional(Leaf):
+
+   def write(self):
+      pass
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+

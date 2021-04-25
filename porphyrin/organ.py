@@ -3,10 +3,16 @@
 import sys
 
 import tree
-import bough
 import leaf
+import leaflet
 import error
 
+# Document
+# Section, Stanza, Table, Image, Break,
+# Paragraph, Line, Row,
+# Sentence, Verse, Cell
+# Serif_roman, Serif_italic, Serif_bold, Serif_roman, Serif_bold
+# Traditional, Alternative, Verbatim
 
 filename_in = sys.argv[1]
 filename_out = sys.argv[2]
@@ -14,41 +20,21 @@ convert(filename_in, filename_out)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Tree > Bough > Twig > Frond >
-#    Leaflet
-#    Leaf > Vein > Apex
-
-# `parse`, and `write` are:
-# inherited for Bough, Twig, Frond
-# virtual for Leaf, Leaflet, Vein, Apex
-
-
-class Flesh(Tissue):
+class Stem(Organ):
 
    def __init__(self, **data):
       super().__init__(**data)
       self.sinks = []
 
-   def write(self):
-      result = ''
-      for sink in self.sinks:
-         result += tree.write()
-      return result
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Skin(Tissue):
+class Leaf(Organ):
 
    def __init__(self, **data):
       super().__init__(**data)
       self.sink = ''
 
-   def write(self):
-      pass
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Tissue(object):
+class Organ(object):
 
    def __init__(self, **data):
       self.source = data.pop("source", '')
@@ -57,19 +43,14 @@ class Tissue(object):
       self.count_line = data.pop("count_line", 0)
       self.count_character = data.pop("count_character", 0)
 
-   def copy(self):
-      data = {
-         source = self.source,
-         place = self.place,
-         leftmost = self.leftmost,
-         rightmost = self.rightmost
-      }
-      return Tissue(**data)
+   def parse(self):
+      pass
 
-   def snip(self):
+   def write(self):
+      pass
+
+   def snip(self, source):
       head = 0
-      # head_mark_left, head_mark_right
-      # head_source_left, head_source_right
       mark = probe_mark(source)
       tip = mark[0]
       label = get_label(tip)
@@ -131,6 +112,13 @@ class Tissue(object):
       result += ", character " + self.count_character
       return result
 
+   def write_tag(self, tag, kind):
+      result = ''
+      result += '<' + tag + ' '
+      result += "class=" + kind + ">"
+      result += self.write_element()
+      result += "<class" + "/>"
+      return result
 
    def get_label(tip):
       labels = get_labels()
@@ -152,7 +140,7 @@ class Tissue(object):
          '$': "sans_normal",
          '&': "sans_bold",
          '`': "monospace",
-         '+': "highlight",
+         '+': "verbatim",
          '*': "alternative",
          '^': "traditional",
          '=': "section",

@@ -1,9 +1,9 @@
-import main
+import tissue
 import tree
-import bough
+import leaflet
 import error
 
-class Leaflet(tree.Tissue):
+class Leaflet(tissue.Stem):
 
    def parse(self):
       while not self.source:
@@ -87,7 +87,7 @@ class Leaflet(tree.Tissue):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Serif_roman(Leaf):
+class Serif_roman(Leaflet):
 
    def __init__(self, **data):
       self.source = data.pop("source", ''),
@@ -106,7 +106,7 @@ class Serif_roman(Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Serif_italic(Leaf):
+class Serif_italic(Leaflet):
 
    def __init__(self, **data):
       self.source = data.pop("source", ''),
@@ -125,7 +125,7 @@ class Serif_italic(Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Serif_bold(Leaf):
+class Serif_bold(Leaflet):
 
    def __init__(self, **data):
       self.source = data.pop("source", ''),

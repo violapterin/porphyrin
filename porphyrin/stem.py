@@ -1,17 +1,9 @@
-import tree
+import tissue
 import leaf
+import leaflet
 import error
-import main
 
-class Tree(Tissue):
-
-   def __init__(self, **data):
-      self.source = data.pop("source", '')
-      self.place = Place()
-      self.sink = []
-      self.leftmost = ''
-      self.rightmost = ''
-      self.head = 0
+class Document(tissue.Stem):
 
    def parse(self):
       while not self.source:
@@ -30,57 +22,28 @@ class Tree(Tissue):
 
    def write(self):
       result = ''
-      for tree in self.treees:
-         result += tree.write()
-      return result
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-
-class Bough(tree.Flesh):
-
-   def __init__(self, **data):
-      self.source = data.pop("source", ''),
-      self.place = data.pop("place", Place()),
-      self.leftmost = data.pop("leftmost", '')
-      self.rightmost = data.pop("rightmost", '')
-      self.sinks = []
-
-   def write(self):
-      pass
-
-   def write_tag(self):
-      result = ''
-      result += "<div" + ' '
-      result += "class=" + self.kind + ">"
-      result += self.write_element()
-      result += "<class" + "/>"
-      return result
-
-   def write_element(self):
-      result = ''
-      for leaf in sink:
-         result += leaf.write()
+      for bough in self.sinks:
+         bough.prune()
+         result += bough.write()
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Section(Bough):
+class Section(tissue.Stem):
 
    kind = "Section"
 
    def write(self):
       return self.write_tag():
 
-class Stanza(Bough):
+class Stanza(tissue.Stem):
 
    kind = "stanza"
 
    def write(self):
       return self.write_tag():
 
-class Table(Bough):
+class Table(tissue.Stem):
 
    kind = "table"
 
@@ -97,7 +60,7 @@ class Break(object):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Twig(tree.Flesh):
+class Twig(tree.Stem):
 
    def __init__(self, **data):
       self.source = data.pop("source", ''),
@@ -151,47 +114,94 @@ class Twig(tree.Flesh):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraph(Bough):
+class Paragraph(tissue.Stem):
 
+   def parse(self):
+      pass
 
    def write(self):
       return self.write_tag("paragraph"):
 
 
-class Line(object):
+class Line(tissue.Stem):
 
-   def write(self):
-      return self.write_tag("line"):
-
-
-class Row(object):
-
-   def write(self):
-      return self.write_tag("row"):
+   def parse(self):
+      pass
 
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+class Row(tissue.Stem):
 
-class Frond(tree.Flesh):
+   def parse(self):
+      pass
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Sentence(object):
+class Sentence(tissue.Stem):
 
-   def write(self):
-      return self.write_tag("sentence")
+   def parse(self):
+      while not self.source:
+         self.element, self.mark = self.snip()
+         label = get_label_from_mark(mark)
+         fragment_left = self.find_fragment_left()
+         fragment_right = self.find_fragment_right()
+         data = {
+             "place" : self.place,
+             "fragment_left" : fragment_left,
+             "mark" : mark,
+             "fragment_right" : fragment_right
+         }
+         if (be_leaf_label(label)):
+             error.outer_scope_leaf(**data)
+         if (label == "serif-roman"):
+            leaf = Serif_roman()
+         elif (label == "serif-italic"):
+            label = Serif_italic
+         elif (label == "serif-bold"):
+            label = Serif_bold
+         elif (label == "sans-normal"):
+            label = Sans_normal
+         elif (label == "sans-bold"):
+            label = Sans_bold
+         # ...
 
-class Verse(object):
+class Verse(tissue.Stem):
 
-   def write(self):
-      return self.write_tag("verse")
+   def parse(self):
+      while not self.source:
+         self.element, self.mark = self.snip()
+         label = get_label_from_mark(mark)
+         fragment_left = self.find_fragment_left()
+         fragment_right = self.find_fragment_right()
+         data = {
+             "place" : self.place,
+             "fragment_left" : fragment_left,
+             "mark" : mark,
+             "fragment_right" : fragment_right
+         }
+         if (be_leaf_label(label)):
+             error.outer_scope_leaf(**data)
+         if (label == "serif-roman"):
+            leaf = Serif_roman()
 
-class Cell(object):
+class Cell(tissue.Stem):
 
-   kind = "cell"
-
-   def write(self):
-      return self.write_tag("cell")
+   def parse(self):
+      while not self.source:
+         self.element, self.mark = self.snip()
+         label = get_label_from_mark(mark)
+         fragment_left = self.find_fragment_left()
+         fragment_right = self.find_fragment_right()
+         data = {
+             "place" : self.place,
+             "fragment_left" : fragment_left,
+             "mark" : mark,
+             "fragment_right" : fragment_right
+         }
+         if (be_leaf_label(label)):
+             error.outer_scope_leaf(**data)
+         if (label == "serif-roman"):
+            leaf = Serif_roman()
 
 
 
