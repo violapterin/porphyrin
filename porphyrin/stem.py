@@ -1,4 +1,4 @@
-import tissue
+import organ
 import leaf
 import leaflet
 import error
@@ -6,17 +6,23 @@ import error
 class Document(tissue.Stem):
 
    def parse(self):
-      while not self.source:
-         content, mark = self.snip()
-         kind = get_kind_tree(mark)
-         fragment_left = self.find_fragment_left()
-         fragment_right = self.find_fragment_right()
+      head = 0
+      while not head = self.source.size():
+         content, label = self.snip(self.source)
+         data_caution = {
+            fragment_left = self.find_fragment_left(),
+            fragment_right = self.find_fragment_right(),
+            count_line = self.count_line,
+            count_character = self.count_character,
+         }
          if (kind == 0):
-         error.outer_scope_leaf(
-                   place = self.place,
-                   fragment_left = fragment_left,
-                   mark = mark,
-                   fragment_right = fragment_right)
+            caution = Caution()
+            error.outer_scope_leaf(
+               place = self.place,
+               fragment_left = fragment_left,
+               mark = mark,
+               fragment_right = fragment_right
+            )
 
          self.push(leaf)
 

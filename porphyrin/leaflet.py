@@ -1,5 +1,5 @@
-import tissue
-import tree
+import organ
+import stem
 import leaf
 import error
 

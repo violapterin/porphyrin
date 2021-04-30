@@ -1,14 +1,14 @@
-import tissue
-import tree
+import organ
+import stem
 import leaf
 import leaflet
 
 class Caution(forest.Piece)
 
-   def __init__(self, **data_in):
-      token = data.pop(token, '')
-      fragment_left = data.pop(fragment_left, '')
-      fragment_right = data.pop(fragment_right, '')
+   def __init__(self, **data):
+      self.token = data.pop(token, '')
+      self.fragment_left = data.pop("fragment_left", '')
+      self.fragment_right = data.pop("fragment_right", '')
       self.count_line = data.pop("count_line", 0)
       self.count_character = data.pop("count_character", 0)
       message_left = ''

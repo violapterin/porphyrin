@@ -2,7 +2,7 @@
 
 import sys
 
-import tree
+import stem
 import leaf
 import leaflet
 import error
@@ -49,33 +49,33 @@ class Organ(object):
    def write(self):
       pass
 
-   def snip(self, source):
-      head = 0
+   def snip(self, head_mark_left):
       mark = probe_mark(source)
-      tip = mark[0]
-      label = get_label(tip)
+      label = get_label(mark)
       segments = source.split(mark, 2)
       content = segments[1]
-      leftmost_mark = get_left(self.head + mark.size)
-      rightmost_mark = get_right(self.head + mark.size)
-      rightmost_content = get_right(self.head + mark.size + content.size)
-      place_content = self.place.increase(2 * mark.size + content.size)
-      data_tissue = {
+      head_content_left = head + mark.size
+      head_content_right = head + mark.size + content.size
+      head_mark_right = head + 2 * mark.size + content.size
+      data_organ = {
          source = content,
-         place = self.place,
-         left = self.get_left(head),
-         right = self.get_right(head))
+         leftmost = get_left(head_content_left)
+         rightmost = get_right(head_content_right)
+         count_line = increase_count_line(head, mark)
+         count_character = increase_count_character(head, mark)
       }
       data_caution = {
-         place = self.place,
-         place = self.place,
-         left = self.get_left(head),
-         right = self.get_right(head))
+         source = content,
+         fragment_left = get_left(head_mark_left)
+         fragment_right = get_right(head_content_left)
+         count_line = self.count_line
+         count_character = self.count_character
       }
       if (label = None):
-         error.Match_boundary_bough(**data)
-      # if not mark ...
-      self.place.increase(thing)
+         error.Match_boundary_bough(**data_caution)
+      if (label = "serif_normal"):
+         sinks.append(Serif_normal(data_organ))
+    
       return content, label
 
 
@@ -89,7 +89,7 @@ class Organ(object):
       segments = self.right.split('\n')
       return segments[0]
 
-   def probe_mark[(self, source):
+   def probe_mark(self, source):
       tip = source[0]
       probe = 0
       for probe in range(source.size):
@@ -97,14 +97,24 @@ class Organ(object):
             probe += 1
       mark = source[: probe]
 
-   def increase_place(self, thing):
-      segments = thing.split('\n')
+   def increase_count_character(self, count_in, source):
+      count_out = count_in
+      segments = source.split('\n')
       size = segments.size
       if (segments.size == 0):
-         self.count_character += segments[-1].size - 1
+         count_out += segments[-1].size - 1
       elif
-         self.count_line += size - 1
-         self.count_character = segments[-1].size - 1
+         count_out = segments[-1].size - 1
+      return count_out
+      
+
+   def increase_count_line(self, count_in, source):
+      count_out = count_in
+      segments = source.split('\n')
+      size = segments.size
+      if not (segments.size == 0):
+         count_out += size - 1
+      return count_out
 
    def emit_place():
       result = ''
@@ -120,7 +130,8 @@ class Organ(object):
       result += "<class" + "/>"
       return result
 
-   def get_label(tip):
+   def get_label(mark):
+      tip = mark[0]
       labels = get_labels()
       if tip not in labels:
          return None
