@@ -8,23 +8,9 @@ class Document(tissue.Stem):
    def parse(self):
       head = 0
       while not head = self.source.size():
-         content, label = self.snip(self.source)
-         data_caution = {
-            fragment_left = self.find_fragment_left(),
-            fragment_right = self.find_fragment_right(),
-            count_line = self.count_line,
-            count_character = self.count_character,
-         }
-         if (kind == 0):
-            caution = Caution()
-            error.outer_scope_leaf(
-               place = self.place,
-               fragment_left = fragment_left,
-               mark = mark,
-               fragment_right = fragment_right
-            )
+         organ, head = self.snip(head)
+         sinks.append(organ)
 
-         self.push(leaf)
 
    def write(self):
       result = ''
@@ -40,21 +26,21 @@ class Section(tissue.Stem):
    kind = "Section"
 
    def write(self):
-      return self.write_tag():
+      return self.write_tag()
 
 class Stanza(tissue.Stem):
 
    kind = "stanza"
 
    def write(self):
-      return self.write_tag():
+      return self.write_tag()
 
 class Table(tissue.Stem):
 
    kind = "table"
 
    def write(self):
-      return self.write_tag():
+      return self.write_tag()
 
 class Image(object):
 

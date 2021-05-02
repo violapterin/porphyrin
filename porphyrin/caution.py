@@ -3,7 +3,7 @@ import stem
 import leaf
 import leaflet
 
-class Caution(forest.Piece)
+class Caution(forest.Piece):
 
    def __init__(self, **data):
       self.token = data.pop(token, '')
@@ -35,40 +35,37 @@ class Caution(forest.Piece)
    def cease(self):
       raise SystemExit()
 
-class Not_recognized_mark_tree(Caution):
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Not_recognizing_mark_bough(Caution):
 
    message_left = "Token",
-   message_right = "is not a tree opening mark."
+   message_right = "is not a bough opening mark."
 
-class not_recognized_mark_tree(Caution):
+class Not_recognizing_mark_leaf(Caution):
 
    message_left = "Token",
-   message_right = "is not a tree opening mark."
+   message_right = "is not a leaf opening mark."
 
-class warn_not_matched_mark_tree(Caution):
+class Not_matching_mark_bough(Caution):
 
-   message_left = "Tree opening mark",
+   message_left = "Bough opening mark"
    message_right = "is not matched."
 
-class warn_not_recognized_mark_leaf(Caution):
+class Not_recognized_mark_leaf(Caution):
 
-   message_left = "Token",
-   message_right = "is not an leaf opening mark."
-
-class warn_not_matched_mark_leaf(Caution):
-
-   message_left = "Leaf opening mark",
+   message_left = "Leaf opening mark"
    message_right = "is not matched."
 
-class warn_outer_scope_leaf(Caution):
+class Occurring_outer_scope_leaf(Caution):
 
-   message_left = "Leaf",
+   message_left = "Leaf"
    message_right = "cannot occur in the outer scope."
 
-class warn_inner_scope_tree(Caution):
+class Occurring_inner_scope_bough(Caution):
 
-   message_left = "Tree",
-   message_right = "cannot occur in the outer scope."
+   message_left = "Tree"
+   message_right = "cannot occur in the inner scope."
 
 # def table_column_not_match
 

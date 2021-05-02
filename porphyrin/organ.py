@@ -50,6 +50,8 @@ class Organ(object):
       pass
 
    def snip(self, head_mark_left):
+      count_line = increase_count_line(head, head_mark_left)
+      count_character = increase_count_character(head, head_mark_left)
       mark = probe_mark(source)
       label = get_label(mark)
       segments = source.split(mark, 2)
@@ -58,23 +60,26 @@ class Organ(object):
       head_content_right = head + mark.size + content.size
       head_mark_right = head + 2 * mark.size + content.size
       data_organ = {
-         source = content,
-         leftmost = get_left(head_content_left)
-         rightmost = get_right(head_content_right)
-         count_line = increase_count_line(head, mark)
-         count_character = increase_count_character(head, mark)
+         "source": content,
+         "leftmost": get_left(head_content_left),
+         "rightmost": get_right(head_content_right),
+         "count_line": increase_count_line(head_mark_left, mark),
+         "count_character": increase_count_character(head_mark_left, mark),
       }
       data_caution = {
-         source = content,
-         fragment_left = get_left(head_mark_left)
-         fragment_right = get_right(head_content_left)
-         count_line = self.count_line
-         count_character = self.count_character
+         "token": mark,
+         "fragment_left": get_left(head_mark_left),
+         "fragment_right": get_right(head_content_left),
+         "count_line": increase_count_line(head_mark_left, mark),
+         "count_character": increase_count_character(head_mark_left, mark),
       }
-      if (label = None):
-         error.Match_boundary_bough(**data_caution)
-      if (label = "serif_normal"):
-         sinks.append(Serif_normal(data_organ))
+
+
+      if (label == None):
+         caution = Caution(**data_caution)
+         caution.Not_match_boundary_bough(**data_caution)
+      if (label == "serif_normal"):
+         sinks.append(Serif_normal(**data_organ))
     
       return content, label
 
@@ -97,19 +102,19 @@ class Organ(object):
             probe += 1
       mark = source[: probe]
 
-   def increase_count_character(self, count_in, source):
-      count_out = count_in
+   def increase_count_character(self, head, source):
+      count_out = self.count_character
       segments = source.split('\n')
       size = segments.size
       if (segments.size == 0):
          count_out += segments[-1].size - 1
-      elif
+      else:
          count_out = segments[-1].size - 1
       return count_out
       
 
-   def increase_count_line(self, count_in, source):
-      count_out = count_in
+   def increase_count_line(self, head, source):
+      count_out = self.count_line
       segments = source.split('\n')
       size = segments.size
       if not (segments.size == 0):
@@ -128,6 +133,23 @@ class Organ(object):
       result += "class=" + kind + ">"
       result += self.write_element()
       result += "<class" + "/>"
+      return result
+
+   def write_tag(self, element, kind):
+      result = ''
+      result += "<span" + ' '
+      result += "class=" + kind + ">"
+      for leaf in self.sink:
+         result += leaf.write()
+      result += "<span" + "/>"
+      return result
+
+   def write_comment(self, element):
+      result = ''
+      result += "<!-- "
+      for leaf in self.sink:
+         result += leaf.write()
+      result += " -->"
       return result
 
    def get_label(mark):
@@ -173,10 +195,40 @@ class Organ(object):
       tips = {label: tip for tip, label in labels.items()}
       return tips
 
+
+   def tune_text(source):
+      result = ignore_mark_text(source)
+      result = adjust_space(result)
+      return result
+
+   def tune_code(source):
+      result = adjust_space(source)
+      return result
+
+   def adjust_space(source):
+      spaces = {'\n', '\t'}
+      result = erase_character(source, spaces)
+      result = ' '.join(result.split())
+      return result
+
+   def ignore_mark_text(source):
+      marks_ignored = {'<', '>', '@', '#', '$', '%', '&'}
+      result = erase_character(source, marks_ignored)
+      return result
+
+   def remove_character(source, group):
+      for symbol in group:
+         source = source.translate(source.maketrans(symbol: ''))
+      return source
+
+   def erase_character(source, group):
+      for symbol in group:
+         source = source.translate(source.maketrans(symbol: ' '))
+      return source
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-
-def convert(name_in, name_out)
+def convert(name_in, name_out):
    file_in = open(sys.argv[1], mode = 'r')
    source = file_in.read()
    file_in.close()
