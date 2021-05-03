@@ -3,7 +3,7 @@ import stem
 import leaf
 import leaflet
 
-class Caution(forest.Piece):
+class Caution(object):
 
    def __init__(self, **data):
       self.token = data.pop(token, '')
@@ -52,7 +52,7 @@ class Not_matching_mark_bough(Caution):
    message_left = "Bough opening mark"
    message_right = "is not matched."
 
-class Not_recognized_mark_leaf(Caution):
+class Not_recognizing_mark_leaf(Caution):
 
    message_left = "Leaf opening mark"
    message_right = "is not matched."
@@ -64,7 +64,7 @@ class Occurring_outer_scope_leaf(Caution):
 
 class Occurring_inner_scope_bough(Caution):
 
-   message_left = "Tree"
+   message_left = "Bough"
    message_right = "cannot occur in the inner scope."
 
 # def table_column_not_match
