@@ -7,20 +7,16 @@ import stem as STEM
 import leaflet as LEAFLET
 import caution as CAUTION
 
-def make(relative_in, relative_out):
+def make(folder_in, folder_out):
    EXTENSION = ".ppr"
-   folder_this = os.path.dirname(__file__)
-   folder_in = os.path.join(folder_this, relative_in)
-   folder_out = os.path.join(folder_this, relative_out)
    things_in = os.scandir(folder_in)
-
    for thing in things_in:
-      if not thing.is_file():
-         print("Warning")
-         continue
       name_in = thing.name
+      if not thing.is_file():
+         print("Warning: ", name_in, " is not a file.")
+         continue
       if not name_in.endswith(EXTENSION):
-         print("Warning")
+         print("Warning: ", name_in, " does not end in \"", EXTENSION, '\"')
          continue
       name_out = os.path.join(folder_out, name_in)
       if os.path.isfile(name_out):

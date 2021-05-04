@@ -2,7 +2,23 @@ import organ as ORGAN
 import stem as STEM
 import caution as CAUTION
 
-class Serif_roman(ORGAN.Leaflet):
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Leaflet(Organ):
+
+   def __init__(self, **data):
+      super().__init__(**data)
+      self.sink = ''
+
+   def parse(self):
+      pass
+
+   def write(self):
+      pass
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Serif_roman(Leaflet):
 
    kind = "serif-roman"
 
@@ -12,7 +28,7 @@ class Serif_roman(ORGAN.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Serif_italic(ORGAN.Leaflet):
+class Serif_italic(Leaflet):
 
    kind = "serif-italic"
 
@@ -22,7 +38,7 @@ class Serif_italic(ORGAN.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Serif_bold(ORGAN.Leaflet):
+class Serif_bold(Leaflet):
 
    kind = "serif-bold"
 
@@ -32,7 +48,7 @@ class Serif_bold(ORGAN.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Sans_roman(ORGAN.Leaflet):
+class Sans_roman(Leaflet):
 
    kind = "sans-roman"
 
@@ -42,7 +58,7 @@ class Sans_roman(ORGAN.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Sans_bold(ORGAN.Leaflet):
+class Sans_bold(Leaflet):
 
    kind = "sans-bold"
 
@@ -51,5 +67,4 @@ class Sans_bold(ORGAN.Leaflet):
 
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
-
 

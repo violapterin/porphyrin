@@ -2,14 +2,33 @@ import organ as ORGAN
 import leaflet as LEAFLET
 import caution as CAUTION
 
-class Document(ORGAN.Stem):
+
+class Stem(Organ):
+
+   def __init__(self, **data):
+      super().__init__(**data)
+      self.sinks = []
+
+   def __copy__(self, organ):
+      self.__init__(organ.give_data())
+      self.sinks.append(organ)
+
+   def parse(self):
+      pass
+
+   def write(self):
+      pass
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Document(Stem):
 
    kine = "document"
 
    def parse(self):
       head = 0
       while head <= self.source.size() - 1:
-         organ, head = self.snip(head)
+         organ, head = self.snip_bough(head)
          sinks.append(organ)
 
    def write(self):
@@ -20,9 +39,21 @@ class Document(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Section(ORGAN.Stem):
+class Section(Stem):
 
    kind = "section"
+
+   def parse(self):
+      head = 0
+      BE_NEWLINE = False
+      while head <= self.source.size() - 1:
+         organ, head = self.snip_twig(head)
+         if (organ.kind == "newline")
+            BE_NEWLINE = True
+         if (organ.kind == "space")
+            sinks[-1].
+         sinks.append(organ)
+
 
    def write(self):
       element = ''
@@ -30,7 +61,7 @@ class Section(ORGAN.Stem):
          element += twig.write()
       return self.write_block_tag(element, self.kind)
 
-class Stanza(ORGAN.Stem):
+class Stanza(Stem):
 
    kind = "stanza"
 
@@ -40,7 +71,7 @@ class Stanza(ORGAN.Stem):
          element += twig.write()
       return self.write_block_tag(element, self.kind)
 
-class Table(ORGAN.Stem):
+class Table(Stem):
 
    kind = "table"
 
@@ -66,7 +97,9 @@ class Break(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraph(ORGAN.Stem):
+class Paragraph(Stem):
+
+   kind = "paragraph"
 
    def parse(self):
       pass
@@ -74,8 +107,9 @@ class Paragraph(ORGAN.Stem):
    def write(self):
       return self.write_tag("paragraph")
 
+class Line(Stem):
 
-class Line(ORGAN.Stem):
+   kind = "line"
 
    def parse(self):
       pass
@@ -83,7 +117,9 @@ class Line(ORGAN.Stem):
    def write(self):
       return self.write_tag("line")
 
-class Row(ORGAN.Stem):
+class Row(Stem):
+
+   kind = "row"
 
    def parse(self):
       pass
@@ -93,7 +129,7 @@ class Row(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Sentence(ORGAN.Stem):
+class Sentence(Stem):
 
    def parse(self):
       while not self.source:
@@ -121,7 +157,7 @@ class Sentence(ORGAN.Stem):
             label = Sans_bold
          # ...
 
-class Verse(ORGAN.Stem):
+class Verse(Stem):
 
    def parse(self):
       while not self.source:
@@ -140,7 +176,7 @@ class Verse(ORGAN.Stem):
          if (label == "serif-roman"):
             leaf = Serif_roman()
 
-class Cell(ORGAN.Stem):
+class Cell(Stem):
 
    def parse(self):
       while not self.source:
@@ -161,7 +197,7 @@ class Cell(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Verbatim(ORGAN.Stem):
+class Verbatim(Stem):
 
    def parse(self):
       pass
@@ -169,7 +205,7 @@ class Verbatim(ORGAN.Stem):
    def write(self):
       pass
 
-class Alternative(ORGAN.Stem):
+class Alternative(Stem):
 
    def parse(self):
       pass
@@ -177,7 +213,7 @@ class Alternative(ORGAN.Stem):
    def write(self):
       pass
 
-class Traditional(ORGAN.Stem):
+class Traditional(Stem):
 
    def parse(self):
       pass
@@ -186,5 +222,3 @@ class Traditional(ORGAN.Stem):
       pass
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-

@@ -50,77 +50,43 @@ class Organ(object):
          caution = Occurring_outer_scope_leaf(**data_caution)
          CAUTION.panic()
 
-      if (label == "serif_normal"):
+      if (label == "SECTION"):
          sinks.append(STEM.Section(**data_organ))
-      if (label == "serif_italic"):
+      if (label == "STANZA"):
          sinks.append(STEM.Stanza(**data_organ))
-      if (label == "table"):
+      if (label == "TABLE"):
          sinks.append(STEM.Table(**data_organ))
-      if (label == "image"):
+      if (label == "IMAGE"):
          sinks.append(STEM.Image(**data_organ))
-      if (label == "break"):
+      if (label == "BREAK"):
          sinks.append(STEM.Break(**data_organ))
-
-      return content, head_mark_right
-
-   def snip_leaf(self, head_mark_left):
-      mark = probe_mark(source)
-      label = get_label(mark)
-      segments = source.split(mark, 2)
-      content = segments[1]
-      head_content_left = head + mark.size
-      head_content_right = head + mark.size + content.size
-      head_mark_right = head + 2 * mark.size + content.size
-
-      data_organ = {
-         "source": content,
-         "leftmost": get_left(head_content_left),
-         "rightmost": get_right(head_content_right),
-         "count_line": get_next_count_line(head_content_left),
-         "count_character": get_next_count_character(head_content_left),
-      }
-      data_caution = {
-         "token": mark,
-         "fragment_left": get_left(head_mark_left),
-         "fragment_right": get_right(head_content_left),
-         "count_line": get_next_count_line(head_mark_left),
-         "count_character": get_next_count_character(head_mark_left),
-      }
-
-      if (label == None):
-         caution = Not_match_boundary_bough(**data_caution)
-         CAUTION.panic()
-      if (self.be_label_bough(label)):
-         caution = Occurring_inner_scope_bough(**data_caution)
-         CAUTION.panic()
-
-      if (label == "serif_normal"):
-         sinks.append(LEAFLET.Serif_normal(**data_organ))
-      if (label == "serif_italic"):
-         sinks.append(LEAFLET.Serif_italic(**data_organ))
-      if (label == "serif_bold"):
-         sinks.append(LEAFLET.Serif_bold(**data_organ))
-      if (label == "sans_normal"):
-         sinks.append(LEAFLET.Sans_normal(**data_organ))
-      if (label == "sans_bold"):
-         sinks.append(LEAFLET.Sans_bold(**data_organ))
-
-      if (label == "math_old"):
-         sinks.append(LEAFLET.Math_old(**data_organ))
-      if (label == "math_new"):
-         sinks.append(LEAFLET.Math_new(**data_organ))
-      if (label == "monospace"):
-         sinks.append(LEAFLET.Monospace(**data_organ))
 
       return content, head_mark_right
 
    def snip_twig(self, head_mark_left):
-      mark = get_mark("newline")
-      segments = source.split(mark, 1)
-      content = segments[0]
-      head_content_left = head + mark.size
-      head_content_right = head + mark.size + content.size
-      head_mark_right = head + 2 * mark.size + content.size
+      mark = probe_mark(source)
+      label = get_label(mark)
+
+      data_organ = {
+         "leftmost": get_left(head_mark_left),
+         "rightmost": get_right(head_mark_right),
+         "count_line": self.count_line,
+         "count_character": self.count_character,
+      }
+      if (label == "SPACE"):
+         segments = source.split(mark, 1)
+         head_mark_right = head_mark_right + mark.size
+         return LEAFLET.Space(**data_organ), head_mark_right
+      if (label == "NEWLINE"):
+         segments = source.split(mark, 1)
+         head_mark_right = head_mark_right + mark.size
+         return LEAFLET.Newline(**data_organ), head_mark_right
+
+      segments = source.split(mark, 2)
+      content = segments[1]
+      head_content_left = head_mark_left + mark.size
+      head_content_right = head_mark_left + mark.size + content.size
+      head_mark_right = head_mark_left + 2 * mark.size + content.size
 
       data_organ = {
          "source": content,
@@ -138,22 +104,29 @@ class Organ(object):
       }
 
       if (label == None):
-         caution = Not_match_boundary_bough(**data_caution)
-         CAUTION.panic()
-      if (self.be_label_leaf(label)):
-         caution = Occurring_outer_scope_leaf(**data_caution)
-         CAUTION.panic()
+         caution = CAUTION.Not_match_boundary_bough(**data_caution)
+         caution.panic()
+      if (self.be_label_bough(label)):
+         caution = CAUTION.Occurring_inner_scope_bough(**data_caution)
+         caution.panic()
 
-      if (label == "serif_normal"):
-         sinks.append(STEM.Section(**data_organ))
-      if (label == "serif_italic"):
-         sinks.append(STEM.Stanza(**data_organ))
-      if (label == "table"):
-         sinks.append(STEM.Table(**data_organ))
-      if (label == "image"):
-         sinks.append(STEM.Image(**data_organ))
-      if (label == "break"):
-         sinks.append(STEM.Break(**data_organ))
+      if (label == "SERIF_NORMAL"):
+         sinks.append(LEAFLET.Serif_normal(**data_organ))
+      if (label == "SERIF_ITALIC"):
+         sinks.append(LEAFLET.Serif_italic(**data_organ))
+      if (label == "SERIF_BOLD"):
+         sinks.append(LEAFLET.Serif_bold(**data_organ))
+      if (label == "SANS_NORMAL"):
+         sinks.append(LEAFLET.Sans_normal(**data_organ))
+      if (label == "SANS_BOLD"):
+         sinks.append(LEAFLET.Sans_bold(**data_organ))
+
+      if (label == "MATH_OLD"):
+         sinks.append(LEAFLET.Math_old(**data_organ))
+      if (label == "MATH_NEW"):
+         sinks.append(LEAFLET.Math_new(**data_organ))
+      if (label == "MONOSPACE"):
+         sinks.append(LEAFLET.Monospace(**data_organ))
 
       return content, head_mark_right
 
@@ -230,47 +203,56 @@ class Organ(object):
 
    def give_labels(self):
       labels = {
-         '@': "serif_normal",
-         '%': "serif_italic",
-         '#': "serif_bold",
-         '$': "sans_normal",
-         '&': "sans_bold",
-         '+': "monospace",
-         '*': "math_new",
-         '^': "math_old",
-         '=': "section",
-         '/': "stanza",
-         '\"': "table",
-         '|': "image",
-         '_': "tab",
-         '\'': "pause",
-         '~': "break",
-         '\\': "link",
-         '<': "comment_left",
-         '>': "comment_right",
+         '@': "SERIF_NORMAL",
+         '%': "SERIF_ITALIC",
+         '#': "SERIF_BOLD",
+         '$': "SANS_NORMAL",
+         '&': "SANS_BOLD",
+         '+': "MONOSPACE",
+         '*': "MATH_NEW",
+         '^': "MATH_OLD",
+         '=': "SECTION",
+         '/': "STANZA",
+         '\"': "TABLE",
+         '|': "IMAGE",
+         '_': "SPACE",
+         '\'': "NEWLINE",
+         '~': "BREAK",
+         '\\': "LINK",
+         '<': "COMMENT_LEFT",
+         '>': "COMMENT_RIGHT",
       }
       return labels
 
-   def be_label_leaf(leaf):
+   def give_data(self):
+      return {
+         "source": self.source,
+         "leftmost": self.leftmost,
+         "rightmost": self.rightmost,
+         "count_line": self.count_line,
+         "count_character": self.count_character,
+      }
+
+   def leaf_be_label(self, leaf):
       labels_leaf = set([
-         "serif_normal",
-         "serif_italic",
-         "serif_bold",
-         "sans_normal",
-         "sans_bold",
-         "monospace",
-         "math_new",
-         "math_old",
+         "SERIF_NORMAL",
+         "SERIF_ITALIC",
+         "SERIF_BOLD",
+         "SANS_NORMAL",
+         "SANS_BOLD",
+         "MONOSPACE",
+         "MATH_NEW",
+         "MATH_OLD",
       ])
       return (label in labels_leaf)
 
-   def be_label_bough(leaf):
+   def bough_be_label(self, leaf):
       labels_bough = set([
-         "paragraph",
-         "section",
-         "stanza",
-         "image",
-         "break",
+         "PARAGRAPH",
+         "SECTION",
+         "STANZA",
+         "IMAGE",
+         "BREAK",
       ])
       return (label in labels_bough)
 
@@ -309,30 +291,6 @@ class Organ(object):
          source = source.translate(source.maketrans(symbol, ' '))
       return source
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Stem(Organ):
-
-   def __init__(self, **data):
-      super().__init__(**data)
-      self.sinks = []
-
-   def parse(self):
-      pass
-
-   def write(self):
-      pass
-
-class Leaf(Organ):
-
-   def __init__(self, **data):
-      super().__init__(**data)
-      self.sink = ''
-
-   def parse(self):
-      pass
-
-   def write(self):
-      pass
 
 
