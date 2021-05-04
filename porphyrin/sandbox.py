@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
-import organ as OG
-import stem as S
-import leaf as L
-import caution as CT
+import organ as ORGAN
+import stem as STEM
+import leaflet as LEAFLET
+import caution as CAUTION
 
 class Cat():
    kind = "cat"

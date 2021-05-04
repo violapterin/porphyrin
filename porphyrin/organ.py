@@ -1,6 +1,13 @@
-import stem as S
-import leaf as L
-import caution as CT
+import stem as STEM
+import leaflet as LEAFLET
+import caution as CAUTION
+
+# Stem: Document
+# Stem (bough): Section, Stanza, Table, Image, Break,
+# Stem (twig): Paragraph, Line, Row,
+# Stem (frond): Sentence, Verse, Cell
+# Stem (leaf): Math old, Math new, Monospace
+# Leaflet: Serif roman, Serif italic, Serif bold, Sans roman, Sans bold
 
 class Organ(object):
 

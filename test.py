@@ -4,11 +4,6 @@ import os
 
 import porphyrin as PORPHYRIN
 
-
-FOLDER_IN = "test-in"
-FOLDER_OUT = "test-in"
-
-for filename_in in FOLDER_IN:
-   filename_out = #XXX
-   PORPHYRIN.convert(filename_in, filename_out)
-
+RELATIVE_IN = "test-in"
+RELATIVE_OUT = "test-out"
+PORPHYRIN.main.convert(RELATIVE_IN, RELATIVE_OUT)

@@ -1,6 +1,6 @@
-import organ as OG
-import leaf as L
-import caution as CT
+import organ as ORGAN
+import leaflet as LEAFLET
+import caution as CAUTION
 
 class Document(ORGAN.Stem):
 
@@ -159,6 +159,32 @@ class Cell(ORGAN.Stem):
          if (label == "serif-roman"):
             leaf = Serif_roman()
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+class Verbatim(ORGAN.Stem):
+
+   def parse(self):
+      pass
+
+   def write(self):
+      pass
+
+class Alternative(ORGAN.Stem):
+
+   def parse(self):
+      pass
+
+   def write(self):
+      pass
+
+class Traditional(ORGAN.Stem):
+
+   def parse(self):
+      pass
+
+   def write(self):
+      pass
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 

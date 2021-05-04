@@ -1,6 +1,6 @@
-import organ as OG
-import stem as S
-import leaf as L
+import organ as ORGAN
+import stem as STEM
+import leaflet as LEAFLET
 
 class Caution(object):
 
@@ -13,14 +13,11 @@ class Caution(object):
       message_left = ''
       message_right = ''
 
-   def warn(self):
-      self.emit()
-
    def panic(self):
-      self.emit()
+      self.warn()
       self.cease()
 
-   def emit(self):
+   def warn(self):
       color_stress = "\033[93m"
       color_normal = "\033[0m"
       print("At ", place.emit(), ":\n")

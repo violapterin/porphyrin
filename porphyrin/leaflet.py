@@ -1,6 +1,6 @@
-import organ as OG
-import stem as S
-import caution as CT
+import organ as ORGAN
+import stem as STEM
+import caution as CAUTION
 
 class Serif_roman(ORGAN.Leaflet):
 
@@ -52,31 +52,4 @@ class Sans_bold(ORGAN.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Verbatim(ORGAN.Stem):
-
-   def parse(self):
-      pass
-
-   def write(self):
-      pass
-
-class Alternative(ORGAN.Stem):
-
-   def parse(self):
-      pass
-
-   def write(self):
-      pass
-
-class Traditional(ORGAN.Stem):
-
-   def parse(self):
-      pass
-
-   def write(self):
-      pass
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
