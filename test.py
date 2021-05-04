@@ -2,25 +2,13 @@
 
 import os
 
-from porphyrin import *
-
-directory = os.fsencode(directory_in_str)
-    
-for file in os.listdir(directory):
-     filename = os.fsdecode(file)
-     if filename.endswith(".asm") or filename.endswith(".py"): 
-         # print(os.path.join(directory, filename))
-         continue
-     else:
-         continue
+import porphyrin as PORPHYRIN
 
 
-IN="test-in"
-OUT="test-out"
+FOLDER_IN = "test-in"
+FOLDER_OUT = "test-in"
 
-for files in "${IN}":
-   file_out = #XXX
-   str_in = read(file)
-   str_out = convert(str_in)
-   file_out = convert()
+for filename_in in FOLDER_IN:
+   filename_out = #XXX
+   PORPHYRIN.convert(filename_in, filename_out)
 

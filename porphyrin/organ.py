@@ -1,10 +1,6 @@
-import stem
-import leaf
-import leaflet
-import caution
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+import stem as S
+import leaf as L
+import caution as CT
 
 class Organ(object):
 
@@ -16,6 +12,7 @@ class Organ(object):
       self.count_character = data.pop("count_character", 0)
 
    def snip_bough(self, head_mark_left):
+      source = self.source
       mark = probe_mark(source)
       label = get_label(mark)
       segments = source.split(mark, 2)
@@ -41,21 +38,21 @@ class Organ(object):
 
       if (label == None):
          caution = Not_match_boundary_bough(**data_caution)
-         caution.panic()
+         CAUTION.panic()
       if (self.be_label_leaf(label)):
          caution = Occurring_outer_scope_leaf(**data_caution)
-         caution.panic()
+         CAUTION.panic()
 
       if (label == "serif_normal"):
-         sinks.append(stem.Section(**data_organ))
+         sinks.append(STEM.Section(**data_organ))
       if (label == "serif_italic"):
-         sinks.append(stem.Stanza(**data_organ))
+         sinks.append(STEM.Stanza(**data_organ))
       if (label == "table"):
-         sinks.append(stem.Table(**data_organ))
+         sinks.append(STEM.Table(**data_organ))
       if (label == "image"):
-         sinks.append(stem.Image(**data_organ))
+         sinks.append(STEM.Image(**data_organ))
       if (label == "break"):
-         sinks.append(stem.Break(**data_organ))
+         sinks.append(STEM.Break(**data_organ))
 
       return content, head_mark_right
 
@@ -85,38 +82,83 @@ class Organ(object):
 
       if (label == None):
          caution = Not_match_boundary_bough(**data_caution)
-         caution.panic()
+         CAUTION.panic()
       if (self.be_label_bough(label)):
          caution = Occurring_inner_scope_bough(**data_caution)
-         caution.panic()
+         CAUTION.panic()
 
       if (label == "serif_normal"):
-         sinks.append(leaf.Serif_normal(**data_organ))
+         sinks.append(LEAFLET.Serif_normal(**data_organ))
       if (label == "serif_italic"):
-         sinks.append(leaf.Serif_italic(**data_organ))
+         sinks.append(LEAFLET.Serif_italic(**data_organ))
       if (label == "serif_bold"):
-         sinks.append(leaf.Serif_bold(**data_organ))
+         sinks.append(LEAFLET.Serif_bold(**data_organ))
       if (label == "sans_normal"):
-         sinks.append(leaf.Sans_normal(**data_organ))
+         sinks.append(LEAFLET.Sans_normal(**data_organ))
       if (label == "sans_bold"):
-         sinks.append(leaf.Sans_bold(**data_organ))
+         sinks.append(LEAFLET.Sans_bold(**data_organ))
 
       if (label == "math_old"):
-         sinks.append(leaf.Math_old(**data_organ))
+         sinks.append(LEAFLET.Math_old(**data_organ))
       if (label == "math_new"):
-         sinks.append(leaf.Math_new(**data_organ))
+         sinks.append(LEAFLET.Math_new(**data_organ))
       if (label == "monospace"):
-         sinks.append(leaf.Monospace(**data_organ))
+         sinks.append(LEAFLET.Monospace(**data_organ))
 
       return content, head_mark_right
 
-   def find_left(self, head):
-      left = self.source[: head + 1] + self.leftmost
-      segments = self.left.rsplit('\n')
+   def snip_twig(self, head_mark_left):
+      mark = get_mark("newline")
+      segments = source.split(mark, 1)
+      content = segments[0]
+      head_content_left = head + mark.size
+      head_content_right = head + mark.size + content.size
+      head_mark_right = head + 2 * mark.size + content.size
+
+      data_organ = {
+         "source": content,
+         "leftmost": get_left(head_content_left),
+         "rightmost": get_right(head_content_right),
+         "count_line": get_next_count_line(head_content_left),
+         "count_character": get_next_count_character(head_content_left),
+      }
+      data_caution = {
+         "token": mark,
+         "fragment_left": get_left(head_mark_left),
+         "fragment_right": get_right(head_content_left),
+         "count_line": get_next_count_line(head_mark_left),
+         "count_character": get_next_count_character(head_mark_left),
+      }
+
+      if (label == None):
+         caution = Not_match_boundary_bough(**data_caution)
+         CAUTION.panic()
+      if (self.be_label_leaf(label)):
+         caution = Occurring_outer_scope_leaf(**data_caution)
+         CAUTION.panic()
+
+      if (label == "serif_normal"):
+         sinks.append(STEM.Section(**data_organ))
+      if (label == "serif_italic"):
+         sinks.append(STEM.Stanza(**data_organ))
+      if (label == "table"):
+         sinks.append(STEM.Table(**data_organ))
+      if (label == "image"):
+         sinks.append(STEM.Image(**data_organ))
+      if (label == "break"):
+         sinks.append(STEM.Break(**data_organ))
+
+      return content, head_mark_right
+
+   # # # # # # # # # # # # # # # # 
+
+   def get_left(self, head):
+      left = self.source[: head]
+      segments = self.left.split('\n')
       return segments[-1]
 
-   def find_right(self, head):
-      right = self.source[: head + 1] + self.rightmost
+   def get_right(self, head):
+      right = self.source[head :]
       segments = self.right.split('\n')
       return segments[0]
 

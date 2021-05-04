@@ -1,7 +1,6 @@
-import organ
-import stem
-import leaf
-import leaflet
+import organ as OG
+import stem as S
+import leaf as L
 
 class Caution(object):
 

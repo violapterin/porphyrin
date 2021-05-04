@@ -1,9 +1,8 @@
-import organ
-import stem
-import leaflet
-import caution
+import organ as OG
+import stem as S
+import caution as CT
 
-class Serif_roman(organ.Leaflet):
+class Serif_roman(ORGAN.Leaflet):
 
    kind = "serif-roman"
 
@@ -13,7 +12,7 @@ class Serif_roman(organ.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Serif_italic(organ.Leaflet):
+class Serif_italic(ORGAN.Leaflet):
 
    kind = "serif-italic"
 
@@ -23,7 +22,7 @@ class Serif_italic(organ.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Serif_bold(organ.Leaflet):
+class Serif_bold(ORGAN.Leaflet):
 
    kind = "serif-bold"
 
@@ -33,7 +32,7 @@ class Serif_bold(organ.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Sans_roman(organ.Leaflet):
+class Sans_roman(ORGAN.Leaflet):
 
    kind = "sans-roman"
 
@@ -43,7 +42,7 @@ class Sans_roman(organ.Leaflet):
    def write(self):
       return self.write_inline_tag(self.content, self.kind)
 
-class Sans_bold(organ.Leaflet):
+class Sans_bold(ORGAN.Leaflet):
 
    kind = "sans-bold"
 
@@ -55,7 +54,7 @@ class Sans_bold(organ.Leaflet):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Verbatim(organ.Stem):
+class Verbatim(ORGAN.Stem):
 
    def parse(self):
       pass
@@ -63,7 +62,7 @@ class Verbatim(organ.Stem):
    def write(self):
       pass
 
-class Alternative(organ.Stem):
+class Alternative(ORGAN.Stem):
 
    def parse(self):
       pass
@@ -71,7 +70,7 @@ class Alternative(organ.Stem):
    def write(self):
       pass
 
-class Traditional(organ.Stem):
+class Traditional(ORGAN.Stem):
 
    def parse(self):
       pass
