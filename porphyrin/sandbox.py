@@ -2,11 +2,11 @@
 
 import organ as ORGAN
 import stem as STEM
-import leaf as leaf
+import leaf as LEAF
 import caution as CAUTION
 
 class Cat():
-   kind = "cat"
+   attribute = "cat"
    def __init__(self, color):
       self.color = color
    def call(self):
@@ -15,7 +15,7 @@ class Cat():
       return Cat(self.color)
 
 class Dog():
-   kind = "dog"
+   attribute = "dog"
    def __init__(self, color):
       self.color = color
    def call(self):

@@ -2,9 +2,9 @@ import organ as ORGAN
 import stem as STEM
 import caution as CAUTION
 
-class Serif_roman(object):
+class Serif_roman(ORGAN.Organ):
 
-   kind = "serif-roman"
+   attribute = "serif-roman"
 
    def parse(self):
       self.source = self.tune_text(self.source)
@@ -13,13 +13,13 @@ class Serif_roman(object):
    def write(self):
       result = ''
       for sink in self.sinks:
-         result += self.write_inline_tag(sink, self.kind)
+         result += self.write_inline_tag(sink, self.attribute)
          result += ' '
       return result
 
-class Serif_italic(object):
+class Serif_italic(ORGAN.Organ):
 
-   kind = "serif-italic"
+   attribute = "serif-italic"
 
    def parse(self):
       self.source = self.tune_text(self.source)
@@ -29,14 +29,14 @@ class Serif_italic(object):
       TAG = "em"
       result = ''
       for sink in self.sinks:
-         result += self.write_inline_tag(sink, self.kind)
+         result += self.write_inline_tag(sink, self.attribute)
          result += ' '
       result = self.write_tag(result, TAG)
       return result
 
-class Serif_bold(object):
+class Serif_bold(ORGAN.Organ):
 
-   kind = "serif-bold"
+   attribute = "serif-bold"
 
    def parse(self):
       self.source = self.tune_text(self.source)
@@ -46,14 +46,14 @@ class Serif_bold(object):
       TAG = 'b'
       result = ''
       for sink in self.sinks:
-         result += self.write_inline_tag(sink, self.kind)
+         result += self.write_inline_tag(sink, self.attribute)
          result += ' '
       result = self.write_tag(result, TAG)
       return result
 
-class Sans_roman(object):
+class Sans_roman(ORGAN.Organ):
 
-   kind = "sans-roman"
+   attribute = "sans-roman"
 
    def parse(self):
       self.source = self.tune_text(self.source)
@@ -62,13 +62,13 @@ class Sans_roman(object):
    def write(self):
       result = ''
       for sink in self.sinks:
-         result += self.write_inline_tag(sink, self.kind)
+         result += self.write_inline_tag(sink, self.attribute)
          result += ' '
       return result
 
-class Sans_bold(object):
+class Sans_bold(ORGAN.Organ):
 
-   kind = "sans-bold"
+   attribute = "sans-bold"
 
    def parse(self):
       self.source = self.tune_text(self.source)
@@ -78,14 +78,14 @@ class Sans_bold(object):
       TAG = 'b'
       result = ''
       for sink in self.sinks:
-         result += self.write_inline_tag(sink, self.kind)
+         result += self.write_inline_tag(sink, self.attribute)
          result += ' '
       result = self.write_tag(result, TAG)
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Verbatim(object):
+class Verbatim(ORGAN.Organ):
 
    def parse(self):
       pass
@@ -93,7 +93,7 @@ class Verbatim(object):
    def write(self):
       pass
 
-class Alternative(object):
+class Alternative(ORGAN.Organ):
 
    def parse(self):
       pass
@@ -101,7 +101,7 @@ class Alternative(object):
    def write(self):
       pass
 
-class Traditional(object):
+class Traditional(ORGAN.Organ):
 
    def parse(self):
       pass

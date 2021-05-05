@@ -1,8 +1,8 @@
 import organ as ORGAN
 import stem as STEM
-import leaf as leaf
+import leaf as LEAF
 
-class Caution(object):
+class Caution(ORGAN.Organ):
 
    def __init__(self, **data):
       self.token = data.pop(token, '')
