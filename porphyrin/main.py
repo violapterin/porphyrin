@@ -4,7 +4,7 @@ import os
 
 import organ as ORGAN
 import stem as STEM
-import leaflet as LEAFLET
+import leaf as leaf
 import caution as CAUTION
 
 def make(folder_in, folder_out):
@@ -25,29 +25,6 @@ def make(folder_in, folder_out):
          if time_in < time_out:
             continue
       convert(name_in, name_out) 
-
-
-'''
-   EXTENSION = ".ppr"
-   folder_this = os.path.dirname(__file__)
-   folder_in = os.path.join(folder_this, folder_relative_in)
-   folder_out = os.path.join(folder_this, folder_relative_out)
-   names_in = os.fsdecode(os.listdir(folder_in))
-   names_out = os.fsdecode(os.listdir(folder_out))
-   names_in = sort(names_in)
-   names_out = sort(names_out)
-
-   for name_in in names_in:
-      if not name_in.endswith(EXTENSION):
-         print ("Warning")
-      if name_in in names_out:
-         time_in = os.path.getmtime(name_in)
-         time_out = os.path.getmtime(name_out)
-         if time_in < time_out:
-            continue
-      name_out = os.path.join(folder_out, name_in)
-      convert(name_in, name_out) 
-'''
 
 def convert(name_in, name_out):
    handle_in = open(name_in, mode = 'r')
