@@ -6,7 +6,7 @@ import leaf as LEAF
 import caution as CAUTION
 
 class Cat():
-   attribute = "cat"
+   KIND = "cat"
    def __init__(self, color):
       self.color = color
    def call(self):
@@ -15,7 +15,7 @@ class Cat():
       return Cat(self.color)
 
 class Dog():
-   attribute = "dog"
+   KIND = "dog"
    def __init__(self, color):
       self.color = color
    def call(self):

@@ -18,35 +18,26 @@ class Organ(object):
       self.count_line = data.pop("count_line", 0)
       self.count_character = data.pop("count_character", 0)
       self.sinks = []
-
-   def shatter_twig(self, kind, head_left):
-      return shatter(self, "newline", kind, head_left)
-
-   def shatter_frond(self, kind, head_left):
-      return shatter(self, "space", kind, head_left)
-
-   def shatter(self, attribute, kind, head_left):
-      head_right = head_left
-      while head_left <= self.source.size() - 1:
-         organ, head_right = self.snip_leaf(head_middle)
-         if (organ.attribute == attribute):
-            break
-         head_middle = head_right
-      content = self.source[head_left: head_middle]
-      data_organ = {
-         "source": content,
-         "leftmost": get_left(head_left),
-         "rightmost": get_right(head_middle),
-         "count_line": count_next_line(head_left),
-         "count_character": count_next_character(head_left),
-      }
-      organ = kind (**data_organ)
-      return organ, head_right
+      self.address = ''
 
    def snip_bough(self, head_mark_left):
+      bough = None
       source = self.source
       mark = probe_mark(source)
       label = get_label(mark)
+      data_organ = {
+         "leftmost": get_left(head_mark_left),
+         "rightmost": get_right(head_mark_right),
+         "count_line": self.count_line,
+         "count_character": self.count_character,
+      }
+
+      if (label == "BREAK"):
+         segments = source.split(mark, 1)
+         head_mark_right = head_mark_right + mark.size
+         bough = STEM.Break(**data_organ)
+         return bough, head_mark_right
+
       segments = source.split(mark, 2)
       content = segments[1]
       head_content_left = head + mark.size
@@ -75,7 +66,6 @@ class Organ(object):
          caution = CAUTION.Occurring_outer_scope_leaf(**data_caution)
          caution.panic()
 
-      bough = None
       if (label == "SECTION"):
          bough = STEM.Section(**data_organ)
       if (label == "STANZA"):
@@ -84,29 +74,31 @@ class Organ(object):
          bough = STEM.Table(**data_organ)
       if (label == "IMAGE"):
          bough = STEM.Image(**data_organ)
-      if (label == "BREAK"):
-         bough = STEM.Break(**data_organ)
 
       return bough, head_mark_right
 
    def snip_leaf(self, head_mark_left):
+      leaf = None
+      source = self.source
       mark = probe_mark(source)
       label = get_label(mark)
-
       data_organ = {
          "leftmost": get_left(head_mark_left),
          "rightmost": get_right(head_mark_right),
          "count_line": self.count_line,
          "count_character": self.count_character,
       }
+
       if (label == "SPACE"):
          segments = source.split(mark, 1)
          head_mark_right = head_mark_right + mark.size
-         return LEAF.Space(**data_organ), head_mark_right
+         leaf = LEAF.Space(**data_organ)
+         return leaf, head_mark_right
       if (label == "NEWLINE"):
          segments = source.split(mark, 1)
          head_mark_right = head_mark_right + mark.size
-         return LEAF.Newline(**data_organ), head_mark_right
+         leaf = LEAF.Newline(**data_organ)
+         return leaf, head_mark_right
 
       segments = source.split(mark, 2)
       content = segments[1]
@@ -136,7 +128,12 @@ class Organ(object):
          caution = CAUTION.Occurring_inner_scope_bough(**data_caution)
          caution.panic()
 
-      leaf = None
+      if (label == "LINK"):
+         if (self.sinks.size = 0):
+            self.create_link(content)
+         else:
+            sinks[-1].create_link(content)
+
       if (label == "SERIF_NORMAL"):
          leaf = LEAF.Serif_normal(**data_organ)
       if (label == "SERIF_ITALIC"):
@@ -155,6 +152,44 @@ class Organ(object):
          leaf = LEAF.Monospace(**data_organ)
 
       return leaf, head_mark_right
+
+   # # # # # # # # # # # # # # # # 
+
+   def shatter_twig(self, constructor, head_left):
+      return shatter(self, constructor, "newline", head_left)
+
+   def shatter_frond(self, constructor, head_left):
+      return shatter(self, constructor, "space", head_left)
+
+   def shatter(self, constructor, kind_stop, head_left):
+      head_right = head_left
+      while head_left <= source.size() - 1:
+         organ, head_right = self.snip_leaf(head_middle)
+         if (organ.KIND == kind_stop):
+            break
+         head_middle = head_right
+      content = self.source[head_left: head_middle]
+      data_organ = {
+         "source": content,
+         "leftmost": get_left(head_left),
+         "rightmost": get_right(head_middle),
+         "count_line": count_next_line(head_left),
+         "count_character": count_next_character(head_left),
+      }
+      organ = constructor(**data_organ)
+      return organ, head_right
+
+   def split_word(self, source, head_leaf):
+      head_middle = head_left
+      group = self.give_set_delimiter()
+      while (head_middle < self.source.size):
+         if not (source[head] in group):
+            head_middle += 1
+      head_right = head_middle
+      while (head_right < self.source.size):
+         if (source[head] in group):
+            head_right += 1
+      return source[head_left, head_middle], head_right
 
    # # # # # # # # # # # # # # # # 
 
@@ -187,31 +222,45 @@ class Organ(object):
 
    # # # # # # # # # # # # # # # # 
 
-   def write_block_tag(self, element, attribute):
-      return write_tag(element, "div", attribute)
+   def write_tag_block(self, element, kind):
+      return write_tag(
+         element = element,
+         tag = "div",
+         attributes = ["class"],
+         values = [kind],
+      )
 
-   def write_inline_tag(self, element, attribute):
-      return write_tag(element, "span", attribute)
+   def write_tag_inline(self, element, kind):
+      return write_tag(
+         element = element,
+         tag = "span",
+         attributes = ["class"],
+         values = [kind],
+      )
 
-   def write_tag_with_attribute(self, element, tag, attribute):
-      result = ''
-      result += '<' + tag + ' '
-      result += "class=" + attribute + '>'
-      result = ' ' + element + ' '
-      result += "</" + tag + '>'
-      return result
+   def write_tag_image(self, address, kind):
+      return write_tag(
+         element = '',
+         tag = "img",
+         attributes = ["src", "class"],
+         values = [address, kind],
+      )
 
-   def write_tag(self, element, tag):
-      result = ''
-      result += '<' + tag + '>'
-      result = ' ' + element + ' '
+   def write_tag(self, **data):
+      size = min(attributes.size, values.size)
+      result = '<' + tag + 
+      for index in range(size)
+         result += ' ' + data [attributes] [index]
+         result += "=\"" + data [values] [index]
+      result += "\">"
+      result += element + ' '
       result += "</" + tag + '>'
       return result
 
    def write_comment(self, element):
       result = ''
-      result += "<!---"
-      result = ' ' + element + ' '
+      result += "<!--- "
+      result += element + ' '
       result += "--->"
       return result
 
@@ -266,16 +315,15 @@ class Organ(object):
       }
       return labels
 
-   '''
-   def give_data(self):
-      return {
-         "source": self.source,
-         "leftmost": self.leftmost,
-         "rightmost": self.rightmost,
-         "count_line": self.count_line,
-         "count_character": self.count_character,
-      }
-   '''
+   def give_set_delimiter(self):
+      return set([
+         ' ',
+         '\t',
+         '\n',
+      ])
+
+   def create_link(self, address):
+       self.address = address
 
    # # # # # # # # # # # # # # # # 
 
@@ -289,6 +337,9 @@ class Organ(object):
          "MONOSPACE",
          "MATH_NEW",
          "MATH_OLD",
+         "LINK",
+         "NEWLINE",
+         "SPACE",
       ])
       return (label in labels_leaf)
 
@@ -304,21 +355,29 @@ class Organ(object):
 
    def tune_text(self, source):
       result = ignore_mark_text(source)
-      result = adjust_space(result)
+      result = adjust_whitespace(result)
       return result
 
    def tune_code(self, source):
-      result = adjust_space(source)
+      result = adjust_whitespace(source)
       return result
 
-   def adjust_space(self, source):
-      spaces = {'\n', '\t'}
+   def adjust_whitespace(self, source):
+      spaces = self.give_set_delimiter
       result = erase_character(source, spaces)
       result = ' '.join(result.split())
       return result
 
    def ignore_mark_text(self, source):
-      marks_ignored = {'<', '>', '@', '#', '$', '%', '&'}
+      marks_ignored = {
+         '<',
+         '>',
+         '@',
+         '#',
+         '$',
+         '%',
+         '&',
+      }
       result = remove_character(source, marks_ignored)
       return result
 

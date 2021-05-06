@@ -5,7 +5,7 @@ import caution as CAUTION
 
 class Document(ORGAN.Organ):
 
-   kine = "document"
+   KIND = "document"
 
    def parse(self):
       head = 0
@@ -21,9 +21,38 @@ class Document(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+class Image(ORGAN.Leaf):
+
+   KIND = "image"
+
+   def parse(self):
+      sinks.append(self.escape_hypertext(self.source))
+
+   def write(self):
+      return write_tag_image(self.sinks[0], self.KIND)
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Break(ORGAN.Leaf):
+
+   KIND = "break"
+   DINGBAT = "&#10086;"
+   REPEAT = 3
+
+   def parse(self):
+      element = ''
+      for index in range(Break.REPEAT):
+         element += Break.DINGBAT
+      sinks.append(element)
+
+   def write(self):
+      return write_tag_block(self.sink[0], self.KIND)
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 class Section(ORGAN.Organ):
 
-   attribute = "section"
+   KIND = "section"
 
    def parse(self):
       head = 0
@@ -32,16 +61,15 @@ class Section(ORGAN.Organ):
          sinks.append(twig)
 
    def write(self):
-      element = ''
+      element = ' '
       for twig in self.sinks:
          element += twig.write()
-      return self.write_block_tag(element, self.attribute)
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+         element += ' '
+      return self.write_tag_block(element, self.attribute)
 
 class Stanza(ORGAN.Organ):
 
-   attribute = "stanza"
+   KIND = "stanza"
 
    def parse(self):
       head = 0
@@ -50,16 +78,15 @@ class Stanza(ORGAN.Organ):
          sinks.append(twig)
 
    def write(self):
-      element = ''
+      element = ' '
       for twig in self.sinks:
          element += twig.write()
-      return self.write_block_tag(element, self.attribute)
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+         element += ' '
+      return self.write_tag_block(element, self.attribute)
 
 class Table(ORGAN.Organ):
 
-   attribute = "table"
+   KIND = "table"
 
    def parse(self):
       head = 0
@@ -68,34 +95,17 @@ class Table(ORGAN.Organ):
          sinks.append(twig)
 
    def write(self):
-      element = ''
+      element = ' '
       for twig in self.sinks:
          element += twig.write()
-      return self.write_block_tag(element, self.attribute)
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Image(ORGAN.Leaf):
-
-   attribute = "image"
-
-   def write(self):
-      pass
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Break(ORGAN.Leaf):
-
-   attribute = "break"
-
-   def write(self):
-      pass
+         element += ' '
+      return self.write_tag_block(element, self.attribute)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Paragraph(ORGAN.Organ):
 
-   attribute = "paragraph"
+   KIND = "paragraph"
 
    def parse(self):
       head = 0
@@ -106,11 +116,9 @@ class Paragraph(ORGAN.Organ):
    def write(self):
       return self.write_tag("paragraph")
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 class Line(ORGAN.Organ):
 
-   attribute = "line"
+   KIND = "line"
 
    def parse(self):
       head = 0
@@ -121,11 +129,9 @@ class Line(ORGAN.Organ):
    def write(self):
       return self.write_tag("line")
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 class Row(ORGAN.Organ):
 
-   attribute = "row"
+   KIND = "row"
 
    def parse(self):
       head = 0
@@ -140,7 +146,7 @@ class Row(ORGAN.Organ):
 
 class Sentence(ORGAN.Organ):
 
-   attribute = "Sentence"
+   KIND = "Sentence"
 
    def parse(self):
       head = 0
@@ -153,12 +159,10 @@ class Sentence(ORGAN.Organ):
       for leaf in self.sinks:
          result += leaf.write()
       return result
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Verse(ORGAN.Organ):
 
-   attribute = "verse"
+   KIND = "verse"
 
    def parse(self):
       head = 0
@@ -172,11 +176,9 @@ class Verse(ORGAN.Organ):
          result += leaf.write()
       return result
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 class Cell(ORGAN.Organ):
 
-   attribute = "cell"
+   KIND = "cell"
 
    def parse(self):
       head = 0
