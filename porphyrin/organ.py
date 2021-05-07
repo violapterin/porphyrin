@@ -25,32 +25,7 @@ class Organ(object):
       source = self.source
       mark = probe_mark(source)
       label = get_label(mark)
-      data_organ = {
-         "leftmost": get_left(head_mark_left),
-         "rightmost": get_right(head_mark_right),
-         "count_line": self.count_line,
-         "count_character": self.count_character,
-      }
-
-      if (label == "BREAK"):
-         segments = source.split(mark, 1)
-         head_mark_right = head_mark_right + mark.size
-         bough = STEM.Break(**data_organ)
-         return bough, head_mark_right
-
-      segments = source.split(mark, 2)
-      content = segments[1]
       head_content_left = head + mark.size
-      head_content_right = head + mark.size + content.size
-      head_mark_right = head + 2 * mark.size + content.size
-
-      data_organ = {
-         "source": content,
-         "leftmost": get_left(head_content_left),
-         "rightmost": get_right(head_content_right),
-         "count_line": count_next_line(head_content_left),
-         "count_character": count_next_character(head_content_left),
-      }
       data_caution = {
          "token": mark,
          "fragment_left": get_left(head_mark_left),
@@ -59,6 +34,23 @@ class Organ(object):
          "count_character": count_next_character(head_mark_left),
       }
 
+      data_organ = {
+         "leftmost": get_left(head_mark_left),
+         "rightmost": get_right(head_mark_right),
+         "count_line": self.count_line,
+         "count_character": self.count_character,
+      }
+      if (label == "BREAK"):
+         segments = source.split(mark, 1)
+         head_mark_right = head_mark_right + mark.size
+         bough = STEM.Break(**data_organ)
+         return bough, head_mark_right
+
+      segments = source.split(mark, 2)
+      content = segments[1]
+      head_content_right = head + mark.size + content.size
+      head_mark_right = head + 2 * mark.size + content.size
+
       if (label == None):
          caution = CAUTION.Not_match_boundary_bough(**data_caution)
          caution.panic()
@@ -66,6 +58,13 @@ class Organ(object):
          caution = CAUTION.Occurring_outer_scope_leaf(**data_caution)
          caution.panic()
 
+      data_organ = {
+         "source": content,
+         "leftmost": get_left(head_content_left),
+         "rightmost": get_right(head_content_right),
+         "count_line": count_next_line(head_content_left),
+         "count_character": count_next_character(head_content_left),
+      }
       if (label == "SECTION"):
          bough = STEM.Section(**data_organ)
       if (label == "STANZA"):
@@ -82,13 +81,21 @@ class Organ(object):
       source = self.source
       mark = probe_mark(source)
       label = get_label(mark)
+      head_content_left = head_mark_left + mark.size
+      data_caution = {
+         "token": mark,
+         "fragment_left": get_left(head_mark_left),
+         "fragment_right": get_right(head_content_left),
+         "count_line": count_next_line(head_mark_left),
+         "count_character": count_next_character(head_mark_left),
+      }
+
       data_organ = {
          "leftmost": get_left(head_mark_left),
          "rightmost": get_right(head_mark_right),
          "count_line": self.count_line,
          "count_character": self.count_character,
       }
-
       if (label == "SPACE"):
          segments = source.split(mark, 1)
          head_mark_right = head_mark_right + mark.size
@@ -102,24 +109,8 @@ class Organ(object):
 
       segments = source.split(mark, 2)
       content = segments[1]
-      head_content_left = head_mark_left + mark.size
       head_content_right = head_mark_left + mark.size + content.size
       head_mark_right = head_mark_left + 2 * mark.size + content.size
-
-      data_organ = {
-         "source": content,
-         "leftmost": get_left(head_content_left),
-         "rightmost": get_right(head_content_right),
-         "count_line": count_next_line(head_content_left),
-         "count_character": count_next_character(head_content_left),
-      }
-      data_caution = {
-         "token": mark,
-         "fragment_left": get_left(head_mark_left),
-         "fragment_right": get_right(head_content_left),
-         "count_line": count_next_line(head_mark_left),
-         "count_character": count_next_character(head_mark_left),
-      }
 
       if (label == None):
          caution = CAUTION.Not_match_boundary_bough(**data_caution)
@@ -128,12 +119,18 @@ class Organ(object):
          caution = CAUTION.Occurring_inner_scope_bough(**data_caution)
          caution.panic()
 
+      data_organ = {
+         "source": content,
+         "leftmost": get_left(head_content_left),
+         "rightmost": get_right(head_content_right),
+         "count_line": count_next_line(head_content_left),
+         "count_character": count_next_character(head_content_left),
+      }
       if (label == "LINK"):
          if (self.sinks.size = 0):
             self.create_link(content)
          else:
             sinks[-1].create_link(content)
-
       if (label == "SERIF_NORMAL"):
          leaf = LEAF.Serif_normal(**data_organ)
       if (label == "SERIF_ITALIC"):
@@ -324,6 +321,9 @@ class Organ(object):
 
    def create_link(self, address):
        self.address = address
+
+   def give_head_max()
+      return self.source.size() - 1
 
    # # # # # # # # # # # # # # # # 
 

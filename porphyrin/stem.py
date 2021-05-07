@@ -6,6 +6,7 @@ import caution as CAUTION
 class Document(ORGAN.Organ):
 
    KIND = "document"
+   TAG = "body"
 
    def parse(self):
       head = 0
@@ -24,6 +25,7 @@ class Document(ORGAN.Organ):
 class Image(ORGAN.Leaf):
 
    KIND = "image"
+   TAG = "img"
 
    def parse(self):
       sinks.append(self.escape_hypertext(self.source))
@@ -36,6 +38,7 @@ class Image(ORGAN.Leaf):
 class Break(ORGAN.Leaf):
 
    KIND = "break"
+   TAG = "div"
    DINGBAT = "&#10086;"
    REPEAT = 3
 
@@ -53,10 +56,11 @@ class Break(ORGAN.Leaf):
 class Section(ORGAN.Organ):
 
    KIND = "section"
+   TAG = "div"
 
    def parse(self):
       head = 0
-      while head_left <= self.source.size() - 1:
+      while head <= self.give_head_max():
          twig, head = self.shatter_twig(Line, head)
          sinks.append(twig)
 
@@ -70,10 +74,11 @@ class Section(ORGAN.Organ):
 class Stanza(ORGAN.Organ):
 
    KIND = "stanza"
+   TAG = "div"
 
    def parse(self):
       head = 0
-      while head_left <= self.source.size() - 1:
+      while head <= self.give_head_max():
          twig, head = self.shatter_twig(Line, head)
          sinks.append(twig)
 
@@ -87,29 +92,48 @@ class Stanza(ORGAN.Organ):
 class Table(ORGAN.Organ):
 
    KIND = "table"
+   TAG_ALL = "table"
+   TAG_PREFIX = "thead"
+   TAG_BODY = "tbody"
 
    def parse(self):
       head = 0
-      while head_left <= self.source.size() - 1:
+      while head <= self.give_head_max():
          twig, head = self.shatter_twig(Row, head)
          sinks.append(twig)
 
    def write(self):
       element = ' '
-      for twig in self.sinks:
-         element += twig.write()
+      twig_prefix = self.sinks.pop(0)
+      element += write_tag(
+         element = twig_prefix.write(),
+         tag = self.TAG_PREFIX,
+         attributes = ["class"],
+         values = [self.KIND],
+      )
+      for twig_body in self.sinks:
+         element += write_tag(
+            element = twig_body.write(),
+            tag = self.TAG_BODY,
+         )
          element += ' '
-      return self.write_tag_block(element, self.attribute)
+      return write_tag(
+         element = sink,
+         tag = self.TAG_ALL,
+         attributes = ["class"],
+         values = [self.KIND],
+      )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Paragraph(ORGAN.Organ):
 
    KIND = "paragraph"
+   TAG = "p"
 
    def parse(self):
       head = 0
-      while head_left <= self.source.size() - 1:
+      while head <= self.give_head_max():
          twig, head = self.shatter_frond(Sentence, head)
          sinks.append(twig)
 
@@ -119,10 +143,11 @@ class Paragraph(ORGAN.Organ):
 class Line(ORGAN.Organ):
 
    KIND = "line"
+   TAG = "span"
 
    def parse(self):
       head = 0
-      while head_left <= self.source.size() - 1:
+      while head <= self.give_head_max():
          twig, head = self.shatter_frond(Verse, head)
          sinks.append(twig)
 
@@ -132,10 +157,11 @@ class Line(ORGAN.Organ):
 class Row(ORGAN.Organ):
 
    KIND = "row"
+   TAG = "tr"
 
    def parse(self):
       head = 0
-      while head_left <= self.source.size() - 1:
+      while head <= self.give_head_max():
          twig, head = self.shatter_frond(Cell, head)
          sinks.append(twig)
 
@@ -146,11 +172,12 @@ class Row(ORGAN.Organ):
 
 class Sentence(ORGAN.Organ):
 
-   KIND = "Sentence"
+   KIND = "sentence"
+   TAG = "span"
 
    def parse(self):
       head = 0
-      while head <= self.source.size() - 1:
+      while head <= self.give_head_max():
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -163,10 +190,11 @@ class Sentence(ORGAN.Organ):
 class Verse(ORGAN.Organ):
 
    KIND = "verse"
+   TAG = "span"
 
    def parse(self):
       head = 0
-      while head <= self.source.size() - 1:
+      while head <= self.give_head_max():
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -179,10 +207,11 @@ class Verse(ORGAN.Organ):
 class Cell(ORGAN.Organ):
 
    KIND = "cell"
+   TAG = "td"
 
    def parse(self):
       head = 0
-      while head <= self.source.size() - 1:
+      while head <= self.give_head_max():
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 

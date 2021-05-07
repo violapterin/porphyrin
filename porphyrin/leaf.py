@@ -5,18 +5,24 @@ import caution as CAUTION
 class Serif_roman(ORGAN.Organ):
 
    KIND = "serif-roman"
+   TAG = "span"
 
    def parse(self):
-      source_tune = self.tune_text(self.source)
+      self.tune_text()
       head = 0
-      while head <= source_tune.size() - 1:
+      while head <= self.source.len() - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
    def write(self):
       result = ''
       for sink in self.sinks:
-         result += self.write_tag_inline(sink, self.KIND)
+         result += write_tag(
+            element = sink,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+         )
          result += ' '
       return result
 
@@ -26,16 +32,21 @@ class Serif_italic(ORGAN.Organ):
    TAG = "em"
 
    def parse(self):
-      source_tune = self.tune_text(self.source)
+      self.tune_text()
       head = 0
-      while head <= source_tune.size() - 1:
+      while head <= self.source.len() - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
    def write(self):
       result = ''
       for sink in self.sinks:
-         result += self.write_tag_inline(sink, self.KIND)
+         result += write_tag(
+            element = sink,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+         )
          result += ' '
       result = self.write_tag(result, TAG)
       return result
@@ -46,9 +57,9 @@ class Serif_bold(ORGAN.Organ):
    TAG = 'b'
 
    def parse(self):
-      source_tune = self.tune_text(self.source)
+      self.tune_text()
       head = 0
-      while head <= source_tune.size() - 1:
+      while head <= self.source.len() - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -65,9 +76,9 @@ class Sans_roman(ORGAN.Organ):
    KIND = "sans-roman"
 
    def parse(self):
-      source_tune = self.tune_text(self.source)
+      self.tune_text()
       head = 0
-      while head <= source_tune.size() - 1:
+      while head <= self.source.len() - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -84,9 +95,9 @@ class Sans_bold(ORGAN.Organ):
    TAG = 'b'
 
    def parse(self):
-      source_tune = self.tune_text(self.source)
+      self.tune_text()
       head = 0
-      while head <= source_tune.size() - 1:
+      while head <= self.source.len() - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -104,9 +115,9 @@ class Monospace(ORGAN.Organ):
    TAG = "pre"
 
    def parse(self):
-      source_tune = self.tune_text(self.source)
+      self.tune_text()
       head = 0
-      while head <= source_tune.size() - 1:
+      while head <= self.source.len() - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
