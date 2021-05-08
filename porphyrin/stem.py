@@ -10,7 +10,7 @@ class Document(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.source.size() - 1:
+      while head <= self.self.source.size() - 1:
          bough, head = self.snip_bough(head)
          sinks.append(bough)
 
@@ -22,20 +22,26 @@ class Document(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Image(ORGAN.Leaf):
+class Image(ORGAN.Organ):
 
    KIND = "image"
    TAG = "img"
 
    def parse(self):
-      sinks.append(self.escape_hypertext(self.source))
+      self.escape_hypertext()
+      sinks.append(self.source)
 
    def write(self):
-      return write_tag_image(self.sinks[0], self.KIND)
+      return result += write_tag(
+            content = sinks[0],
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Break(ORGAN.Leaf):
+class Break(ORGAN.Organ):
 
    KIND = "break"
    TAG = "div"
@@ -43,13 +49,25 @@ class Break(ORGAN.Leaf):
    REPEAT = 3
 
    def parse(self):
-      element = ''
+      content = ''
       for index in range(Break.REPEAT):
          element += Break.DINGBAT
       sinks.append(element)
 
    def write(self):
-      return write_tag_block(self.sink[0], self.KIND)
+      content = ''
+      for sink in self.sinks:
+         content += write_tag(
+            content = sink,
+            tag = "span",
+         )
+         content += ' '
+      return result += write_tag(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -60,16 +78,21 @@ class Section(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
-         twig, head = self.shatter_twig(Line, head)
+      while head <= self.self.source.size() - 1:
+         twig, head = self.shatter(Line, "newline", head)
          sinks.append(twig)
 
    def write(self):
-      element = ' '
+      content = ' '
       for twig in self.sinks:
-         element += twig.write()
-         element += ' '
-      return self.write_tag_block(element, self.attribute)
+         content += twig.write()
+         content += ' '
+      return result += write_tag(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
 
 class Stanza(ORGAN.Organ):
 
@@ -78,16 +101,21 @@ class Stanza(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
-         twig, head = self.shatter_twig(Line, head)
+      while head <= self.self.source.size() - 1:
+         twig, head = self.shatter(Line, "newline", head)
          sinks.append(twig)
 
    def write(self):
-      element = ' '
+      content = ' '
       for twig in self.sinks:
-         element += twig.write()
-         element += ' '
-      return self.write_tag_block(element, self.attribute)
+         content += twig.write()
+         content += ' '
+      return result += write_tag(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
 
 class Table(ORGAN.Organ):
 
@@ -98,27 +126,27 @@ class Table(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
-         twig, head = self.shatter_twig(Row, head)
+      while head <= self.self.source.size() - 1:
+         twig, head = self.shatter(Row, "newline", head)
          sinks.append(twig)
 
    def write(self):
-      element = ' '
+      content = ' '
       twig_prefix = self.sinks.pop(0)
-      element += write_tag(
-         element = twig_prefix.write(),
+      content += write_tag(
+         content = twig_prefix.write(),
          tag = self.TAG_PREFIX,
          attributes = ["class"],
          values = [self.KIND],
       )
       for twig_body in self.sinks:
          element += write_tag(
-            element = twig_body.write(),
+            content = twig_body.write(),
             tag = self.TAG_BODY,
          )
          element += ' '
       return write_tag(
-         element = sink,
+         content = sink,
          tag = self.TAG_ALL,
          attributes = ["class"],
          values = [self.KIND],
@@ -133,8 +161,8 @@ class Paragraph(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
-         twig, head = self.shatter_frond(Sentence, head)
+      while head <= self.self.source.size() - 1:
+         twig, head = self.shatter(Sentence, "space", head)
          sinks.append(twig)
 
    def write(self):
@@ -147,8 +175,8 @@ class Line(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
-         twig, head = self.shatter_frond(Verse, head)
+      while head <= self.self.source.size() - 1:
+         twig, head = self.shatter(Verse, "space", head)
          sinks.append(twig)
 
    def write(self):
@@ -161,8 +189,8 @@ class Row(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
-         twig, head = self.shatter_frond(Cell, head)
+      while head <= self.self.source.size() - 1:
+         twig, head = self.shatter(Cell, "space", head)
          sinks.append(twig)
 
    def write(self):
@@ -177,7 +205,7 @@ class Sentence(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
+      while head <= self.self.source.size() - 1:
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -194,7 +222,7 @@ class Verse(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
+      while head <= self.self.source.size() - 1:
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -211,7 +239,7 @@ class Cell(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.give_head_max():
+      while head <= self.self.source.size() - 1:
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -220,4 +248,25 @@ class Cell(ORGAN.Organ):
       for leaf in self.sinks:
          result += leaf.write()
       return result
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+def give_labels_bough():
+  return set([
+     "SECTION",
+     "STANZA",
+     "TABLE",
+     "IMAGE",
+     "BREAK",
+  ])
+
+def give_set_delimiter():
+  return set([
+     ' ',
+     '\t',
+     '\n',
+  ])
+
 
