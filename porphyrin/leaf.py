@@ -10,19 +10,18 @@ class Serif_roman(ORGAN.Organ):
    def parse(self):
       self.tune_text()
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
    def write(self):
       result = ''
-      tag = self.TAG
       if not (self.address == None):
          tag = 'a'
       for sink in self.sinks:
-         result += write_tag(
+         result += write_element(
             content = sink,
-            tag = tag,
+            tag = self.TAG,
             attributes = ["class"],
             values = [self.KIND],
          )
@@ -37,7 +36,7 @@ class Serif_italic(ORGAN.Organ):
    def parse(self):
       self.tune_text()
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -47,14 +46,14 @@ class Serif_italic(ORGAN.Organ):
       if not (self.address == None):
          tag = 'a'
       for sink in self.sinks:
-         result += write_tag(
+         result += write_element(
             content = sink,
             tag = tag,
             attributes = ["class"],
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_tag(result, TAG)
+      result = self.write_element(result, TAG)
       return result
 
 class Serif_bold(ORGAN.Organ):
@@ -65,7 +64,7 @@ class Serif_bold(ORGAN.Organ):
    def parse(self):
       self.tune_text()
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -75,14 +74,14 @@ class Serif_bold(ORGAN.Organ):
       if not (self.address == None):
          tag = 'a'
       for sink in self.sinks:
-         result += write_tag(
+         result += write_element(
             content = sink,
             tag = tag,
             attributes = ["class"],
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_tag(result, TAG)
+      result = self.write_element(result, TAG)
       return result
 
 class Sans_roman(ORGAN.Organ):
@@ -92,7 +91,7 @@ class Sans_roman(ORGAN.Organ):
    def parse(self):
       self.tune_text()
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -102,7 +101,7 @@ class Sans_roman(ORGAN.Organ):
       if not (self.address == None):
          tag = 'a'
       for sink in self.sinks:
-         result += write_tag(
+         result += write_element(
             content = sink,
             tag = tag,
             attributes = ["class"],
@@ -119,7 +118,7 @@ class Sans_bold(ORGAN.Organ):
    def parse(self):
       self.tune_text()
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -129,14 +128,14 @@ class Sans_bold(ORGAN.Organ):
       if not (self.address == None):
          tag = 'a'
       for sink in self.sinks:
-         result += write_tag(
+         result += write_element(
             content = sink,
             tag = tag,
             attributes = ["class"],
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_tag(result, self.TAG)
+      result = self.write_element(result, self.TAG)
       return result
 
 class Mono(ORGAN.Organ):
@@ -147,7 +146,7 @@ class Mono(ORGAN.Organ):
    def parse(self):
       self.tune_text()
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
@@ -157,14 +156,36 @@ class Mono(ORGAN.Organ):
       if not (self.address == None):
          tag = 'a'
       for sink in self.sinks:
-         result += write_tag(
+         result += write_element(
             content = sink,
             tag = tag,
             attributes = ["class"],
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_tag(result, self.TAG)
+      result = self.write_element(result, self.TAG)
+      return result
+
+class Comment(ORGAN.Organ):
+
+   KIND = "sans-bold"
+   TOKEN_LEFT = "<!--"
+   TOKEN_RIGHT = "-->"
+
+   def parse(self):
+      head = 0
+      while head <= len(self.source) - 1:
+         text, head = self.split_word(head)
+         sinks.append(text)
+
+
+   def write(self):
+      result = ''
+      if not (self.address == None):
+         tag = 'a'
+      for sink in self.sinks:
+         result += sink + ' '
+      result = self.TOKEN_LEFT + result + self.TOKEN_RIGHT
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -184,8 +205,8 @@ class Alternative(ORGAN.Organ):
 class Code_kana(ORGAN.Organ):
 
    def parse(self):
-      map_symbol = {}
-      map_symbol['~'] = {
+      table_symbol = {}
+      table_symbol['~'] = {
          '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
          '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
       }
@@ -196,18 +217,13 @@ class Code_kana(ORGAN.Organ):
       # # み し ゑ ひ も
       # # ... ...
 
+      assert(len(source) == 2)
       first = source[0]
       second = source[1]
-      sink = map_symbol[first][second]
-
+      sink = table_symbol.get(first).get(second)
       if (sink == None):
-         caution = CAUTION.Not_valid_symbol(
-            "token": source,
-            "leftmost": self.leftmost,
-            "rightmost": self.rightmost,
-            "count_line": self.count_line,
-            "count_glyph": self.count_glyph,
-         )
+         data = self.get_changed_data()
+         caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       self.sinks[0] = sink
 
@@ -217,11 +233,11 @@ class Code_kana(ORGAN.Organ):
 class Code_kanji(ORGAN.Organ):
 
    def parse(self):
-      map_symbol = {}
-      map_symbol['?'] = {
+      table_symbol = {}
+      table_symbol['!'] = {
          'A': '零', 'B': '壹', 'C': '貳', 'D': '參', 'E': '肆',
       }
-      map_symbol['?'] = {
+      table_symbol['?'] = {
          # # ... ...
       }
 
@@ -240,18 +256,13 @@ class Code_kanji(ORGAN.Organ):
       # # 果假宕梗曾流深咸
 
 
+      assert(len(source) == 2)
       first = source[0]
       second = source[1]
-      sink = map_symbol[first][second]
-
+      sink = table_symbol.get(first).get(second)
       if (sink == None):
-         caution = CAUTION.Not_valid_symbol(
-            "token": source,
-            "leftmost": self.leftmost,
-            "rightmost": self.rightmost,
-            "count_line": self.count_line,
-            "count_glyph": self.count_glyph,
-         )
+         data = self.get_changed_data()
+         caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       self.sinks[0] = sink
 
@@ -297,180 +308,204 @@ class Traditional(ORGAN.Organ):
 
    def snip_tissue(self, head_left):
       tissue = None
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          text, head = self.split_word(head)
          sinks.append(text)
 
-   def give_labels_tissue():
+   def give_group_label_tissue():
       return {
          '[': self.
       }
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-   # #     a  A  b  B  0  1  .
-   # # .  .a .A .b .B .0 .1 ..
-   # # &  &a &A &b &B       &.
-   # # *              *0 *1 *.
-
-class Code_plain(ORGAN.Organ):
-
-   def parse(self):
-      first = source[0]
-      second = source[1]
-      if (second = '.')
-        self.sinks[0] = '.'
-      self.sinks[0] = second
-
-   def write(self):
-      return self.sinks[0]
+# #     a  A  b  B  0  1  .
+# # .  .a .A .b .B .0 .1 ..
+# # &  &a &A &b &B       &.
+# # *              *0 *1 *.
 
 class Code_letter(ORGAN.Organ):
 
    def parse(self):
-      first = source[0]
-      second = source[1]
+      assert(len(self.source) == 2)
+      first = self.source[0]
+      second = self.source[1]
+      sink = None
       command = None
-      if (second = '&')
-        command = "\\fraktur"
-      self.sink = second
+
+      if (first == self.PLAIN):
+         if (second.islower() or second.isupper()):
+            sink = second
+         elif (second == self.PLAIN):
+            sink = self.PLAIN
+
+      if (first == self.BOLD):
+         if (second.islower() or second.isupper()):
+            sink = second
+         elif (second == self.PLAIN):
+            sink = "\\#"
+
+      if (first == self.BLACK):
+         if (second.islower):
+            sink = write_brace("\\mathbb", second)
+         elif (second.isupper):
+            sink = write_brace("\\fraktur", second)
+         elif (second == self.PLAIN):
+            sink = "\\&"
+
+      if (first == self.CURSIVE):
+         if (second.islower):
+            sink = write_brace("\\mathcal", second)
+         elif (second.isupper):
+            sink = write_brace("\\mathscr", second)
+         elif (second == self.PLAIN):
+            sink = "@"
+
+      if (first == self.EXTENDED):
+         table_symbol = {
+            'a': "\\alpha", 'b': "\\beta",
+            # # ...
+         }
+         if (second.islower() or second.isupper()):
+            sink = table_symbol[second]
+         elif (second == self.PLAIN):
+            sink = "\\$"
+
+      if (sink == None):
+         data = self.get_changed_data()
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      else:
+         self.sinks.append(sink)
 
    def write(self):
       return self.sinks[0]
 
-class Code_Sign(object):
+   def find_height():
+      return 1
 
-   def __init__(self, number):
-      self.number = number
+class Code_sign(ORGAN.Organ):
 
-# # # # # # # # # # # # # # # #
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Code_pair(ORGAN.Organ):
 
-   def __init__(self, down, up):
-      self.down = down
-      self.up = up
-
 class Code_triplet(ORGAN.Organ):
-
-   def __init__(self, down, middle, up):
-      self.down = down
-      self.middle = middle
-      self.up = up
 
 class Code_tuple(ORGAN.Organ):
 
-   def __init__(self, **entries):
-      self.entries = list(entries)
-
-class Code_box(object):
-
-   def __init__(self, *entries):
-      self.entries = list(entries)
+class Code_box(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # #
 
-class Code_diacritics(object):
+class Code_diacritics(ORGAN.Organ):
 
-   def __init__(self, symbol, number):
-      self.symbol = symbol
-      self.number = number
+class Code_roman(ORGAN.Organ):
 
-class Code_roman(object):
+class Code_sans(ORGAN.Organ):
 
-   def __init__(self, text):
-      self.text = text
-
-class Code_sans(object):
-
-   def __init__(self, text):
-      self.text = text
-
-class Code_mono(object):
-
-   def __init__(self, text):
-      self.text = text
+class Code_mono(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 
 def tune_text(source):
-  result = ignore_mark_text(source)
-  result = adjust_whitespace(result)
-  return result
+   sink = source
+   glyphs_mark = set([
+      '{', '}', '<', '>',
+      '@', '#', '$', '%', '&',
+   ])
+   glyphs_space = set([' ', '\t', '\n'])
+   sink = remove_token(glyphs_mark, sink)
+   sink = erase_token(glyphs_space, sink)
+   return sink
 
 def tune_code(source):
-  result = adjust_whitespace(source)
-  return result
+   sink = source
+   glyphs_space = set([' ', '\t', '\n'])
+   sink = erase_token(sink, glyphs_space)
+   return sink
 
-def adjust_whitespace(source):
-  spaces = give_set_delimiter()
-  result = erase_glyph(source, spaces)
-  result = ' '.join(result.split())
-  return result
+def remove_token(group, source):
+   sink = source
+   for glyph in group:
+      sink = sink.translate(source.maketrans(glyph, ''))
+   return source
 
-def ignore_mark_text(source):
-  return remove_glyph(
-     source, give_glyphs_text_ignored()
-  )
+def erase_token(group, source):
+   sink = source
+   for glyph in group:
+      sink = sink.translate(source.maketrans(glyph, ' '))
+   return sink
 
-def remove_glyph(source, group):
-  for glyph in group:
-     source = source.translate(
-        source.maketrans(glyph, '')
-     )
-  return source
-
-def erase_glyph(source, group):
-  for glyph in group:
-     source = source.translate(
-        source.maketrans(glyph, ' ')
-     )
-  return source
-
-def replace_glyph(source, group):
-  for glyph in group:
-     source = source.translate(
-        source.maketrans(glyph, group[glyph])
-     )
-  return source
+def replace_token(table, source):
+   sink = source
+   for glyph in group:
+      sink = sink.translate(source.maketrans(glyph, table[glyph]))
+   return sink
 
 def escape_hypertext(source):
-  return replace_glyph(source, give_escapes())
+   sink = source
+   table_escape = {
+      '<': "&lt;",
+      '>': "&gt;",
+      '&': "&amp;",
+      '\"': "&quote;",
+      '\'': "&apos;",
+   }
+   sink = replace_token(sink, table_escape)
+   return sink
 
-# # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def give_map_escapes_hypertext():
-  return {'<': "&lt;",
-     '>': "&gt;",
-     '&': "&amp;",
-     '\"': "&quote;",
-     '\'': "&apos;",
-  }
+def write_brace(command, *options):
+   result = ''
+   result += command + ' '
+   for option in options:
+      result += '{' + option + '}' + ' '
+   return result
 
-def give_glyphs_text_ignored():
-  return set([
-     '<',
-     '>',
-     '@',
-     '#',
-     '$',
-     '%',
-     '&',
-  ])
+def give_table_label_traditional():
+   table = {
+      "PLAIN": '.',
+      "BOLD": '#',
+      "BLACK": '&',
+      "CURSIVE": '@',
+      "EXTENDED": '$',
+      "ABSTRACTION": '%',
+      "ARITHMETICS": '+',
+      "OPERATION": '^',
+      "SHAPE": '*',
+      "LINE": '-',
+      "ARROW_LEFT": '{',
+      "ARROW_RIGHT": '}',
+      "EQUIVALENCE": '=',
+      "ORDER_LEFT": '<',
+      "ORDER_RIGHT": '>',
+   }
 
-def give_labels_leaf():
-  return set([
-     "SERIF_NORMAL",
-     "SERIF_ITALIC",
-     "SERIF_BOLD",
-     "SANS_NORMAL",
-     "SANS_BOLD",
-     "MONO",
-     "ALTERNATIVE",
-     "TRADITIONAL",
-     "LINK",
-  ])
+def give_table_tip_traditional():
+  labels = give_group_label()
+  tips = {label: tip for tip, label in labels.items()}
+  return tips
 
+def be_letter_traditional():
+   group = set([
+      "PLAIN", "BOLD", "EXTENDED",
+      "BLACK", "CURSIVE",
+   ])
+   return (label in group)
+
+def be_sign_traditional(label):
+   group = set([
+      "ABSTRACTION", "ARITHMETICS", "OPERATION", "SHAPE",
+      "LINE", "ARROW_LEFT", "ARROW_RIGHT",
+      "EQUIVALENCE", "ORDER_LEFT", "ORDER_RIGHT",
+   ])
+   return (label in group)
+
+def be_symbol_traditional():
 

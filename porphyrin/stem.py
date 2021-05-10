@@ -10,7 +10,7 @@ class Document(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          bough, head = self.snip_bough(head)
          sinks.append(bough)
 
@@ -32,11 +32,11 @@ class Image(ORGAN.Organ):
       sinks.append(self.source)
 
    def write(self):
-      return result += write_tag(
+      return result += write_element(
             content = sinks[0],
             tag = self.TAG,
-            attributes = ["class"],
-            values = [self.KIND],
+            names_attribute = ["class"],
+            values_attribute = [self.KIND],
       )
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -57,12 +57,12 @@ class Break(ORGAN.Organ):
    def write(self):
       content = ''
       for sink in self.sinks:
-         content += write_tag(
+         content += write_element(
             content = sink,
             tag = "span",
          )
          content += ' '
-      return result += write_tag(
+      return result += write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -71,14 +71,14 @@ class Break(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Section(ORGAN.Organ):
+class Paragraphs(ORGAN.Organ):
 
-   KIND = "section"
+   KIND = "paragraphs"
    TAG = "div"
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          twig, head = self.shatter(Line, "newline", head)
          sinks.append(twig)
 
@@ -87,21 +87,21 @@ class Section(ORGAN.Organ):
       for twig in self.sinks:
          content += twig.write()
          content += ' '
-      return result += write_tag(
+      return result += write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
             values = [self.KIND],
       )
 
-class Stanza(ORGAN.Organ):
+class Lines(ORGAN.Organ):
 
-   KIND = "stanza"
+   KIND = "lines"
    TAG = "div"
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          twig, head = self.shatter(Line, "newline", head)
          sinks.append(twig)
 
@@ -110,42 +110,42 @@ class Stanza(ORGAN.Organ):
       for twig in self.sinks:
          content += twig.write()
          content += ' '
-      return result += write_tag(
+      return result += write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
             values = [self.KIND],
       )
 
-class Table(ORGAN.Organ):
+class Rows(ORGAN.Organ):
 
-   KIND = "table"
+   KIND = "rows"
    TAG_ALL = "table"
    TAG_PREFIX = "thead"
    TAG_BODY = "tbody"
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          twig, head = self.shatter(Row, "newline", head)
          sinks.append(twig)
 
    def write(self):
       content = ' '
       twig_prefix = self.sinks.pop(0)
-      content += write_tag(
+      content += write_element(
          content = twig_prefix.write(),
          tag = self.TAG_PREFIX,
          attributes = ["class"],
          values = [self.KIND],
       )
       for twig_body in self.sinks:
-         element += write_tag(
+         element += write_element(
             content = twig_body.write(),
             tag = self.TAG_BODY,
          )
          element += ' '
-      return write_tag(
+      return write_element(
          content = sink,
          tag = self.TAG_ALL,
          attributes = ["class"],
@@ -161,12 +161,12 @@ class Paragraph(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          twig, head = self.shatter(Sentence, "space", head)
          sinks.append(twig)
 
    def write(self):
-      return self.write_tag("paragraph")
+      return self.write_element("paragraph")
 
 class Line(ORGAN.Organ):
 
@@ -175,12 +175,12 @@ class Line(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          twig, head = self.shatter(Verse, "space", head)
          sinks.append(twig)
 
    def write(self):
-      return self.write_tag("line")
+      return self.write_element("line")
 
 class Row(ORGAN.Organ):
 
@@ -189,12 +189,12 @@ class Row(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          twig, head = self.shatter(Cell, "space", head)
          sinks.append(twig)
 
    def write(self):
-      return self.write_tag("row")
+      return self.write_element("row")
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -205,7 +205,7 @@ class Sentence(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -222,7 +222,7 @@ class Verse(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -239,7 +239,7 @@ class Cell(ORGAN.Organ):
 
    def parse(self):
       head = 0
-      while head <= self.self.source.size() - 1:
+      while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
          sinks.append(leaf)
 
@@ -248,25 +248,4 @@ class Cell(ORGAN.Organ):
       for leaf in self.sinks:
          result += leaf.write()
       return result
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-def give_labels_bough():
-  return set([
-     "SECTION",
-     "STANZA",
-     "TABLE",
-     "IMAGE",
-     "BREAK",
-  ])
-
-def give_set_delimiter():
-  return set([
-     ' ',
-     '\t',
-     '\n',
-  ])
-
 
