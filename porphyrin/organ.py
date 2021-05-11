@@ -20,46 +20,47 @@ class Organ(object):
       self.sinks = []
       self.address = ''
 
-   def get_changed_data(self, **change):
+   def get_data_modified(self, **changes):
       data = {
-         source = self.source,
-         leftmost = self.leftmost,
-         rightmost = self.rightmost,
-         count_line = self.count_line,
-         count_glyph = self.count_glyph,
+         "source": self.source,
+         "leftmost": self.leftmost,
+         "rightmost": self.rightmost,
+         "count_line": self.count_line,
+         "count_glyph": self.count_glyph,
       }
-      source = change.pop("source")
-      leftmost = change.pop("leftmost")
-      rightmost = change.pop("rightmost")
-      count_line = change.pop("count_line")
-      count_glyph = change.pop("count_glyph")
-      if (source): data.source = source
-      if (leftmost): data.leftmost = leftmost
-      if (rightmost): data.rightmost = rightmost
-      if (count_line): data.count_line = count_line
-      if (count_glyph): data.count_glyph = count_glyph
+      source = changes.pop("source")
+      leftmost = changes.pop("leftmost")
+      rightmost = changes.pop("rightmost")
+      count_line = changes.pop("count_line")
+      count_glyph = changes.pop("count_glyph")
+      if (source): data[source] = source
+      if (leftmost): data[leftmost] = leftmost
+      if (rightmost): data[rightmost] = rightmost
+      if (count_line): data[count_line] = count_line
+      if (count_glyph): data[count_glyph] = count_glyph
       return data
 
    # # # # # # # # # # # # # # # #
 
    def snip_bough(self, head_mark_left):
       bough = None
-      source = self.source[head_mark_left:]
+      source = self.source
       mark_left, content = probe(head_mark_left)
       label = get_label(mark_left[0])
       mark_right = get_mark_right(mark_left)
 
       if (label == "BREAK"):
          head_mark_right = head_mark_right + len(mark_right)
-         data = self.get_changed_data(
+         data = self.get_data_modified(
             leftmost = get_left(head_mark_left),
             rightmost = get_right(head_mark_right),
          )
          bough = STEM.Break(**data)
          return bough, head_mark_right
 
-      content = source
-      content = content.split(mark_left, 2)[1]
+      content = self.source[head_mark_left:]
+      content = content.split(mark_left, 1)[1]
+      content = content.split(mark_right, 1)[0]
       head_content_left = head_mark_left + len(mark_left)
       head_content_right = head_mark_left + len(content)
       head_mark_right = head_content_right + len(mark_right)
@@ -102,26 +103,27 @@ class Organ(object):
 
    def snip_leaf(self, head_mark_left):
       leaf = None
-      source = self.source[head_mark_left:]
+      source = self.source
       mark_left, content = probe(head_mark_left)
       label = get_label(mark_left[0])
       mark_right = get_mark_right(mark_left)
 
       if (label == "SPACE") or (label == "NEWLINE"):
          head_mark_right = head_mark_right + len(mark_right)
-         data_organ = self.get_changed_data(
+         data = self.get_data_modified(
             leftmost = get_left(head_mark_left),
             rightmost = get_right(head_mark_right),
          )
       if (label == "SPACE"):
-         leaf = LEAF.Space(**data_organ)
+         leaf = LEAF.Space(**data)
          return leaf, head_mark_right
       if (label == "NEWLINE"):
-         leaf = LEAF.Newline(**data_organ)
+         leaf = LEAF.Newline(**data)
          return leaf, head_mark_right
 
-      content = source
-      content = content.split(mark_left, 2)[1]
+      content = self.source[head_mark_left:]
+      content = content.split(mark_left, 1)[1]
+      content = content.split(mark_right, 1)[0]
       head_content_left = head_mark_left + len(mark_left)
       head_content_right = head_mark_left + len(content)
       head_mark_right = head_content_right + len(mark_right)
@@ -204,22 +206,23 @@ class Organ(object):
       sink = None
       source = self.source
       head_middle = head_left
-      group = self.give_group_cut()
+      glyphs_space = set([' ', '\t', '\n'])
       while (head_middle < len(source)):
-         if (source[head] not in group):
+         if (source[head_middle] not in glyphs_space):
             head_middle += 1
       head_right = head_middle
-      while (head_right < len(self.source)):
-         if (source[head] in group):
+      while (head_right < len(source)):
+         if (source[head_middle] in glyphs_space):
             head_right += 1
       sink = source[head_left, head_middle]
       return sink, head_right
 
    def probe(self, head_mark_left):
+      source = self.source
       tip = source[0]
       probe = 0
       for probe in range(len(source) - head_mark_left):
-         if (self.source[head_mark_left + probe] == tip):
+         if (source[head_mark_left + probe] == tip):
             probe += 1
       mark_left = source[: probe]
       content = source
@@ -255,98 +258,4 @@ class Organ(object):
       result += "line " + self.count_line + ", "
       result += "glyph " + self.count_glyph
       return result
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-def get_mark_right(self, mark_left):
-   assert(len([glyph for glyph in mark_left]) == 1)
-   tip = mark_left[0]
-   mark_right = mark_left
-   comment_left = get_tip("COMMENT_LEFT")
-   comment_right = get_tip("COMMENT_RIGHT")
-   if (tip == comment_left):
-      mark_right = mark_left.translate(
-         mark_left.maketrans(comment_left, comment_right)
-      )
-   return mark_right
-
-def write_element(**data):
-   assert(content in data)
-   assert(tag in data)
-   enter = ''
-   if ('\n' in data[content]): enter = '\n'
-
-   result = '<' + data[tag] + ' '
-   if (attributes in data):
-      attributes = data[attributes]
-      values = data[values]
-      assert(len(values) == len(attributes))
-      size = len(attributes)
-      for index in range(size)
-         result += ' ' + data[attributes][index]
-         result += "=\"" + data[values][index] + '\"'
-   result += "> "
-   result += enter + data[content] + ' ' + enter
-   result += "</" + data[tag] + '>'
-   return result
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-def get_label(tip):
-  labels = give_labels()
-  label = labels.get(tip)
-  return label
-
-def get_tip(label):
-  tips = give_labels()
-  tip = tips.get(label)
-  return tip
-
-def give_labels(self):
-   labels = {
-      '@': "SERIF_NORMAL",
-      '%': "SERIF_ITALIC",
-      '#': "SERIF_BOLD",
-      '$': "SANS_NORMAL",
-      '&': "SANS_BOLD",
-      '+': "MONOSPACE",
-      '*': "MATH_NEW",
-      '^': "MATH_OLD",
-      '=': "SECTION",
-      '/': "STANZA",
-      '\"': "TABLE",
-      '|': "IMAGE",
-      '_': "SPACE",
-      '\'': "NEWLINE",
-      '~': "BREAK",
-      '\\': "LINK",
-      '<': "COMMENT_LEFT",
-      '>': "COMMENT_RIGHT",
-   }
-   return labels
-
-def give_tips():
-   labels = give_labels()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def be_bough(label):
-   labels = set([
-      "SECTION", "STANZA", "TABLE",
-      "IMAGE", "BREAK",
-   ])
-   return (label in labels)
-
-def be_leaf(label):
-   labels = set([
-      "SERIF_NORMAL", "SERIF_ITALIC", "SERIF_BOLD",
-      "SANS_NORMAL", "SANS_BOLD",
-      "MATH", "PSEUDO", "CODE",
-      "LINK",
-   ])
-   return (label in labels)
-
-
 
