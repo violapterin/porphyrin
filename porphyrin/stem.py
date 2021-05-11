@@ -15,9 +15,13 @@ class Document(ORGAN.Organ):
          sinks.append(bough)
 
    def write(self):
-      result = ''
+      content = ''
       for bough in self.sinks:
-         result += bough.write()
+         content += bough.write()
+      result = write_element(
+            content = sinks[0],
+            tag = self.TAG,
+      )
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -32,12 +36,13 @@ class Image(ORGAN.Organ):
       sinks.append(self.source)
 
    def write(self):
-      return result += write_element(
+      result = write_element(
             content = sinks[0],
             tag = self.TAG,
-            names_attribute = ["class"],
-            values_attribute = [self.KIND],
+            attributes = ["class"],
+            values = [self.KIND],
       )
+      return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -62,12 +67,13 @@ class Break(ORGAN.Organ):
             tag = "span",
          )
          content += ' '
-      return result += write_element(
+      result = write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
             values = [self.KIND],
       )
+      return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -87,12 +93,13 @@ class Paragraphs(ORGAN.Organ):
       for twig in self.sinks:
          content += twig.write()
          content += ' '
-      return result += write_element(
+      result = write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
             values = [self.KIND],
       )
+      return result
 
 class Lines(ORGAN.Organ):
 

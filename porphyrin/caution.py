@@ -15,7 +15,7 @@ class Caution(object):
 
    def panic(self):
       self.warn()
-      self.cease()
+      raise SystemExit()
 
    def warn(self):
       color_stress = "\033[93m"
@@ -31,9 +31,6 @@ class Caution(object):
          color_stress, token_error,
          color_normal, message_right
       )
-
-   def cease(self):
-      raise SystemExit()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 

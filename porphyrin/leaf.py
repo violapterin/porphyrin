@@ -192,7 +192,7 @@ class Comment(ORGAN.Organ):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Alternative(ORGAN.Organ):
+class Pseudo(ORGAN.Organ):
 
    def parse(self):
       pass
@@ -202,11 +202,11 @@ class Alternative(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Code_kana(ORGAN.Organ):
+class Pseudo_kana(ORGAN.Organ):
 
    def parse(self):
-      table_symbol = {}
-      table_symbol['~'] = {
+      symbols = {}
+      symbols['~'] = {
          '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
          '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
       }
@@ -218,9 +218,9 @@ class Code_kana(ORGAN.Organ):
       # # ... ...
 
       assert(len(source) == 2)
-      first = source[0]
-      second = source[1]
-      sink = table_symbol.get(first).get(second)
+      front = source[0]
+      back = source[1]
+      sink = symbols.get(front).get(back)
       if (sink == None):
          data = self.get_changed_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
@@ -230,14 +230,14 @@ class Code_kana(ORGAN.Organ):
    def write(self):
       return self.sinks[0]
 
-class Code_kanji(ORGAN.Organ):
+class Pseudo_kanji(ORGAN.Organ):
 
    def parse(self):
-      table_symbol = {}
-      table_symbol['!'] = {
+      symbols = {}
+      symbols['!'] = {
          'A': '零', 'B': '壹', 'C': '貳', 'D': '參', 'E': '肆',
       }
-      table_symbol['?'] = {
+      symbols['?'] = {
          # # ... ...
       }
 
@@ -257,9 +257,9 @@ class Code_kanji(ORGAN.Organ):
 
 
       assert(len(source) == 2)
-      first = source[0]
-      second = source[1]
-      sink = table_symbol.get(first).get(second)
+      front = source[0]
+      back = source[1]
+      sink = symbols.get(front).get(back)
       if (sink == None):
          data = self.get_changed_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
@@ -274,29 +274,7 @@ class Code_kanji(ORGAN.Organ):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Traditional(ORGAN.Organ):
-
-   BOLD = 1
-   BLACK = 2
-   CURSIVE = 3
-   EXTENDED = 4
-   ABSTRACTION = 11
-   EQUIVALENCE = 21
-   ARITHMETICS = 22
-   OPERATION = 23
-   SHAPE = 24
-   LINE = 25
-   ARROW_LEFT = 31
-   ARROW_RIGHT = 32
-   ORDER_LEFT = 33
-   ORDER_RIGHT = 34
-   DIACRITICS = 40
-   PAIR = 41
-   TRIPLET = 42
-   TUPLE = 43
-   ROMAN = 50
-   SANS = 51
-   MONO = 51
+class Math(ORGAN.Organ):
 
    def parse(self):
       pass
@@ -324,51 +302,51 @@ class Traditional(ORGAN.Organ):
 # # &  &a &A &b &B       &.
 # # *              *0 *1 *.
 
-class Code_letter(ORGAN.Organ):
+class Math_letter(ORGAN.Organ):
 
    def parse(self):
       assert(len(self.source) == 2)
-      first = self.source[0]
-      second = self.source[1]
+      front = self.source[0]
+      back = self.source[1]
       sink = None
       command = None
 
-      if (first == self.PLAIN):
-         if (second.islower() or second.isupper()):
-            sink = second
-         elif (second == self.PLAIN):
+      if (front == self.PLAIN):
+         if (back.islower() or back.isupper()):
+            sink = back
+         elif (back == self.PLAIN):
             sink = self.PLAIN
 
-      if (first == self.BOLD):
-         if (second.islower() or second.isupper()):
-            sink = second
-         elif (second == self.PLAIN):
+      if (front == self.BOLD):
+         if (back.islower() or back.isupper()):
+            sink = back
+         elif (back == self.PLAIN):
             sink = "\\#"
 
-      if (first == self.BLACK):
-         if (second.islower):
-            sink = write_brace("\\mathbb", second)
-         elif (second.isupper):
-            sink = write_brace("\\fraktur", second)
-         elif (second == self.PLAIN):
+      if (front == self.BLACK):
+         if (back.islower):
+            sink = write_brace("\\mathbb", back)
+         elif (back.isupper):
+            sink = write_brace("\\fraktur", back)
+         elif (back == self.PLAIN):
             sink = "\\&"
 
-      if (first == self.CURSIVE):
-         if (second.islower):
-            sink = write_brace("\\mathcal", second)
-         elif (second.isupper):
-            sink = write_brace("\\mathscr", second)
-         elif (second == self.PLAIN):
+      if (front == self.CURSIVE):
+         if (back.islower):
+            sink = write_brace("\\mathcal", back)
+         elif (back.isupper):
+            sink = write_brace("\\mathscr", back)
+         elif (back == self.PLAIN):
             sink = "@"
 
-      if (first == self.EXTENDED):
-         table_symbol = {
+      if (front == self.EXTENDED):
+         symbols = {
             'a': "\\alpha", 'b': "\\beta",
             # # ...
          }
-         if (second.islower() or second.isupper()):
-            sink = table_symbol[second]
-         elif (second == self.PLAIN):
+         if (back.islower() or back.isupper()):
+            sink = symbols[back]
+         elif (back == self.PLAIN):
             sink = "\\$"
 
       if (sink == None):
@@ -384,28 +362,28 @@ class Code_letter(ORGAN.Organ):
    def find_height():
       return 1
 
-class Code_sign(ORGAN.Organ):
+class Math_sign(ORGAN.Organ):
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Code_pair(ORGAN.Organ):
+class Math_pair(ORGAN.Organ):
 
-class Code_triplet(ORGAN.Organ):
+class Math_triplet(ORGAN.Organ):
 
-class Code_tuple(ORGAN.Organ):
+class Math_tuple(ORGAN.Organ):
 
-class Code_box(ORGAN.Organ):
+class Math_box(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # #
 
-class Code_diacritics(ORGAN.Organ):
+class Math_diacritics(ORGAN.Organ):
 
-class Code_roman(ORGAN.Organ):
+class Math_roman(ORGAN.Organ):
 
-class Code_sans(ORGAN.Organ):
+class Math_sans(ORGAN.Organ):
 
-class Code_mono(ORGAN.Organ):
+class Math_mono(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -449,14 +427,14 @@ def replace_token(table, source):
 
 def escape_hypertext(source):
    sink = source
-   table_escape = {
+   escapes = {
       '<': "&lt;",
       '>': "&gt;",
       '&': "&amp;",
       '\"': "&quote;",
       '\'': "&apos;",
    }
-   sink = replace_token(sink, table_escape)
+   sink = replace_token(sink, escapes)
    return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -468,8 +446,18 @@ def write_brace(command, *options):
       result += '{' + option + '}' + ' '
    return result
 
-def give_table_label_traditional():
-   table = {
+def get_label_math(tip):
+  labels = get_labels()
+  label = labels.get(tip)
+  return label
+
+def get_tip_math(label):
+  tips = get_tips()
+  tip = tips.get(label)
+  return tip
+
+def give_labels_math():
+   labels = {
       "PLAIN": '.',
       "BOLD": '#',
       "BLACK": '&',
@@ -486,26 +474,114 @@ def give_table_label_traditional():
       "ORDER_LEFT": '<',
       "ORDER_RIGHT": '>',
    }
+   return labels
 
-def give_table_tip_traditional():
-  labels = give_group_label()
+def give_tips_math():
+  labels = give_labels_math()
   tips = {label: tip for tip, label in labels.items()}
   return tips
 
-def be_letter_traditional():
-   group = set([
+def be_letter_math(label):
+   labels = set([
       "PLAIN", "BOLD", "EXTENDED",
       "BLACK", "CURSIVE",
    ])
-   return (label in group)
+   return (label in labels)
 
-def be_sign_traditional(label):
-   group = set([
+def be_sign_math(label):
+   labels = set([
       "ABSTRACTION", "ARITHMETICS", "OPERATION", "SHAPE",
       "LINE", "ARROW_LEFT", "ARROW_RIGHT",
       "EQUIVALENCE", "ORDER_LEFT", "ORDER_RIGHT",
    ])
-   return (label in group)
+   return (label in labels)
 
-def be_symbol_traditional():
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+
+def get_label_pseudo(tip):
+  labels = get_labels()
+  label = labels.get(tip)
+  return label
+
+def get_tip_pseudo(label):
+  tips = get_tips()
+  tip = tips.get(label)
+  return tip
+
+def give_labels_pseudo():
+   labels = {
+      "PLAIN": '.',
+      "BOLD": ',',
+      "BLACK": ':',
+      "CURSIVE": ';',
+      "GREEK": '-',
+      "CYRILLIC": '=',
+      "KANA_FIRST": '~',
+      "KANA_SECOND": '@',
+      "KANA_THIRD": '#',
+      "KANA_FOURTH": '$',
+      "KANA_FIFTH": '%',
+      "KANA_SIXTH": '^',
+      "KANA_SEVENTH": '&',
+      "KANA_EIGHTH": '*',
+      "KANA_NINTH": '+',
+      "KANJI_FIRST": '!',
+      "KANJI_SECOND": '?',
+      "START_FIRST": '(',
+      "START_SECOND": '[',
+      "START_THIRD": '{',
+      "START_FOURTH": '<',
+      "STOP_FIRST": ')',
+      "STOP_SECOND": ']',
+      "STOP_THIRD": '}',
+      "STOP_FOURTH": '>',
+      "CUT_FIRST": '/',
+      "CUT_SECOND": '|',
+      "CUT_THIRD": '\\',
+   }
+   return labels
+
+def give_tips_pseudo():
+  labels = give_labels_pseudo()
+  tips = {label: tip for tip, label in labels.items()}
+  return tips
+
+def be_letter_pseudo(label):
+   labels = set([
+      "PLAIN", "BOLD",
+      "GREEK", "CYRILLIC",
+      "BLACK", "CURSIVE",
+   ])
+   return (label in labels)
+
+def be_kana_pseudo(label):
+   labels = set([
+      "KANA_FIRST", "KANA_SECOND", "KANA_THIRD",
+      "KANA_FOURTH", "KANA_FIFTH", "KANA_SIXTH",
+      "KANA_SEVENTH", "KANA_EIGHTH", "KANA_NINTH",
+   ])
+   return (label in labels)
+
+def be_kanji_pseudo(label):
+   labels = set([
+      "KANJI_FIRST", "KANJI_SECOND",
+   ])
+   return (label in labels)
+
+def be_bracket_pseudo(label):
+   labels = set([
+      "START_FIRST",
+      "START_SECOND",
+      "START_THIRD",
+      "START_FOURTH",
+      "STOP_FIRST",
+      "STOP_SECOND",
+      "STOP_THIRD",
+      "STOP_FOURTH",
+      "CUT_FIRST",
+      "CUT_SECOND",
+      "CUT_THIRD",
+   ])
+   return (label in labels)
 

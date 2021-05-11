@@ -46,7 +46,7 @@ class Organ(object):
       bough = None
       source = self.source[head_mark_left:]
       mark_left, content = probe(head_mark_left)
-      label = get_label(mark_left)
+      label = get_label(mark_left[0])
       mark_right = get_mark_right(mark_left)
 
       if (label == "BREAK"):
@@ -104,7 +104,7 @@ class Organ(object):
       leaf = None
       source = self.source[head_mark_left:]
       mark_left, content = probe(head_mark_left)
-      label = get_label(mark_left)
+      label = get_label(mark_left[0])
       mark_right = get_mark_right(mark_left)
 
       if (label == "SPACE") or (label == "NEWLINE"):
@@ -166,9 +166,9 @@ class Organ(object):
       if (label == "MONO"):
          leaf = LEAF.Mono(**data)
       if (label == "TRADITIONAL"):
-         leaf = LEAF.Traditional(**data)
+         leaf = LEAF.Math(**data)
       if (label == "ALTERNATIVE"):
-         leaf = LEAF.Alternative(**data)
+         leaf = LEAF.Pseudo(**data)
       if (label == "COMMENT"):
          bough = STEM.Comment(**data)
 
@@ -273,37 +273,38 @@ def get_mark_right(self, mark_left):
    return mark_right
 
 def write_element(**data):
-  size = min(len(attributes), len(values))
-  result = '<' + tag + 
-  for index in range(size)
-     result += ' ' + data[attributes][index]
-     result += "=\"" + data[values][index]
-  result += "\">"
-  result += data[content] + ' '
-  result += "</" + tag + '>'
-  return result
+   assert(content in data)
+   assert(tag in data)
+   enter = ''
+   if ('\n' in data[content]): enter = '\n'
+
+   result = '<' + data[tag] + ' '
+   if (attributes in data):
+      attributes = data[attributes]
+      values = data[values]
+      assert(len(values) == len(attributes))
+      size = len(attributes)
+      for index in range(size)
+         result += ' ' + data[attributes][index]
+         result += "=\"" + data[values][index] + '\"'
+   result += "> "
+   result += enter + data[content] + ' ' + enter
+   result += "</" + data[tag] + '>'
+   return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+def get_label(tip):
+  labels = give_labels()
+  label = labels.get(tip)
+  return label
+
 def get_tip(label):
-  tips = get_tips()
-  if label not in tips:
-     return None
-  return tips[label]
+  tips = give_labels()
+  tip = tips.get(label)
+  return tip
 
-def get_label(mark):
-  tip = mark[0]
-  labels = get_labels()
-  if tip not in labels:
-     return None
-  return labels[tip]
-
-def give_table_tip():
-  labels = give_group_label()
-  tips = {label: tip for tip, label in labels.items()}
-  return tips
-
-def give_table_label(self):
+def give_labels(self):
    labels = {
       '@': "SERIF_NORMAL",
       '%': "SERIF_ITALIC",
@@ -326,30 +327,26 @@ def give_table_label(self):
    }
    return labels
 
-def label_be_bough(label):
-   labels = set([
-      "SECTION",
-      "STANZA",
-      "TABLE",
-      "IMAGE",
-      "BREAK",
-   ])
-   return label in labels
+def give_tips():
+   labels = give_labels()
+   tips = {label: tip for tip, label in labels.items()}
+   return tips
 
-def label_be_leaf(label):
+def be_bough(label):
    labels = set([
-      "SERIF_NORMAL",
-      "SERIF_ITALIC",
-      "SERIF_BOLD",
-      "SANS_NORMAL",
-      "SANS_BOLD",
-      "MONO",
-      "ALTERNATIVE",
-      "TRADITIONAL",
-      "LINK",
-      "COMMENT_LEFT",
+      "SECTION", "STANZA", "TABLE",
+      "IMAGE", "BREAK",
    ])
-   return label in labels
+   return (label in labels)
+
+def be_leaf(label):
+   labels = set([
+      "SERIF_NORMAL", "SERIF_ITALIC", "SERIF_BOLD",
+      "SANS_NORMAL", "SANS_BOLD",
+      "MATH", "PSEUDO", "CODE",
+      "LINK",
+   ])
+   return (label in labels)
 
 
 
