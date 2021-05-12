@@ -1,6 +1,7 @@
 import organ as ORGAN
 import stem as STEM
 import leaf as LEAF
+import aid as AID
 
 class Caution(object):
 
@@ -69,12 +70,12 @@ class Not_agreeing_table_column(Caution):
    message_left = "Rows column"
    message_right = "does not agree the others in number."
 
-class Not_matching_brackets(Caution):
+class Not_matching_bracket(Caution):
 
    message_left = "Bracket"
    message_right = "is not matched in the leaf."
 
-class Not_being_balanced_brackets(Caution):
+class Not_being_balanced_bracket(Caution):
 
    message_left = "Bracket"
    message_right = "is not balanced in the leaf."
@@ -88,4 +89,10 @@ class Conflicting_delimiter_tuple(Caution):
 
    message_left = "Tuple"
    message_right = "contain conflicting delimiters".
+
+class Not_gathering_macro_front(Caution):
+
+   message_left = "Macro"
+   message_right = "is not gathered in front of the document".
+
 

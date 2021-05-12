@@ -6,8 +6,8 @@ import caution as CAUTION
 # Stem (bough): Paragraphs, Lines, Rows, Image, Break,
 # Stem (twig): Paragraph, Line, Row,
 # Stem (frond): Sentence, Verse, Cell
-# Leaf: Math old, Math new, Mono
-# Leaf: Serif roman, Serif italic, Serif bold, Sans roman, Sans bold
+# Leaf: Math, Pseudo, code
+# Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold
 
 class Organ(object):
 
@@ -19,6 +19,9 @@ class Organ(object):
       self.count_glyph = data.pop("count_glyph", 0)
       self.sinks = []
       self.address = ''
+      self.definitions = []
+      self.instructions = []
+      self.expanded = False
 
    def get_data_modified(self, **changes):
       data = {
@@ -45,12 +48,13 @@ class Organ(object):
    def snip_bough(self, head_mark_left):
       bough = None
       source = self.source
-      mark_left, content = probe(head_mark_left)
-      label = get_label(mark_left[0])
+      segments = probe(head_mark_left)
+      mark_left = segments[0]
       mark_right = get_mark_right(mark_left)
+      label = get_label(mark_left[0])
 
       if (label == "BREAK"):
-         head_mark_right = head_mark_right + len(mark_right)
+         head_mark_right = head_mark_left + len(mark_right)
          data = self.get_data_modified(
             leftmost = get_left(head_mark_left),
             rightmost = get_right(head_mark_right),
@@ -58,33 +62,43 @@ class Organ(object):
          bough = STEM.Break(**data)
          return bough, head_mark_right
 
-      content = self.source[head_mark_left:]
-      content = content.split(mark_left, 1)[1]
-      content = content.split(mark_right, 1)[0]
+      assert(len(segments) = 3)
+      content = segments[1]
       head_content_left = head_mark_left + len(mark_left)
-      head_content_right = head_mark_left + len(content)
+      head_content_right = head_content_left + len(content)
       head_mark_right = head_content_right + len(mark_right)
 
-      data = {
+      data = self.get_data_modified(
          "source": mark_left,
          "leftmost": get_left(head_mark_left),
          "rightmost": get_right(head_content_left),
-         "count_line": count_next_line(head_mark_left),
-         "count_glyph": count_next_glyph(head_mark_left),
-      }
-      if (label == None):
+      )
+      if (head_content_right > len(source)):
          caution = CAUTION.Not_matching_mark_bough(**data)
          caution.panic()
       if not self.be_label_bough(label)):
          caution = CAUTION.Allowing_only_bough(**data)
          caution.panic()
+      if (label in {"INSTRUCTION", "DEFINITION_LEFT"}) and self.expanded:
+         caution = CAUTION.Not_gathering_macro_front(**data)
+         caution.panic()
+
+      if (label == "INSTRUCTION"):
+         self.instructions.append(content)
+         return None, head_mark_right
+      if (label == "DEFINITION_LEFT"):
+         self.definitions.append(content)
+         return None, head_mark_right
+      if not self.expanded:
+         self.expand()
+         self.expanded = True
 
       data = {
          "source": content,
          "leftmost": get_left(head_content_left),
          "rightmost": get_right(head_content_right),
-         "count_line": count_next_line(head_content_left),
-         "count_glyph": count_next_glyph(head_content_left),
+         "count_line": count_next_line(mark_left),
+         "count_glyph": count_next_glyph(mark_left),
       }
       if (label == "SECTION"):
          bough = STEM.Paragraphs(**data)
@@ -96,49 +110,46 @@ class Organ(object):
          bough = STEM.Image(**data)
       if (label == "BREAK"):
          bough = STEM.Break(**data)
-      if (label == "COMMENT"):
-         bough = STEM.Comment(**data)
-
+      if (label == "COMMENT_LEFT"):
+         bough = None
       return bough, head_mark_right
 
    def snip_leaf(self, head_mark_left):
       leaf = None
       source = self.source
-      mark_left, content = probe(head_mark_left)
-      label = get_label(mark_left[0])
+      segments = probe(head_mark_left)
+      mark_left = segments[0]
       mark_right = get_mark_right(mark_left)
+      label = get_label(mark_left[0])
 
-      if (label == "SPACE") or (label == "NEWLINE"):
-         head_mark_right = head_mark_right + len(mark_right)
+      if (label in {"SPACE", "NEWLINE"}):
+         head_mark_right = head_mark_left + len(mark_right)
          data = self.get_data_modified(
             leftmost = get_left(head_mark_left),
             rightmost = get_right(head_mark_right),
          )
-      if (label == "SPACE"):
-         leaf = LEAF.Space(**data)
-         return leaf, head_mark_right
-      if (label == "NEWLINE"):
-         leaf = LEAF.Newline(**data)
-         return leaf, head_mark_right
+         if (label == "SPACE"):
+            leaf = LEAF.Space(**data)
+            return leaf, head_mark_right
+         if (label == "NEWLINE"):
+            leaf = LEAF.Newline(**data)
+            return leaf, head_mark_right
 
-      content = self.source[head_mark_left:]
-      content = content.split(mark_left, 1)[1]
-      content = content.split(mark_right, 1)[0]
+      assert(len(segments) = 3)
+      content = segments[1]
       head_content_left = head_mark_left + len(mark_left)
-      head_content_right = head_mark_left + len(content)
+      head_content_right = head_content_left + len(content)
       head_mark_right = head_content_right + len(mark_right)
 
-      data = {
+      data = self.get_data_modified(
          "source": mark_left,
          "leftmost": get_left(head_mark_left),
          "rightmost": get_right(head_content_left),
-         "count_line": count_next_line(head_mark_left),
-         "count_glyph": count_next_glyph(head_mark_left),
-      }
-      if (label == None):
+      )
+      if (head_content_right > len(source)):
          caution = CAUTION.Not_matching_mark_leaf(**data)
          caution.panic()
-      if not self.be_label_bough(label)):
+      if not self.be_label_leaf(label)):
          caution = CAUTION.Allowing_only_leaf(**data)
          caution.panic()
 
@@ -146,8 +157,8 @@ class Organ(object):
          "source": content,
          "leftmost": get_left(head_content_left),
          "rightmost": get_right(head_content_right),
-         "count_line": count_next_line(head_content_left),
-         "count_glyph": count_next_glyph(head_content_left),
+         "count_line": count_next_line(mark_left),
+         "count_glyph": count_next_glyph(mark_left),
       }
       if (label == "LINK"):
          if (len(self.sinks) = 0):
@@ -165,15 +176,14 @@ class Organ(object):
          leaf = LEAF.Sans_normal(**data)
       if (label == "SANS_BOLD"):
          leaf = LEAF.Sans_bold(**data)
-      if (label == "MONO"):
-         leaf = LEAF.Mono(**data)
-      if (label == "TRADITIONAL"):
-         leaf = LEAF.Math(**data)
-      if (label == "ALTERNATIVE"):
+      if (label == "CODE"):
+         leaf = LEAF.Code(**data)
+      if (label == "PSEUDO"):
          leaf = LEAF.Pseudo(**data)
-      if (label == "COMMENT"):
-         bough = STEM.Comment(**data)
-
+      if (label == "MATH"):
+         leaf = LEAF.Math(**data)
+      if (label == "COMMENT_LEFT"):
+         leaf = None
       return leaf, head_mark_right
 
    def shatter(self, kind_stop, constructor, head_left):
@@ -202,8 +212,125 @@ class Organ(object):
       )
       return branch, head_right
 
-   def split_word(self, head_left):
-      sink = None
+   # # # # # # # # # # # # # # # #
+
+   def snip_tissue_math(self, head_mark_left):
+      tissue = None
+      source = self.source
+      tip = source[head_mark_left]
+      label = get_label_math(tip)
+
+      if (be_symbol_math(label)):
+         head_mark_right = head_mark_left + 2
+         head_mark_right = head_mark_left + len(mark_right)
+         mark = source[head_mark_left, head_mark_right]
+         data = self.get_data_modified(
+            leftmost = get_left(head_mark_left),
+            rightmost = get_right(head_mark_right),
+         )
+         tissue = LEAF.Math_letter(**data)
+         return tissue, head_mark_right
+
+      if (be_sign_math(label)):
+         head_mark_right = head_mark_left + len(mark_right)
+         mark = source[head_mark_left, head_mark_right]
+         data = self.get_data_modified(
+            leftmost = get_left(head_mark_left),
+            rightmost = get_right(head_mark_right),
+         )
+         tissue = LEAF.Math_sign(**data)
+         return tissue, head_mark_right
+
+      mark_left = tip
+      mark_right = get_mark_right_math(mark_left)
+      content = source[head_mark_left:]
+      content = content.split(mark_left, 1)[1]
+      content, remain, *_ = content.split(mark_right, 1)[0]
+      head_content_left = head_mark_left + len(mark_left)
+      head_content_right = head_mark_left + len(content)
+      head_mark_right = head_content_right + len(mark_right)
+
+      data = {
+         "source": mark_left,
+         "leftmost": get_left(head_mark_left),
+         "rightmost": get_right(head_content_left),
+         "count_line": count_next_line(head_mark_left),
+         "count_glyph": count_next_glyph(head_mark_left),
+      }
+      if (remain is None):
+         caution = CAUTION.Not_matching_bracket(**data)
+         caution.panic()
+
+      data = {
+         "source": content,
+         "leftmost": get_left(head_content_left),
+         "rightmost": get_right(head_content_right),
+         "count_line": count_next_line(head_content_left),
+         "count_glyph": count_next_glyph(head_content_left),
+      }
+      tissue = LEAF.Bracket_math(**data)
+      return tissue, head_mark_right
+
+
+   def snip_tissue_pseudo(self, head_mark_left):
+      tissue = None
+      source = self.source
+      tip = source[head_mark_left]
+      label = get_label_pseudo(tip)
+
+      if (be_symbol_pseudo(label)):
+         head_mark_right = head_mark_left + 2
+         head_mark_right = head_mark_left + len(mark_right)
+         mark = source[head_mark_left, head_mark_right]
+         data = self.get_data_modified(
+            leftmost = get_left(head_mark_left),
+            rightmost = get_right(head_mark_right),
+         )
+         tissue = LEAF.Math_letter(**data)
+         return tissue, head_mark_right
+
+      if (be_sign_pseudo(label)):
+         head_mark_right = head_mark_left + len(mark_right)
+         mark = source[head_mark_left, head_mark_right]
+         data = self.get_data_modified(
+            leftmost = get_left(head_mark_left),
+            rightmost = get_right(head_mark_right),
+         )
+         tissue = LEAF.Math_sign(**data)
+         return tissue, head_mark_right
+
+      mark_left = tip
+      mark_right = get_mark_right_pseudo(mark_left)
+      content = source[head_mark_left:]
+      content = content.split(mark_left, 1)[1]
+      content, remain, *_ = content.split(mark_right, 1)[0]
+      head_content_left = head_mark_left + len(mark_left)
+      head_content_right = head_mark_left + len(content)
+      head_mark_right = head_content_right + len(mark_right)
+
+      data = {
+         "source": mark_left,
+         "leftmost": get_left(head_mark_left),
+         "rightmost": get_right(head_content_left),
+         "count_line": count_next_line(head_mark_left),
+         "count_glyph": count_next_glyph(head_mark_left),
+      }
+      if (remain is None):
+         caution = CAUTION.Not_matching_bracket(**data)
+         caution.panic()
+
+      data = {
+         "source": content,
+         "leftmost": get_left(head_content_left),
+         "rightmost": get_right(head_content_right),
+         "count_line": count_next_line(head_content_left),
+         "count_glyph": count_next_glyph(head_content_left),
+      }
+      tissue = LEAF.Bracket_pseudo(**data)
+      return tissue, head_mark_right
+
+   def snip_tissue_text(self, head_left):
+      tissue = None
       source = self.source
       head_middle = head_left
       glyphs_space = set([' ', '\t', '\n'])
@@ -214,21 +341,30 @@ class Organ(object):
       while (head_right < len(source)):
          if (source[head_middle] in glyphs_space):
             head_right += 1
-      sink = source[head_left, head_middle]
-      return sink, head_right
+      tissue = source[head_left, head_middle]
+      return tissue, head_right
 
-   def probe(self, head_mark_left):
+   # # # # # # # # # # # # # # # #
+
+   def probe(self, head_left):
+      results = []
       source = self.source
-      tip = source[0]
-      probe = 0
-      for probe in range(len(source) - head_mark_left):
-         if (source[head_mark_left + probe] == tip):
-            probe += 1
-      mark_left = source[: probe]
-      content = source
-      content = content.split(mark_left, 1)[1]
+      tip = source[head_left]
+      label = get_label(tip)
+      while (head_middle <= len(source)):
+         if (source[head_middle] == tip):
+            head_middle += 1
+      mark_left = source[head_left: head_middle]
+
+      if (label in {"BREAK", "SPACE", "NEWLINE"}):
+         results = [mark_left]
+         return result
+
+      mark_right = get_mark_right(mark_left)
+      content = source[mark_middle:]
       content = content.split(mark_right, 1)[0]
-      return mark, content
+      result = [mark_left, content]
+      return result
 
    def get_left(self, head):
       left = self.source[: head]
@@ -241,17 +377,19 @@ class Organ(object):
       return result
 
    def count_next_glyph(self, source):
-      result = self.count_glyph
+      count = self.count_glyph
       segments = source.split('\n')
-      if (not len(segments) == 0):
-         result += len(segments[-1]) + 1
-      return result
+      if (len(segments) == 1):
+         count += len(segments[0])
+         return count
+      count = len(segments[-1])
+      return count
 
    def count_next_line(self, source):
-      result = self.count_glyph
+      count = self.count_line
       segments = source.split('\n')
-      result = self.count_line + len(segments)
-      return result
+      count += len(segments) - 1
+      return count
 
    def emit_place(self):
       result = ''

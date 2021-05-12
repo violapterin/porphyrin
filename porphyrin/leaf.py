@@ -1,6 +1,7 @@
 import organ as ORGAN
 import stem as STEM
 import caution as CAUTION
+import aid as AID
 
 class Serif_roman(ORGAN.Organ):
 
@@ -8,10 +9,10 @@ class Serif_roman(ORGAN.Organ):
    TAG = "span"
 
    def parse(self):
-      self.tune_text()
+      AID.tune_text()
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
    def write(self):
@@ -34,10 +35,10 @@ class Serif_italic(ORGAN.Organ):
    TAG = "em"
 
    def parse(self):
-      self.tune_text()
+      AID.tune_text()
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
    def write(self):
@@ -53,7 +54,7 @@ class Serif_italic(ORGAN.Organ):
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_element(result, TAG)
+      result = AID.write_element(result, TAG)
       return result
 
 class Serif_bold(ORGAN.Organ):
@@ -62,10 +63,10 @@ class Serif_bold(ORGAN.Organ):
    TAG = 'b'
 
    def parse(self):
-      self.tune_text()
+      AID.tune_text()
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
    def write(self):
@@ -81,7 +82,7 @@ class Serif_bold(ORGAN.Organ):
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_element(result, TAG)
+      result = AID.write_element(result, TAG)
       return result
 
 class Sans_roman(ORGAN.Organ):
@@ -89,10 +90,10 @@ class Sans_roman(ORGAN.Organ):
    KIND = "sans-roman"
 
    def parse(self):
-      self.tune_text()
+      AID.tune_text()
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
    def write(self):
@@ -116,10 +117,10 @@ class Sans_bold(ORGAN.Organ):
    TAG = 'b'
 
    def parse(self):
-      self.tune_text()
+      AID.tune_text()
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
    def write(self):
@@ -135,7 +136,7 @@ class Sans_bold(ORGAN.Organ):
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_element(result, self.TAG)
+      result = AID.write_element(result, self.TAG)
       return result
 
 class Mono(ORGAN.Organ):
@@ -144,16 +145,16 @@ class Mono(ORGAN.Organ):
    TAG = "pre"
 
    def parse(self):
-      self.tune_text()
+      AID.tune_text()
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
    def write(self):
       result = ''
       tag = self.TAG
-      if not (self.address == None):
+      if (self.address is not None):
          tag = 'a'
       for sink in self.sinks:
          result += write_element(
@@ -163,7 +164,7 @@ class Mono(ORGAN.Organ):
             values = [self.KIND],
          )
          result += ' '
-      result = self.write_element(result, self.TAG)
+      result = AID.write_element(result, self.TAG)
       return result
 
 class Comment(ORGAN.Organ):
@@ -175,13 +176,12 @@ class Comment(ORGAN.Organ):
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
-
 
    def write(self):
       result = ''
-      if not (self.address == None):
+      if (self.address is not None):
          tag = 'a'
       for sink in self.sinks:
          result += sink + ' '
@@ -202,38 +202,7 @@ class Pseudo(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_kana(ORGAN.Organ):
-
-   def parse(self):
-      symbols = {}
-      symbols['~'] = {
-         '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
-         '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
-      }
-      # # い ろ は に ほ へ と ち り ぬ 
-      # # る を わ か よ た れ そ つ ね
-      # # な ら む う ゐ の お く や ま
-      # # け ふ こ え て あ さ き ゆ め
-      # # み し ゑ ひ も
-      # # ... ...
-
-      assert(len(source) == 2)
-      front = source[0]
-      back = source[1]
-      sink = symbols.get(front).get(back)
-      if (sink == None):
-         data = self.get_data_modified()
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
-      self.sinks[0] = sink
-
-   def write(self):
-      return self.sinks[0]
-
-   def find_height():
-      return 1
-
-class Pseudo_kanji(ORGAN.Organ):
+class Pseudo_letter(ORGAN.Organ):
 
    def parse(self):
       symbols = {}
@@ -260,9 +229,9 @@ class Pseudo_kanji(ORGAN.Organ):
 
 
       assert(len(source) == 2)
-      front = source[0]
-      back = source[1]
-      sink = symbols.get(front).get(back)
+      tip = source[0]
+      tail = source[1]
+      sink = symbols.get(tip).get(tail)
       if (sink == None):
          data = self.get_data_modified()
          caution = CAUTION.Not_being_valid_symbol(**data)
@@ -276,6 +245,43 @@ class Pseudo_kanji(ORGAN.Organ):
       return 1
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Pseudo_sign(ORGAN.Organ):
+
+   def parse(self):
+      symbols = {}
+      symbols['~'] = {
+         '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
+         '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
+      }
+      # # い ろ は に ほ へ と ち り ぬ 
+      # # る を わ か よ た れ そ つ ね
+      # # な ら む う ゐ の お く や ま
+      # # け ふ こ え て あ さ き ゆ め
+      # # み し ゑ ひ も
+      # # ... ...
+
+      assert(len(source) == 2)
+      tip = source[0]
+      tail = source[1]
+      sink = symbols.get(tip).get(tail)
+      if (sink == None):
+         data = self.get_data_modified()
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      self.sinks[0] = sink
+
+   def write(self):
+      return self.sinks[0]
+
+   def find_height():
+      return 1
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Pseudo_bracket(ORGAN.Organ):
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -287,57 +293,55 @@ class Math(ORGAN.Organ):
    def write(self):
       pass
 
-   # # # # # # # # # # # # # # # #
-
    def snip_tissue(self, head_left):
       tissue = None
       while head <= len(self.source) - 1:
-         text, head = self.split_word(head)
+         text, head = self.snip_tissue_text(head)
          sinks.append(text)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-# #     a  A  b  B  0  1  .
-# # .  .a .A .b .B .0 .1 ..
-# # &  &a &A &b &B       &.
-# # *              *0 *1 *.
+# #     a   A   b    B   0   1   .
+# # .  .a  .A  .b   .B  .0  .1  ..
+# # &  &a  &A  &b   &B          &.
+# # *                   *0  *1  *.
 
 class Math_letter(ORGAN.Organ):
 
    def parse(self):
       assert(len(self.source) == 2)
-      front = self.source[0]
-      back = self.source[1]
-      label = get_label_math(front)
+      tip = self.source[0]
+      tail = self.source[1]
+      label = get_label_math(tip)
       PLAIN = give_tips_math("PLAIN")
       sink = None
 
       if (label == "PLAIN"):
-         if (back.islower() or back.isupper()):
-            sink = back
-         elif (back == PLAIN):
+         if (tail.islower() or tail.isupper()):
+            sink = tail
+         elif (tail == PLAIN):
             sink = "."
 
       if (label == "BOLD"):
-         if (back.islower() or back.isupper()):
-            sink = back
-         elif (back == PLAIN):
+         if (tail.islower() or tail.isupper()):
+            sink = tail
+         elif (tail == PLAIN):
             sink = "\\#"
 
       if (label == "BLACK"):
-         if (back.islower()):
-            sink = write_brace("\\mathbb", back)
-         elif (back.isupper()):
-            sink = write_brace("\\fraktur", back)
-         elif (back == PLAIN):
+         if (tail.islower()):
+            sink = write_brace("\\mathbb", tail)
+         elif (tail.isupper()):
+            sink = write_brace("\\fraktur", tail)
+         elif (tail == PLAIN):
             sink = "\\&"
 
       if (label == "CURSIVE"):
-         if (back.islower()):
-            sink = write_brace("\\mathcal", back)
-         elif (back.isupper()):
-            sink = write_brace("\\mathscr", back)
-         elif (back == PLAIN):
+         if (tail.islower()):
+            sink = write_brace("\\mathcal", tail)
+         elif (tail.isupper()):
+            sink = write_brace("\\mathscr", tail)
+         elif (tail == PLAIN):
             sink = "@"
 
       if (label == "EXTENDED"):
@@ -345,9 +349,9 @@ class Math_letter(ORGAN.Organ):
             'a': "\\alpha", 'b': "\\beta",
             # # ...
          }
-         if (back.islower() or back.isupper()):
-            sink = symbols[back]
-         elif (back == PLAIN):
+         if (tail.islower() or tail.isupper()):
+            sink = symbols[tail]
+         elif (tail == PLAIN):
             sink = "\\$"
 
       if (sink == None):
@@ -363,6 +367,8 @@ class Math_letter(ORGAN.Organ):
    def find_height():
       return 1
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 class Math_sign(ORGAN.Organ):
 
    def write(self):
@@ -370,6 +376,17 @@ class Math_sign(ORGAN.Organ):
 
    def find_height():
       return 1
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Math_bracket(ORGAN.Organ):
+
+   def write(self):
+      return self.sinks[0]
+
+   def find_height():
+      return 1
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -381,7 +398,7 @@ class Math_tuple(ORGAN.Organ):
 
 class Math_box(ORGAN.Organ):
 
-# # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_diacritics(ORGAN.Organ):
 

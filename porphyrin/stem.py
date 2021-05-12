@@ -12,7 +12,8 @@ class Document(ORGAN.Organ):
       head = 0
       while head <= len(self.source) - 1:
          bough, head = self.snip_bough(head)
-         sinks.append(bough)
+         if (bough is not None):
+            sinks.append(bough)
 
    def write(self):
       content = ''
@@ -169,8 +170,8 @@ class Paragraph(ORGAN.Organ):
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
-         twig, head = self.shatter(Sentence, "space", head)
-         sinks.append(twig)
+         frond, head = self.shatter(Sentence, "space", head)
+         sinks.append(frond)
 
    def write(self):
       return self.write_element("paragraph")
@@ -183,8 +184,8 @@ class Line(ORGAN.Organ):
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
-         twig, head = self.shatter(Verse, "space", head)
-         sinks.append(twig)
+         frond, head = self.shatter(Verse, "space", head)
+         sinks.append(frond)
 
    def write(self):
       return self.write_element("line")
@@ -197,8 +198,8 @@ class Row(ORGAN.Organ):
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
-         twig, head = self.shatter(Cell, "space", head)
-         sinks.append(twig)
+         frond, head = self.shatter(Cell, "space", head)
+         sinks.append(frond)
 
    def write(self):
       return self.write_element("row")
@@ -214,7 +215,8 @@ class Sentence(ORGAN.Organ):
       head = 0
       while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
-         sinks.append(leaf)
+         if (leaf is not None):
+            sinks.append(leaf)
 
    def write(self):
       result = ''
@@ -231,7 +233,8 @@ class Verse(ORGAN.Organ):
       head = 0
       while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
-         sinks.append(leaf)
+         if (leaf is not None):
+            sinks.append(leaf)
 
    def write(self):
       result = ''
@@ -248,7 +251,8 @@ class Cell(ORGAN.Organ):
       head = 0
       while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
-         sinks.append(leaf)
+         if (leaf is not None):
+            sinks.append(leaf)
 
    def write(self):
       result = ''
