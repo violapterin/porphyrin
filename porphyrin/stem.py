@@ -3,10 +3,18 @@ import leaf as LEAF
 import caution as CAUTION
 
 
-class Document(ORGAN.Organ):
+class Document(Stem):
 
    KIND = "document"
    TAG = "body"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+      self.address = ''
+      self.definitions = []
+      self.instructions = []
+      self.expanded = False
 
    def parse(self):
       head = 0
@@ -27,10 +35,14 @@ class Document(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Image(ORGAN.Organ):
+class Image(Stem):
 
    KIND = "image"
    TAG = "img"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
 
    def parse(self):
       self.escape_hypertext()
@@ -47,18 +59,18 @@ class Image(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Break(ORGAN.Organ):
+class Break(Stem):
 
    KIND = "break"
    TAG = "div"
-   DINGBAT = "&#10086;"
-   REPEAT = 3
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
 
    def parse(self):
-      content = ''
-      for index in range(Break.REPEAT):
-         element += Break.DINGBAT
-      sinks.append(element)
+      dingbat = "&#10086;"
+      repeat = 3
+      self.sinks = dingbat * repeat
 
    def write(self):
       content = ''
@@ -78,10 +90,14 @@ class Break(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraphs(ORGAN.Organ):
+class Paragraphs(Stem):
 
    KIND = "paragraphs"
    TAG = "div"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       head = 0
@@ -102,10 +118,14 @@ class Paragraphs(ORGAN.Organ):
       )
       return result
 
-class Lines(ORGAN.Organ):
+class Lines(Stem):
 
    KIND = "lines"
    TAG = "div"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       head = 0
@@ -125,12 +145,16 @@ class Lines(ORGAN.Organ):
             values = [self.KIND],
       )
 
-class Rows(ORGAN.Organ):
+class Rows(Stem):
 
    KIND = "rows"
    TAG_ALL = "table"
    TAG_PREFIX = "thead"
    TAG_BODY = "tbody"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       head = 0
@@ -162,10 +186,14 @@ class Rows(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraph(ORGAN.Organ):
+class Paragraph(Stem):
 
    KIND = "paragraph"
    TAG = "p"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       head = 0
@@ -176,10 +204,14 @@ class Paragraph(ORGAN.Organ):
    def write(self):
       return self.write_element("paragraph")
 
-class Line(ORGAN.Organ):
+class Line(Stem):
 
    KIND = "line"
    TAG = "span"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       head = 0
@@ -190,10 +222,14 @@ class Line(ORGAN.Organ):
    def write(self):
       return self.write_element("line")
 
-class Row(ORGAN.Organ):
+class Row(Stem):
 
    KIND = "row"
    TAG = "tr"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       head = 0
@@ -206,17 +242,20 @@ class Row(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Sentence(ORGAN.Organ):
+class Sentence(Stem):
 
    KIND = "sentence"
    TAG = "span"
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
-         if (leaf is not None):
-            sinks.append(leaf)
+         if (leaf): sinks.append(leaf)
 
    def write(self):
       result = ''
@@ -224,17 +263,20 @@ class Sentence(ORGAN.Organ):
          result += leaf.write()
       return result
 
-class Verse(ORGAN.Organ):
+class Verse(Stem):
 
    KIND = "verse"
    TAG = "span"
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
-         if (leaf is not None):
-            sinks.append(leaf)
+         if (leaf): sinks.append(leaf)
 
    def write(self):
       result = ''
@@ -242,21 +284,23 @@ class Verse(ORGAN.Organ):
          result += leaf.write()
       return result
 
-class Cell(ORGAN.Organ):
+class Cell(Stem):
 
    KIND = "cell"
    TAG = "td"
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
          leaf, head = self.snip_leaf(head)
-         if (leaf is not None):
-            sinks.append(leaf)
+         if (leaf): sinks.append(leaf)
 
    def write(self):
       result = ''
       for leaf in self.sinks:
          result += leaf.write()
       return result
-

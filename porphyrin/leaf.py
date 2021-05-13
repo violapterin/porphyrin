@@ -3,10 +3,15 @@ import stem as STEM
 import caution as CAUTION
 import aid as AID
 
-class Serif_roman(ORGAN.Organ):
+class Serif_roman(Leaf):
 
    KIND = "serif-roman"
    TAG = "span"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+      self.address = ''
 
    def parse(self):
       AID.tune_text()
@@ -29,11 +34,16 @@ class Serif_roman(ORGAN.Organ):
          result += ' '
       return result
 
-class Serif_italic(ORGAN.Organ):
+class Serif_italic(Leaf):
 
    KIND = "serif-italic"
    TAG = "em"
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+      self.address = ''
+
    def parse(self):
       AID.tune_text()
       head = 0
@@ -57,11 +67,16 @@ class Serif_italic(ORGAN.Organ):
       result = AID.write_element(result, TAG)
       return result
 
-class Serif_bold(ORGAN.Organ):
+class Serif_bold(Leaf):
 
    KIND = "serif-bold"
    TAG = 'b'
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+      self.address = ''
+
    def parse(self):
       AID.tune_text()
       head = 0
@@ -85,9 +100,14 @@ class Serif_bold(ORGAN.Organ):
       result = AID.write_element(result, TAG)
       return result
 
-class Sans_roman(ORGAN.Organ):
+class Sans_roman(Leaf):
 
    KIND = "sans-roman"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+      self.address = ''
 
    def parse(self):
       AID.tune_text()
@@ -111,10 +131,15 @@ class Sans_roman(ORGAN.Organ):
          result += ' '
       return result
 
-class Sans_bold(ORGAN.Organ):
+class Sans_bold(Leaf):
 
    KIND = "sans-bold"
    TAG = 'b'
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sinks = []
+      self.address = ''
 
    def parse(self):
       AID.tune_text()
@@ -139,7 +164,7 @@ class Sans_bold(ORGAN.Organ):
       result = AID.write_element(result, self.TAG)
       return result
 
-class Mono(ORGAN.Organ):
+class Mono(Leaf):
 
    KIND = "sans-bold"
    TAG = "pre"
@@ -167,32 +192,34 @@ class Mono(ORGAN.Organ):
       result = AID.write_element(result, self.TAG)
       return result
 
-class Comment(ORGAN.Organ):
-
-   KIND = "sans-bold"
-   TOKEN_LEFT = "<!--"
-   TOKEN_RIGHT = "-->"
+class Comment(Leaf):
 
    def parse(self):
       head = 0
       while head <= len(self.source) - 1:
          text, head = self.snip_tissue_text(head)
+         text = escape_comment(text)
          sinks.append(text)
 
    def write(self):
+      token_left = "<!--"
+      token_right = "-->"
       result = ''
       if (self.address is not None):
          tag = 'a'
       for sink in self.sinks:
          result += sink + ' '
-      result = self.TOKEN_LEFT + result + self.TOKEN_RIGHT
+      result = token_left + result + token_right
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo(ORGAN.Organ):
+class Pseudo(Leaf):
+
+   KIND = "serif-roman"
+   TAG = "span"
 
    def parse(self):
       pass
@@ -202,7 +229,7 @@ class Pseudo(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_letter(ORGAN.Organ):
+class Pseudo_letter(Leaf):
 
    def parse(self):
       symbols = {}
@@ -246,7 +273,7 @@ class Pseudo_letter(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_sign(ORGAN.Organ):
+class Pseudo_sign(Leaf):
 
    def parse(self):
       symbols = {}
@@ -279,13 +306,13 @@ class Pseudo_sign(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_bracket(ORGAN.Organ):
+class Pseudo_bracket(Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Math(ORGAN.Organ):
+class Math(Leaf):
 
    def parse(self):
       pass
@@ -306,7 +333,7 @@ class Math(ORGAN.Organ):
 # # &  &a  &A  &b   &B          &.
 # # *                   *0  *1  *.
 
-class Math_letter(ORGAN.Organ):
+class Math_letter(Leaf):
 
    def parse(self):
       assert(len(self.source) == 2)
@@ -344,7 +371,7 @@ class Math_letter(ORGAN.Organ):
          elif (tail == PLAIN):
             sink = "@"
 
-      if (label == "EXTENDED"):
+      if (label == "GREEK"):
          symbols = {
             'a': "\\alpha", 'b': "\\beta",
             # # ...
@@ -369,7 +396,7 @@ class Math_letter(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Math_sign(ORGAN.Organ):
+class Math_sign(Leaf):
 
    def write(self):
       return self.sinks[0]
@@ -379,7 +406,7 @@ class Math_sign(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Math_bracket(ORGAN.Organ):
+class Math_bracket(Leaf):
 
    def write(self):
       return self.sinks[0]
@@ -390,21 +417,21 @@ class Math_bracket(ORGAN.Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_pair(ORGAN.Organ):
+class Math_pair(Leaf):
 
-class Math_triplet(ORGAN.Organ):
+class Math_triplet(Leaf):
 
-class Math_tuple(ORGAN.Organ):
+class Math_tuple(Leaf):
 
-class Math_box(ORGAN.Organ):
+class Math_box(Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_diacritics(ORGAN.Organ):
+class Math_diacritics(Leaf):
 
-class Math_roman(ORGAN.Organ):
+class Math_roman(Leaf):
 
-class Math_sans(ORGAN.Organ):
+class Math_sans(Leaf):
 
-class Math_mono(ORGAN.Organ):
+class Math_mono(Leaf):
 
