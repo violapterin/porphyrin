@@ -108,6 +108,7 @@ def erase_token(group, source):
    sink = source
    for glyph in group:
       sink = sink.translate(source.maketrans(glyph, ' '))
+   ' '.join(sink.split())
    return sink
 
 def replace_token(table, source):
@@ -161,6 +162,7 @@ def give_labels_leaf():
       '*': "PSEUDO",
       '^': "MATH",
       '\\': "LINK",
+      '`': "IDENITFIER",
       '<': "COMMENT_LEFT",
    }
    return labels
@@ -172,7 +174,6 @@ def give_labels_bough():
       '\"': "ROWS",
       '|': "IMAGE",
       '~': "BREAK",
-      '`': "IDENITFIER",
       '<': "COMMENT_LEFT",
       '{': "INSTRUCTION_LEFT",
    }
@@ -182,7 +183,6 @@ def give_labels_other():
    labels = {
       '_': "SPACE",
       '\'': "NEWLINE",
-      '`': "INSTRUCTION",
       '}': "DEFINITION_RIGHT",
       '>': "COMMENT_RIGHT",
    }
@@ -265,8 +265,9 @@ def give_labels_sign_math():
       "OPERATION": '^',
       "SHAPE": '*',
       "LINE": '-',
-      "ARROW_LEFT": '{',
-      "ARROW_RIGHT": '}',
+      "ARROW_LEFT": '\\',
+      "ARROW_MIDDLE": '|',
+      "ARROW_RIGHT": '/',
       "EQUIVALENCE": '=',
       "ORDER_LEFT": '<',
       "ORDER_RIGHT": '>',
@@ -275,11 +276,15 @@ def give_labels_sign_math():
 
 def give_labels_bracket_math():
    labels = {
-      "START": '(',
-      "STOP": ')',
-      "PAIR": '/',
-      "TRIPLET": '\\',
-      "TUPLE": '|',
+      "START_PAIR": '(',
+      "CUT_PAIR": ',',
+      "STOP_PAIR": ')',
+      "START_TRIPLET": '[',
+      "CUT_TRIPLET": ':',
+      "STOP_TRIPLET": ']',
+      "START_TUPLE": '{',
+      "STOP_TUPLE": '}',
+      "CUT_TUPLE": ';',
    }
    return labels
 
@@ -311,25 +316,43 @@ def give_tips_bracket_math():
    tips = {label: tip for tip, label in labels.items()}
    return tips
 
-def be_letter_math(label):
-   labels = give_labels_letter_math()
+def be_symbol_math(label):
+   labels = give_labels_symbol_math()
    return (label in labels)
 
-def be_sign_math(label):
-   labels = give_labels_sign_math()
-   return (label in labels)
-
-def be_bracket_math(label):
+def be_box_math(label):
    labels = give_labels_bracket_math()
    return (label in labels)
 
-'''
-def get_mark_right_math(tip):
-   assert(len(tip) == 1)
-   label = get_label_math(tip)
-   if (label == "START"): return get_tip_math("STOP")
-   return tip
-'''
+def get_tip_right_math(tip_left):
+   assert(len(tip_left) == 1)
+   label = get_label_math(tip_left)
+   if (label == "START_ROUND"):
+      tip_right = get_tip_math("STOP_ROUND")
+   if (label == "START_SQUARE"):
+      tip_right = get_tip_math("STOP_SQUARE")
+   if (label == "START_CURLY"):
+      tip_right = get_tip_math("STOP_CURLY")
+   if (label == "START_ANGLE"):
+      tip_right = get_tip_math("STOP_ANGLE")
+   if (label in {"SANS", "ROMAN", "MONO"}):
+      tip_right = tip_left
+   return tip_right
+
+def get_tip_middle_math(tip_left):
+   assert(len(tip_left) == 1)
+   label = get_label_math(tip_left)
+   if (label == "START_ROUND"):
+      tip_right = get_tip_math("MIDDLE_ROUND")
+   if (label == "START_SQUARE"):
+      tip_right = get_tip_math("MIDDLE_SQUARE")
+   if (label == "START_CURLY"):
+      tip_right = get_tip_math("MIDDLE_CURLY")
+   if (label == "START_ANGLE"):
+      tip_right = get_tip_math("MIDDLE_ANGLE")
+   if (label in {"SANS", "ROMAN", "MONO"}):
+      tip_right = None
+   return tip_right
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -425,18 +448,20 @@ def be_bracket_pseudo(label):
    labels = give_labels_bracket_pseudo()
    return (label in labels)
 
-'''
-def get_mark_right_pseudo(tip):
-   assert(len(tip) == 1)
-   label = get_label_pseudo(tip)
+def get_tip_right_pseudo(tip_left):
+   assert(len(tip_left) == 1)
+   label = get_label_pseudo(tip_left)
    if (label == "START_ROUND"):
-      return get_tip_pseudo("STOP_ROUND")
+      tip_right = get_tip_pseudo("STOP_ROUND")
    if (label == "START_SQUARE"):
-      return get_tip_pseudo("STOP_SQUARE")
+      tip_right = get_tip_pseudo("STOP_SQUARE")
    if (label == "START_CURLY"):
-      return get_tip_pseudo("STOP_CURLY")
+      tip_right = get_tip_pseudo("STOP_CURLY")
    if (label == "START_ANGLE"):
-      return get_tip_pseudo("STOP_ANGLE")
-   return tip
-'''
+      tip_right = get_tip_pseudo("STOP_ANGLE")
+   if (label == "QUOTE_SINGLE"):
+      tip_right = tip_left
+   if (label == "QUOTE_DOUBLE"):
+      tip_right = tip_left
+   return tip_right
 

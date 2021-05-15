@@ -58,12 +58,12 @@ class Not_matching_mark_leaf(Caution):
 class Allowing_only_leaf(Caution):
 
    message_left = "Token"
-   message_right = "is not a leaf; only a leaf is allowed."
+   message_right = "is not a leaf; here only a leaf is allowed."
 
 class Allowing_only_bough(Caution):
 
    message_left = "Token"
-   message_right = "is not a bough; only a bough is allowed."
+   message_right = "is not a bough; here only a bough is allowed."
 
 class Not_agreeing_column(Caution):
 
@@ -98,5 +98,12 @@ class Macro_not_gathered(Caution):
 class Disallowing_link(Caution):
 
    message_left = "Link"
-   message_right = "is allowed in this position."
+   message_right = "is disallowed in this position."
+
+class Allowing_only_symbol(Caution):
+
+   message_left = "Token"
+   message_right = "is not a symbol; here only a symbol is allowed."
+
+
 

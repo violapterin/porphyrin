@@ -3,7 +3,7 @@ import leaf as LEAF
 import caution as CAUTION
 
 
-class Document(Stem):
+class Document(ORGAN.Stem):
 
    KIND = "document"
    TAG = "body"
@@ -22,6 +22,10 @@ class Document(Stem):
          bough, head = self.snip_bough(head)
          if (bough is not None):
             sinks.append(bough)
+      while head <= len(self.source) - 1:
+         bough, head = self.snip_bough(head)
+         if (bough is not None):
+            sinks.append(bough)
 
    def write(self):
       content = ''
@@ -35,7 +39,7 @@ class Document(Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Image(Stem):
+class Image(ORGAN.Stem):
 
    KIND = "image"
    TAG = "img"
@@ -59,7 +63,7 @@ class Image(Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Break(Stem):
+class Break(ORGAN.Stem):
 
    KIND = "break"
    TAG = "div"
@@ -90,7 +94,7 @@ class Break(Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraphs(Stem):
+class Paragraphs(ORGAN.Stem):
 
    KIND = "paragraphs"
    TAG = "div"
@@ -118,7 +122,7 @@ class Paragraphs(Stem):
       )
       return result
 
-class Lines(Stem):
+class Lines(ORGAN.Stem):
 
    KIND = "lines"
    TAG = "div"
@@ -145,7 +149,7 @@ class Lines(Stem):
             values = [self.KIND],
       )
 
-class Rows(Stem):
+class Rows(ORGAN.Stem):
 
    KIND = "rows"
    TAG_ALL = "table"
@@ -186,7 +190,7 @@ class Rows(Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraph(Stem):
+class Paragraph(ORGAN.Stem):
 
    KIND = "paragraph"
    TAG = "p"
@@ -204,7 +208,7 @@ class Paragraph(Stem):
    def write(self):
       return self.write_element("paragraph")
 
-class Line(Stem):
+class Line(ORGAN.Stem):
 
    KIND = "line"
    TAG = "span"
@@ -222,7 +226,7 @@ class Line(Stem):
    def write(self):
       return self.write_element("line")
 
-class Row(Stem):
+class Row(ORGAN.Stem):
 
    KIND = "row"
    TAG = "tr"
@@ -242,7 +246,7 @@ class Row(Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Sentence(Stem):
+class Sentence(ORGAN.Stem):
 
    KIND = "sentence"
    TAG = "span"
@@ -263,7 +267,7 @@ class Sentence(Stem):
          result += leaf.write()
       return result
 
-class Verse(Stem):
+class Verse(ORGAN.Stem):
 
    KIND = "verse"
    TAG = "span"
@@ -284,7 +288,7 @@ class Verse(Stem):
          result += leaf.write()
       return result
 
-class Cell(Stem):
+class Cell(ORGAN.Stem):
 
    KIND = "cell"
    TAG = "td"
