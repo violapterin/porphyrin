@@ -80,65 +80,6 @@ def write_element(**data):
    result += "</" + data[tag] + '>'
    return result
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-def tune_text(source):
-   sink = source
-   glyphs_mark = set([
-      '{', '}', '<', '>',
-      '@', '#', '$', '%', '&',
-   ])
-   glyphs_space = set([' ', '\t', '\n'])
-   sink = remove_token(glyphs_mark, sink)
-   sink = erase_token(glyphs_space, sink)
-   return sink
-
-def tune_code(source):
-   sink = source
-   glyphs_space = set([' ', '\t', '\n'])
-   sink = erase_token(sink, glyphs_space)
-   return sink
-
-def remove_token(tokens, source):
-   sink = source
-   for glyph in tokens:
-      sink = sink.translate(source.maketrans(glyph, ''))
-   return source
-
-def erase_token(tokens, source):
-   sink = source
-   for glyph in tokens:
-      sink = sink.translate(source.maketrans(glyph, ' '))
-   ' '.join(sink.split())
-   return sink
-
-def replace_token(tokens, source):
-   sink = source
-   for glyph in tokens:
-      sink = sink.translate(source.maketrans(glyph, tokens[glyph]))
-   return sink
-
-def escape_hypertext(source):
-   sink = source
-   escapes = {
-      '<': "&lt;",
-      '>': "&gt;",
-      '&': "&amp;",
-      '\"': "&quote;",
-      '\'': "&apos;",
-   }
-   sink = replace_token(sink, escapes)
-   return sink
-
-def escape_comment(source):
-   sink = source
-   escapes = {
-      '----': '-',
-      '---': '-',
-      '--': '-',
-   }
-   sink = replace_token(sink, escapes)
-   return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -212,24 +153,6 @@ def be_hollow(label):
       "NEWLINE",
    }
    return (label in labels)
-
-def get_constructor(label):
-   constructors = {
-      'PARAGRAPHS': "Paragraphs",
-      'LINES': "Lines",
-      'ROWS': "Rows",
-      'IMAGE': "Image",
-      'BREAK': "Break",
-      'SERIF_NORMAL': "Serif_normal",
-      'SERIF_ITALIC': "Serif_italic",
-      'SERIF_BOLD': "Serif_bold",
-      'SANS_NORMAL': "Sans_normal",
-      'SANS_BOLD': "Sans_bold",
-      'CODE': "Code",
-      'PSEUDO': "Pseudo",
-      'MATH': "Math",
-   }
-   return constructors
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 

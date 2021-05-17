@@ -139,13 +139,13 @@ class Stem(Organ):
 
       labels_macro = {"INSTRUCTION", "DEFINITION_LEFT"}
       data = self.get_data(head_left, probe_left)
-      if not self.be_label_bough(label)):
+      if not AID.be_label_bough(label)):
          caution = CAUTION.Allowing_only_bough(**data)
          caution.panic()
       if (probe_right > len(source)):
          caution = CAUTION.Not_matching_mark_bough(**data)
          caution.panic()
-      if (label in labels_macro and self.expanded):
+      if (AID.be_macro_start(label) and self.expanded):
          caution = CAUTION.Macro_not_gathered(**data)
          caution.panic()
 
@@ -284,82 +284,59 @@ class Stem(Organ):
 
 class Leaf(Organ):
 
-
-   def snip_tissue_math(self, head_left):
-      tissue = None
-      source = self.source
-      segments = clip_segments_math(head_left)
-      tip = segments[0][0]
-      label = get_label_math(tip[0])
-
-      if (be_letter_math(label)):
-         head_right = head_left + 2
-         content = segments[0]
-         data_bough = self.get_data_modified(
-            source = content,
-            leftmost = get_left(tip),
-            rightmost = get_right(probe_right),
-            count_line = count_next_line(mark_left),
-            count_glyph = count_next_glyph(mark_left),
-         )
-         tissue = TISSUE.Math_letter(**data_tissue)
-         return tissue, head_right
-
-      if (be_sign_math(label)):
-         head_right = head_left + len(mark_right)
-         mark = source[head_left, head_right]
-         data = self.get_data_modified(
-            leftmost = get_left(head_left),
-            rightmost = get_right(head_right),
-         )
-         tissue = LEAF.Math_sign(**data)
-         return tissue, head_right
-
-      mark_left = tip
-      mark_right = get_mark_right_math(mark_left)
-      content = source[head_left:]
-      content = content.split(mark_left, 1)[1]
-      content, remain, *_ = content.split(mark_right, 1)[0]
-      probe_left = head_left + len(mark_left)
-      probe_right = head_left + len(content)
-      head_right = probe_right + len(mark_right)
-
-      data_caution = {
-         "source": mark_left,
-         "leftmost": get_left(head_left),
-         "rightmost": get_right(probe_left),
-         "count_line": count_next_line(head_left),
-         "count_glyph": count_next_glyph(head_left),
-      }
-      if (remain is None):
-         caution = CAUTION.Not_matching_bracket(**data_caution)
-         caution.panic()
-
-      data_tissue = {
-         "source": content,
-         "leftmost": get_left(probe_left),
-         "rightmost": get_right(probe_right),
-         "count_line": count_next_line(probe_left),
-         "count_glyph": count_next_glyph(probe_left),
-      }
-      tissue = LEAF.Bracket_math(**data_tissue)
-      return tissue, head_right
-
-   def snip_tissue_text(self, head_left):
-      tissue = None
-      source = self.source
-      head_middle = head_left
+   def tune_text(self):
+      glyphs_mark = set([
+         '{', '}', '<', '>',
+         '@', '#', '$', '%', '&',
+      ])
       glyphs_space = set([' ', '\t', '\n'])
-      while (head_middle < len(source)):
-         if (source[head_middle] not in glyphs_space):
-            head_middle += 1
-      head_right = head_middle
-      while (head_right < len(source)):
-         if (source[head_middle] in glyphs_space):
-            head_right += 1
-      tissue = source[head_left, head_middle]
-      return tissue, head_right
+      self.remove_token(glyphs_mark, sink)
+      self.erase_token(glyphs_space, sink)
 
+   def tune_code(self):
+      glyphs_space = set([' ', '\t', '\n'])
+      self.erase_token(glyphs_space)
+
+   def escape_hypertext(self):
+      escapes = {
+         '<': "&lt;",
+         '>': "&gt;",
+         '&': "&amp;",
+         '\"': "&quote;",
+         '\'': "&apos;",
+      }
+      self.replace_token(, escapes)
+
+   def escape_comment(self):
+      sink = source
+      escapes = {
+         '----': '-',
+         '---': '-',
+         '--': '-',
+      }
+      self.replace_token(sink, escapes)
+
+   def remove_token(self, tokens):
+      sink = self.source
+      for glyph in tokens:
+         table = source.maketrans(glyph, '')
+         sink = sink.translate(table)
+      self.source = sink
+
+   def erase_token(self, tokens):
+      sink = source
+      for glyph in tokens:
+         table = source.maketrans(glyph, ' ')
+         sink = sink.translate(table)
+      ' '.join(sink.split())
+      self.source = sink
+
+   def replace_token(self, tokens):
+      sink = self.source
+      for glyph in tokens:
+         table = source.maketrans(glyph, tokens[glyph])
+         sink = sink.translate(table)
+      self.source = sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
