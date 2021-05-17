@@ -33,7 +33,7 @@ class Organ(object):
       }
       return data
 
-   def find_greedy_mark(self, mark_left, mark_right, head_left):
+   def find_mark_greedy(self, mark_left, mark_right, head_left):
          head_right = head_left
          fragment = self.source[head_left:]
          fragment = fragment.split(mark_left, 1)[1]
@@ -41,7 +41,7 @@ class Organ(object):
          head_right = head_left + len(mark_left) + len(content) + len(mark_right)
          return head_right
 
-   def find_balanced_tip(self, tip_left, tip_right, head_left):
+   def find_tip_balanced(self, tip_left, tip_right, head_left):
       head_right = head_left
       if not (source[head_left] == tip_left):
          return head_left
@@ -347,27 +347,39 @@ class Tissue(Organ):
    def snip_tissue_math(self, head_left):
       tissue = None
       source = self.source
-      mark_left = probe_mark(head_left)
-      mark_right = get_mark_right(mark_left)
-      label = get_label(mark_left[0])
-      while (head_right <= len(source)):
-         tip_left = source[head_right]
-         if (tip_left == cut):
-            segment = source[head_left: head_right]
-            segments.append(segment)
-            head_left = head_right + 1
-            head_right = head_left
-            continue
+      tip_left = source[head_left]
+      label_left = get_label(tip_left)
+      head_right = head_left
 
-         if not be_bracket_math(tip_left):
-            head_right += 1
-            continue
+      if (AID.be_start_accent_math(label_left)):
+         head_right += 1
+         label_right = get_label(source[head_right])
+         if (AID.be_start_accent_math(label_right)):
+            head_right += 2
+            tip_right = source[head_right]
+            label_right = get_label(tip_right)
+            data = give_data(head_left, head_right)
+            if (AID.be_start_symbol_math(label_right)):
+               tissue = TISSUE.Math_symbol(**data)
+               return tissue
+            caution = CAUTION.Not_being_valid_symbol(**data)
+            caution.panic()
 
+      if (AID.be_start_box_math(label_left)):
          tip_right = get_tip_right_math(tip_left)
-         head_right = self.balance(tip_left, tip_right, head_left)
+         head_right = self.find_tip_balanced(tip_left, tip_right, head_left)
+         data = give_data(head_left, head_right)
+         tip_right = source[head_right]
+         label_right = get_label(tip_right)
+         if (label_left = "PAIR"):
+            tissue = TISSUE.Math_pair(**data)
+         if (label_left = "TRIPLET"):
+            tissue = TISSUE.Math_triplet(**data)
+         if (label_left = "TUPLE"):
+            tissue = TISSUE.Math_tuple(**data)
       return tissue
 
    def snip_tissue_pseudo(self, head_left):
+      pass
 
-   def construct_caution(constructor, head_left, head_right):
 

@@ -112,7 +112,7 @@ def get_label(tip):
    label = labels.get(tip)
    return label
 
-def be_bough_start(label):
+def be_start_bough(label):
    labels = {
       "PARAGRAPHS",
       "LINES",
@@ -122,7 +122,7 @@ def be_bough_start(label):
    }
    return (label in labels)
 
-def be_leaf_start(label):
+def be_start_leaf(label):
    labels = {
       "SERIF_NORMAL",
       "SERIF_ITALIC",
@@ -139,14 +139,14 @@ def be_leaf_start(label):
    }
    return (label in labels)
 
-def be_macro_start(label):
+def be_start_macro(label):
    labels = {
       "IDENITFIER",
       "DEFINITION_LEFT",
    }
    return (label in labels)
 
-def be_hollow(label):
+def be_start_hollow(label):
    labels = {
       "BREAK",
       "SPACE",
@@ -165,48 +165,53 @@ def write_brace(command, *options):
 
 def get_label_math(tip):
    labels = {
-      '.': "PLAIN"
-      '#': "BOLD"
-      '&': "BLACK"
-      '@': "CURSIVE"
-      '$': "GREEK"
+      '.': "PLAIN",
+      '#': "BOLD",
+      '&': "BLACK",
+      '@': "CURSIVE",
+      '$': "GREEK",
       #
-      '%': "ABSTRACTION"
-      '+': "ARITHMETICS"
-      '^': "OPERATION"
-      '*': "SHAPE"
-      '-': "LINE"
-      '\\': "ARROW_LEFT"
-      '|': "ARROW_MIDDLE"
-      '/': "ARROW_RIGHT"
-      '=': "EQUIVALENCE"
-      '<': "ORDER_LEFT"
-      '>': "ORDER_RIGHT"
+      '%': "ABSTRACTION",
+      '+': "ARITHMETICS",
+      '^': "OPERATION",
+      '*': "SHAPE",
+      '-': "LINE",
+      '\\': "ARROW_LEFT",
+      '|': "ARROW_MIDDLE",
+      '/': "ARROW_RIGHT",
+      '=': "EQUIVALENCE",
+      '<': "ORDER_LEFT",
+      '>': "ORDER_RIGHT",
       #
-      '(': "START_PAIR"
-      ':': "CUT_PAIR"
-      ')': "STOP_PAIR"
-      '[': "START_TRIPLET"
-      '': "CUT_TRIPLET"
-      ']': "STOP_TRIPLET"
-      '{': "START_TUPLE"
-      '}': "STOP_TUPLE"
-      ';': "CUT_TUPLE"
-      '\': "SANS" 
-      '\"': "ROMAN"
-      '!': "ACCENT_ONE"
-      '?': "ACCENT_TWO"
+      '(': "START_PAIR",
+      ':': "CUT_PAIR",
+      ')': "STOP_PAIR",
+      '[': "START_TRIPLET",
+      '': "CUT_TRIPLET",
+      ']': "STOP_TRIPLET",
+      '{': "START_TUPLE",
+      '}': "STOP_TUPLE",
+      ';': "CUT_TUPLE",
+      '\'': "SANS" ,
+      '\"': "ROMAN",
+      '!': "ACCENT_ONE",
+      '?': "ACCENT_TWO",
    }
    label = labels.get(tip)
    return label
 
-def be_symbol_math(label):
+def be_start_letter_math(label):
    labels = {
       "PLAIN",
       "BOLD",
       "BLACK",
       "CURSIVE",
       "GREEK",
+   }
+   return (label in labels)
+
+def be_start_sign_math(label):
+   labels = {
       "ABSTRACTION",
       "ARITHMETICS",
       "OPERATION",
@@ -221,7 +226,13 @@ def be_symbol_math(label):
    }
    return (label in labels)
 
-def be_box_left_math(label):
+def be_start_symbol_math(label):
+   return (
+      be_start_sign_math(label)
+      or be_start_sign_math(label)
+   )
+
+def be_start_box_math(label):
    labels = {
       "START_PAIR",
       "CUT_PAIR",
@@ -232,8 +243,15 @@ def be_box_left_math(label):
       "START_TUPLE",
       "STOP_TUPLE",
       "CUT_TUPLE",
-      "SANS" ,
+      "SANS",
       "ROMAN",
+   }
+   return (label in labels)
+
+def be_start_accent_math(label):
+   labels = {
+      "ACCENT_ONE",
+      "ACCENT_TWO",
    }
    return (label in labels)
 
