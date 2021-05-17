@@ -1,16 +1,13 @@
 import organ as ORGAN
 import stem as STEM
 import leaf as LEAF
+import tissue as TISSUE
 import aid as AID
 
-class Caution(object):
+class Caution(ORGAN.Organ):
 
    def __init__(self, **data):
-      self.source = data.pop("source", '')
-      self.leftmost = data.pop("leftmost", '')
-      self.rightmost = data.pop("rightmost", '')
-      self.count_line = data.pop("count_line", 0)
-      self.count_glyph = data.pop("count_glyph", 0)
+      self.fill_basic(**data)
       message_left = ''
       message_right = ''
 

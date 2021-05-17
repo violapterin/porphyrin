@@ -3,7 +3,7 @@ import stem as STEM
 import caution as CAUTION
 import aid as AID
 
-class Pseudo_letter(ORGAN.Tissue):
+class Pseudo_symbol(ORGAN.Tissue):
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -11,6 +11,7 @@ class Pseudo_letter(ORGAN.Tissue):
 
    def parse(self):
       symbols = {}
+      
       symbols['!'] = {
          'A': '零', 'B': '壹', 'C': '貳', 'D': '參', 'E': '肆',
       }
@@ -33,32 +34,6 @@ class Pseudo_letter(ORGAN.Tissue):
       # # 果假宕梗曾流深咸
 
 
-      assert(len(source) == 2)
-      tip = source[0]
-      tail = source[1]
-      sink = symbols.get(tip).get(tail)
-      if (sink == None):
-         data = self.get_data_modified()
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
-      self.sinks[0] = sink
-
-   def write(self):
-      return self.sinks[0]
-
-   def find_height():
-      return 1
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Pseudo_sign(ORGAN.Tissue):
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.sink = ''
-
-   def parse(self):
-      symbols = {}
       symbols['~'] = {
          '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
          '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',

@@ -3,6 +3,7 @@ import os
 import organ as ORGAN
 import stem as STEM
 import leaf as LEAF
+import tissue as TISSUE
 import caution as CAUTION
 
 def make(folder_in, folder_out):
@@ -98,23 +99,23 @@ def tune_code(source):
    sink = erase_token(sink, glyphs_space)
    return sink
 
-def remove_token(group, source):
+def remove_token(tokens, source):
    sink = source
-   for glyph in group:
+   for glyph in tokens:
       sink = sink.translate(source.maketrans(glyph, ''))
    return source
 
-def erase_token(group, source):
+def erase_token(tokens, source):
    sink = source
-   for glyph in group:
+   for glyph in tokens:
       sink = sink.translate(source.maketrans(glyph, ' '))
    ' '.join(sink.split())
    return sink
 
-def replace_token(table, source):
+def replace_token(tokens, source):
    sink = source
-   for glyph in group:
-      sink = sink.translate(source.maketrans(glyph, table[glyph]))
+   for glyph in tokens:
+      sink = sink.translate(source.maketrans(glyph, tokens[glyph]))
    return sink
 
 def escape_hypertext(source):
@@ -142,16 +143,6 @@ def escape_comment(source):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def get_label(tip):
-  labels = give_labels()
-  label = labels.get(tip)
-  return label
-
-def get_tip(label):
-  tips = give_labels()
-  tip = tips.get(label)
-  return tip
-
-def give_labels_leaf():
    labels = {
       '@': "SERIF_NORMAL",
       '%': "SERIF_ITALIC",
@@ -162,71 +153,83 @@ def give_labels_leaf():
       '*': "PSEUDO",
       '^': "MATH",
       '\\': "LINK",
-      '`': "IDENITFIER",
-      '<': "COMMENT_LEFT",
-   }
-   return labels
-
-def give_labels_bough():
-   labels = {
+      #
       '=': "PARAGRAPHS",
       '/': "LINES",
       '\"': "ROWS",
       '|': "IMAGE",
-      '~': "BREAK",
+      '`': "IDENITFIER",
       '<': "COMMENT_LEFT",
-      '{': "INSTRUCTION_LEFT",
-   }
-   return labels
-
-def give_labels_other():
-   labels = {
+      '>': "COMMENT_RIGHT",
+      '{': "DEFINITION_LEFT",
+      '}': "DEFINITION_RIGHT",
+      #
+      '~': "BREAK",
       '_': "SPACE",
       '\'': "NEWLINE",
-      '}': "DEFINITION_RIGHT",
-      '>': "COMMENT_RIGHT",
    }
-   return labels
+   label = labels.get(tip)
+   return label
 
-def give_labels():
+def be_bough_start(label):
    labels = {
-      **give_labels_bough(),
-      **give_labels_leaf(),
-      **give_labels_other(),
+      "PARAGRAPHS",
+      "LINES",
+      "ROWS",
+      "IMAGE",
+      "BREAK",
    }
-   return labels
-
-def give_tips():
-   labels = give_labels()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_leaf():
-   labels = give_labels_leaf()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_bough():
-   labels = give_labels_bough()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_other():
-   labels = give_labels_other()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def be_bough(label):
-   labels = give_labels_bough()
    return (label in labels)
 
-def be_leaf(label):
-   labels = give_labels_leaf()
+def be_leaf_start(label):
+   labels = {
+      "SERIF_NORMAL",
+      "SERIF_ITALIC",
+      "SERIF_BOLD",
+      "SANS_NORMAL",
+      "SANS_BOLD",
+      "CODE",
+      "PSEUDO",
+      "MATH",
+      "LINK",
+      "COMMENT_LEFT",
+      "DEFINITION_LEFT",
+      "IDENITFIER",
+   }
    return (label in labels)
 
-def be_other(label):
-   labels = give_labels_other()
+def be_macro_start(label):
+   labels = {
+      "IDENITFIER",
+      "DEFINITION_LEFT",
+   }
    return (label in labels)
+
+def be_hollow(label):
+   labels = {
+      "BREAK",
+      "SPACE",
+      "NEWLINE",
+   }
+   return (label in labels)
+
+def get_constructor(label):
+   constructors = {
+      'PARAGRAPHS': "Paragraphs",
+      'LINES': "Lines",
+      'ROWS': "Rows",
+      'IMAGE': "Image",
+      'BREAK': "Break",
+      'SERIF_NORMAL': "Serif_normal",
+      'SERIF_ITALIC': "Serif_italic",
+      'SERIF_BOLD': "Serif_bold",
+      'SANS_NORMAL': "Sans_normal",
+      'SANS_BOLD': "Sans_bold",
+      'CODE': "Code",
+      'PSEUDO': "Pseudo",
+      'MATH': "Math",
+   }
+   return constructors
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -238,94 +241,82 @@ def write_brace(command, *options):
    return result
 
 def get_label_math(tip):
-  labels = get_labels()
-  label = labels.get(tip)
-  return label
-
-def get_tip_math(label):
-  tips = get_tips()
-  tip = tips.get(label)
-  return tip
-
-def give_labels_letter_math():
    labels = {
-      "PLAIN": '.',
-      "BOLD": '#',
-      "BLACK": '&',
-      "CURSIVE": '@',
-      "GREEK": '$',
+      '.': "PLAIN"
+      '#': "BOLD"
+      '&': "BLACK"
+      '@': "CURSIVE"
+      '$': "GREEK"
+      #
+      '%': "ABSTRACTION"
+      '+': "ARITHMETICS"
+      '^': "OPERATION"
+      '*': "SHAPE"
+      '-': "LINE"
+      '\\': "ARROW_LEFT"
+      '|': "ARROW_MIDDLE"
+      '/': "ARROW_RIGHT"
+      '=': "EQUIVALENCE"
+      '<': "ORDER_LEFT"
+      '>': "ORDER_RIGHT"
+      #
+      '(': "START_PAIR"
+      ':': "CUT_PAIR"
+      ')': "STOP_PAIR"
+      '[': "START_TRIPLET"
+      '': "CUT_TRIPLET"
+      ']': "STOP_TRIPLET"
+      '{': "START_TUPLE"
+      '}': "STOP_TUPLE"
+      ';': "CUT_TUPLE"
+      '\': "SANS" 
+      '\"': "ROMAN"
+      '!': "ACCENT_ONE"
+      '?': "ACCENT_TWO"
    }
-   return labels
-
-def give_labels_sign_math():
-   labels = {
-      "PLAIN": '.',
-      "ABSTRACTION": '%',
-      "ARITHMETICS": '+',
-      "OPERATION": '^',
-      "SHAPE": '*',
-      "LINE": '-',
-      "ARROW_LEFT": '\\',
-      "ARROW_MIDDLE": '|',
-      "ARROW_RIGHT": '/',
-      "EQUIVALENCE": '=',
-      "ORDER_LEFT": '<',
-      "ORDER_RIGHT": '>',
-   }
-   return labels
-
-def give_labels_bracket_math():
-   labels = {
-      "START_PAIR": '(',
-      "CUT_PAIR": ',',
-      "STOP_PAIR": ')',
-      "START_TRIPLET": '[',
-      "CUT_TRIPLET": ':',
-      "STOP_TRIPLET": ']',
-      "START_TUPLE": '{',
-      "STOP_TUPLE": '}',
-      "CUT_TUPLE": ';',
-   }
-   return labels
-
-def give_labels_math():
-   labels = {
-      **give_labels_letter_math(),
-      **give_labels_sign_math(),
-      **give_labels_bracket_math(),
-   }
-   return labels
-
-def give_tips_math():
-   labels = give_labels_math()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_letter_math():
-   labels = give_labels_letter_math()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_sign_math():
-   labels = give_labels_sign_math()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_bracket_math():
-   labels = give_labels_bracket_math()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
+   label = labels.get(tip)
+   return label
 
 def be_symbol_math(label):
-   labels = give_labels_symbol_math()
+   labels = {
+      "PLAIN",
+      "BOLD",
+      "BLACK",
+      "CURSIVE",
+      "GREEK",
+      "ABSTRACTION",
+      "ARITHMETICS",
+      "OPERATION",
+      "SHAPE",
+      "LINE",
+      "ARROW_LEFT",
+      "ARROW_MIDDLE",
+      "ARROW_RIGHT",
+      "EQUIVALENCE",
+      "ORDER_LEFT",
+      "ORDER_RIGHT",
+   }
    return (label in labels)
 
-def be_box_math(label):
-   labels = give_labels_bracket_math()
+def be_box_left_math(label):
+   labels = {
+      "START_PAIR",
+      "CUT_PAIR",
+      "STOP_PAIR",
+      "START_TRIPLET",
+      "CUT_TRIPLET",
+      "STOP_TRIPLET",
+      "START_TUPLE",
+      "STOP_TUPLE",
+      "CUT_TUPLE",
+      "SANS" ,
+      "ROMAN",
+   }
    return (label in labels)
 
 def get_tip_right_math(tip_left):
    assert(len(tip_left) == 1)
+   tip_right = None
    label = get_label_math(tip_left)
    if (label == "START_ROUND"):
       tip_right = get_tip_math("STOP_ROUND")
@@ -341,32 +332,21 @@ def get_tip_right_math(tip_left):
 
 def get_tip_middle_math(tip_left):
    assert(len(tip_left) == 1)
+   tip_middle = None
    label = get_label_math(tip_left)
    if (label == "START_ROUND"):
-      tip_right = get_tip_math("MIDDLE_ROUND")
+      tip_middle = get_tip_math("MIDDLE_ROUND")
    if (label == "START_SQUARE"):
-      tip_right = get_tip_math("MIDDLE_SQUARE")
+      tip_middle = get_tip_math("MIDDLE_SQUARE")
    if (label == "START_CURLY"):
-      tip_right = get_tip_math("MIDDLE_CURLY")
+      tip_middle = get_tip_math("MIDDLE_CURLY")
    if (label == "START_ANGLE"):
-      tip_right = get_tip_math("MIDDLE_ANGLE")
-   if (label in {"SANS", "ROMAN", "MONO"}):
-      tip_right = None
-   return tip_right
+      tip_middle = get_tip_math("MIDDLE_ANGLE")
+   return tip_middle
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def get_label_pseudo(tip):
-  labels = get_labels()
-  label = labels.get(tip)
-  return label
-
-def get_tip_pseudo(label):
-  tips = get_tips()
-  tip = tips.get(label)
-  return tip
-
-def give_labels_letter_pseudo():
    labels = {
       "PLAIN": '.',
       "BOLD": ',',
@@ -378,12 +358,7 @@ def give_labels_letter_pseudo():
       "GREEK_BOLD": '=',
       "KANJI_FIRST": '!',
       "KANJI_SECOND": '?',
-   }
-   return labels
-
-def give_labels_sign_pseudo():
-   labels = {
-      "PLAIN": '.',
+      #
       "KANA_ZEROTH": '_',
       "KANA_FIRST": '~',
       "KANA_SECOND": '@',
@@ -394,11 +369,7 @@ def give_labels_sign_pseudo():
       "KANA_SEVENTH": '&',
       "KANA_EIGHTH": '*',
       "KANA_NINTH": '+',
-   }
-   return labels
-
-def give_labels_bracket_pseudo():
-   labels = {
+      #
       "START_ROUND": '(',
       "START_SQUARE": '[',
       "START_CURLY": '{',
@@ -411,30 +382,9 @@ def give_labels_bracket_pseudo():
       "CUT_MIDDLE": '|',
       "CUT_LEFT": '\\',
    }
-   return labels
-
-def give_labels_pseudo():
-   labels = {
-      **give_labels_letter_pseudo(),
-      **give_labels_sign_pseudo(),
-      **give_labels_bracket_pseudo(),
-   }
-   return labels
-
-def give_tips_letter_pseudo():
-   labels = give_labels_letter_pseudo()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_sign_pseudo():
-   labels = give_labels_sign_pseudo()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
-
-def give_tips_bracket_pseudo():
-   labels = give_labels_bracket_pseudo()
-   tips = {label: tip for tip, label in labels.items()}
-   return tips
+   labels = get_labels()
+   label = labels.get(tip)
+   return label
 
 def be_letter_pseudo(label):
    labels = give_labels_letter_pseudo()

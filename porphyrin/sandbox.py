@@ -4,7 +4,9 @@
 import organ as ORGAN
 import stem as STEM
 import leaf as LEAF
+import tissue as TISSUE
 import caution as CAUTION
+import aid as AID
 '''
 
 class Flower(object):

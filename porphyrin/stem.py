@@ -1,6 +1,8 @@
 import organ as ORGAN
 import leaf as LEAF
+import tissue as TISSUE
 import caution as CAUTION
+import aid as AID
 
 
 class Document(ORGAN.Stem):

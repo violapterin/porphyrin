@@ -1,6 +1,7 @@
 import organ as ORGAN
 import stem as STEM
 import caution as CAUTION
+import tissue as TISSUE
 import aid as AID
 
 class Serif_roman(ORGAN.Leaf):
@@ -218,7 +219,7 @@ class Code(ORGAN.Leaf):
 class Math(ORGAN.Leaf):
 
    KIND = "math"
-   TAG = "mathjax"
+   TAG = "math"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -235,16 +236,17 @@ class Math(ORGAN.Leaf):
       self.sink = TISSUE.Box(**data_organ)
 
    def write(self):
-      result = ''
+      content = ' '
       tag = self.TAG
       for box in self.sink.sinks
-         result += write_element(
-            content = box.write(),
-            tag = tag,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         result += ' '
+         content += '$' + box.write() + '$'
+         content += ' '
+      result = write_element(
+        content = content
+        tag = tag,
+        attributes = ["class"],
+        values = [self.KIND],
+      )
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
