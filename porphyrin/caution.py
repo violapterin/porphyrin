@@ -102,5 +102,9 @@ class Allowing_only_symbol(Caution):
    message_left = "Token"
    message_right = "is not a symbol; here only a symbol is allowed."
 
+class Allowing_only_alphabets(Caution):
+
+   message_left = "Token"
+   message_right = "is not an alphabet; here only an alphabet is allowed."
 
 

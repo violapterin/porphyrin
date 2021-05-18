@@ -201,7 +201,7 @@ def get_label_math(tip):
 
 def be_start_letter_math(label):
    labels = {
-      "PLAIN",
+      "ESCAPE",
       "BOLD",
       "BLACK",
       "CURSIVE",
@@ -211,6 +211,7 @@ def be_start_letter_math(label):
 
 def be_start_sign_math(label):
    labels = {
+      "ESCAPE",
       "ABSTRACTION",
       "ARITHMETICS",
       "OPERATION",
@@ -227,8 +228,8 @@ def be_start_sign_math(label):
 
 def be_start_symbol_math(label):
    return (
-      be_start_sign_math(label)
-      or be_start_sign_math(label)
+      **be_start_sign_math(label)
+      or **be_start_sign_math(label)
    )
 
 def be_start_box_math(label):
@@ -313,25 +314,47 @@ def get_label_pseudo(tip):
       "START_ROUND": '(',
       "START_SQUARE": '[',
       "START_CURLY": '{',
-      "START_ANGLE": '<',
       "STOP_ROUND": ')',
       "STOP_SQUARE": ']',
       "STOP_CURLY": '}',
-      "STOP_ANGLE": '>',
       "CUT_RIGHT": '/',
       "CUT_MIDDLE": '|',
       "CUT_LEFT": '\\',
+      "START_ANGLE": '<',
+      "STOP_ANGLE": '>',
    }
    labels = get_labels()
    label = labels.get(tip)
    return label
 
 def be_letter_pseudo(label):
-   labels = give_labels_letter_pseudo()
+   labels = {
+      "PLAIN",
+      "BOLD",
+      "ROMAN",
+      "ROMAN_BLACK",
+      "SANS",
+      "SANS_BLACK",
+      "GREEK",
+      "GREEK_BOLD",
+      "KANJI_FIRST",
+      "KANJI_SECOND",
+   }
    return (label in labels)
 
 def be_sign_pseudo(label):
-   labels = give_labels_sign_pseudo()
+   labels = {
+      "KANA_ZEROTH",
+      "KANA_FIRST",
+      "KANA_SECOND",
+      "KANA_THIRD",
+      "KANA_FOURTH",
+      "KANA_FIFTH",
+      "KANA_SIXTH",
+      "KANA_SEVENTH",
+      "KANA_EIGHTH",
+      "KANA_NINTH",
+   }
    return (label in labels)
 
 def be_bracket_pseudo(label):

@@ -4,12 +4,12 @@ import tissue as TISSUE
 import caution as CAUTION
 import aid as AID
 
-# Stem: Document
-# Stem (bough): Paragraphs, Lines, Rows, Image, Break,
-# Stem (twig): Paragraph, Line, Row,
-# Stem (frond): Sentence, Verse, Cell
-# Leaf: Math, Pseudo, Code
-# Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold
+# # Stem: Document
+# # Stem (bough): Paragraphs, Lines, Rows, Image, Break,
+# # Stem (twig): Paragraph, Line, Row,
+# # Stem (frond): Sentence, Verse, Cell
+# # Leaf: Math, Pseudo, Code
+# # Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold
 
 class Organ(object):
 
@@ -33,7 +33,26 @@ class Organ(object):
       }
       return data
 
-   def find_mark_greedy(self, mark_left, mark_right, head_left):
+   def shift(size, head_left):
+      source = self.source
+      head_right = head_left
+      positive = True
+      if (size < 0):
+         positive = False
+      for _ in range(size):
+         whitespaces = {' ', '\t', '\n'}
+         head_right += 1
+         while (head_right <= len(source)):
+            if (source[head_right] in whitespaces):
+               if (positive):
+                  head_right += 1
+               else:
+                  head_right -= 1
+            else:
+               break
+      return head_right
+
+   def find_greedy(self, mark_left, mark_right, head_left):
       head_right = head_left
       fragment = self.source[head_left:]
       fragment = fragment.split(mark_left, 1)[1]
@@ -41,7 +60,7 @@ class Organ(object):
       head_right = head_left + len(mark_left) + len(content) + len(mark_right)
       return head_right
 
-   def find_tip_balanced(self, tip_left, tip_right, head_left):
+   def find_balanced(self, tip_left, tip_right, head_left):
       head_right = head_left
       if not (source[head_left] == tip_left):
          return head_left
@@ -132,7 +151,7 @@ class Stem(Organ):
          bough = STEM.Break(**data)
          return bough
 
-      head_right = self.find_mark_greedy(mark_left, mark_right, head_left)
+      head_right = self.find_greedy(mark_left, mark_right, head_left)
       probe_left = head_left + len(mark_left)
       probe_right = probe_left + len(content)
       content = source[probe_left, probe_right]
@@ -196,7 +215,7 @@ class Stem(Organ):
             leaf = LEAF.Newline(**data)
             return leaf
 
-      head_right = self.find_mark_greedy(mark_left, mark_right, head_left)
+      head_right = self.find_greedy(mark_left, mark_right, head_left)
       probe_left = head_left + len(mark_left)
       probe_right = probe_left + len(content)
       content = source[probe_left, probe_right]
@@ -336,26 +355,25 @@ class Tissue(Organ):
       tip_left = source[head_left]
       label_left = AID.get_label(tip_left)
 
+      if (label_right == "IGNORED"):
+         tip_right = tip_left
+         head_right = self.find_balanced(tip_left, tip_right, head_left)
+         return None, head_right
+
       tip_right = source[head_right]
       label_right = AID.get_label(tip_right)
-      if (AID.be_start_accent_math(label_left)):
-         head_right += 1
+      if (AID.be_accent_math(label_right)):
+         head_right = self.move(2, head_right)
       tip_right = source[head_right]
       label_right = AID.get_label(tip_right)
-      if (AID.be_start_accent_math(label_left)):
-         head_right += 1
       if (AID.be_start_symbol_math(label_right)):
-         if (isupper(tip_left) or islower(tip_left)):
-            head_right += 1
-         head_right += 2
+         head_right = self.move(2, head_right)
       else:
-         head_right += 1
          data = self.give_data(head_left, head_right)
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       if (head_right > len(source)):
-         head_right = min(head_right, len(source))
-         data = self.give_data(head_left, head_right)
+         data = self.give_data(head_left, len(source))
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       data = self.give_data(head_left, head_right)
@@ -364,15 +382,15 @@ class Tissue(Organ):
 
       if (AID.be_start_box_math(label_left)):
          tip_right = AID.get_tip_right_math(tip_left)
-         head_right = self.find_tip_balanced(tip_left, tip_right, head_left)
-         probe_left = head_left + 1
-         probe_right = head_right - 1
+         head_right = self.find_balanced(tip_left, tip_right, head_left)
+         probe_left = self.move(1, head_right)
+         probe_right = self.move(-1, head_right)
          data = give_data(probe_left, probe_right)
-         if (label_left = "PAIR"):
+         if (label_left = "PAIR_LEFT"):
             tissue = TISSUE.Math_pair(**data)
-         if (label_left = "TRIPLET"):
+         if (label_left = "TRIPLET_LEFT"):
             tissue = TISSUE.Math_triplet(**data)
-         if (label_left = "TUPLE"):
+         if (label_left = "TUPLE_LEFT"):
             tissue = TISSUE.Math_tuple(**data)
       return tissue, head_right
 
@@ -383,36 +401,47 @@ class Tissue(Organ):
       tip_left = source[head_left]
       label_left = AID.get_label(tip_left)
 
+      if (label_right == "IGNORED"):
+         tip_right = tip_left
+         head_right = self.find_balanced(tip_left, tip_right, head_left)
+         return None, head_right
+
       tip_right = source[head_right]
       label_right = AID.get_label(tip_right)
-      if (AID.be_start_symbol_pseudo(label_right)):
-         head_right += 2
+      if (AID.be_start_symbol_math(label_right)):
+         head_right = self.move(2, head_right)
       else:
-         head_right += 1
          data = self.give_data(head_left, head_right)
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       if (head_right > len(source)):
-         head_right = min(head_right, len(source))
-         data = self.give_data(head_left, head_right)
+         data = self.give_data(head_left, len(source))
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       data = self.give_data(head_left, head_right)
-      tissue = TISSUE.Math_symbol(**data)
+      tissue = TISSUE.Pseudo_symbol(**data)
       return tissue, head_right
 
       if (AID.be_start_box_math(label_left)):
          tip_right = AID.get_tip_right_math(tip_left)
-         head_right = self.find_tip_balanced(tip_left, tip_right, head_left)
-         probe_left = head_left + 1
-         probe_right = head_right - 1
+         head_right = self.find_balanced(tip_left, tip_right, head_left)
+         probe_left = self.move(1, head_right)
+         probe_right = self.move(-1, head_right)
          data = give_data(probe_left, probe_right)
-         if (label_left = "PAIR"):
-            tissue = TISSUE.Math_pair(**data)
-         if (label_left = "TRIPLET"):
-            tissue = TISSUE.Math_triplet(**data)
-         if (label_left = "TUPLE"):
-            tissue = TISSUE.Math_tuple(**data)
+         if (label_left = "ROUND_LEFT"):
+            tissue = TISSUE.Pseudo_pair(**data)
+         if (label_left = "SQUARE_LEFT"):
+            tissue = TISSUE.Pseudo_triplet(**data)
+         if (label_left = "CURLY_LEFT"):
+            tissue = TISSUE.Pseudo_tuple(**data)
+         if (label_left = "SANS"):
+            tissue = TISSUE.Pseudo_sans(**data)
+         if (label_left = "SERIF"):
+            tissue = TISSUE.Pseudo_serif(**data)
+         if (label_left = "MONO"):
+            tissue = TISSUE.Pseudo_mono(**data)
+         if (label_left = "COMMENT"):
+            tissue = TISSUE.Pseudo_comment(**data)
       return tissue, head_right
 
 

@@ -61,9 +61,6 @@ class Pseudo_symbol(ORGAN.Tissue):
    def write(self):
       return self.sinks[0]
 
-   def find_height():
-      return 1
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Pseudo_bracket(ORGAN.Tissue):
@@ -142,24 +139,6 @@ class Math_symbol(ORGAN.Tissue):
    def write(self):
       return self.sinks[0]
 
-   def find_height():
-      return 1
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Math_bracket(ORGAN.Tissue):
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.sinks = []
-
-   def write(self):
-      return self.sinks[0]
-
-   def find_height():
-      return 1
-
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -168,17 +147,190 @@ class Math_bracket(ORGAN.Tissue):
 
 class Math_pair(ORGAN.Tissue):
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.tops = []
+      self.bottoms = []
+
+   def parse(self):
+      boxes = []
+      cut = AID.get_tip_math("CUT_PAIR")
+      source = self.source
+      head_left = 0
+      head_right = 0
+      box = []
+      while(head_right <= len(source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         if (source[head_right] == cut):
+            boxes.append(box)
+            box = []
+         else:
+            box.append(tissue)
+
+      assert(len(boxes) == 2)
+      self.tops = boxes[0]
+      self.bottoms = boxes[1]
+
+   def write(self):
+      result = ''
+      top = ''
+      for top in self.tops:
+         top += top.write()
+         top += ' '
+      bottom = ''
+      for bottom in self.bottoms:
+         bottom += top.write()
+         bottom += ' '
+      result = AID.write_command("\\frac", top, down)
+      return result
+
 class Math_triplet(ORGAN.Tissue):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.tops = []
+      self.mains = []
+      self.bottoms = []
+
+   def parse(self):
+      boxes = []
+      cut = AID.get_tip_math("CUT_PAIR")
+      source = self.source
+      head_left = 0
+      head_right = 0
+      box = []
+      while(head_right <= len(source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         if (source[head_right] == cut):
+            boxes.append(box)
+            box = []
+         else:
+            box.append(tissue)
+
+      assert(len(boxes) == 2)
+      self.tops = boxes[0]
+      self.mains = boxes[1]
+      self.bottoms = boxes[2]
+
+   def write(self):
+      result = ''
+      top = ''
+      for top in self.tops:
+         top += top.write()
+         top += ' '
+      main = ''
+      for main in self.mains:
+         main += main.write()
+         main += ' '
+      bottom = ''
+      for bottom in self.bottoms:
+         bottom += top.write()
+         bottom += ' '
+      result += '{' + main + '}' + ' '
+      result += '^{' + top + '}' + ' '
+      result += '_{' + down + '}' + ' '
+      return result
 
 class Math_tuple(ORGAN.Tissue):
 
-class Math_queue(ORGAN.Tissue):
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.entries = []
+
+   def parse(self):
+      boxes = []
+      cut = AID.get_tip_math("CUT_PAIR")
+      source = self.source
+      head_left = 0
+      head_right = 0
+      box = []
+      while(head_right <= len(source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         if (source[head_right] == cut):
+            boxes.append(box)
+            box = []
+         else:
+            box.append(tissue)
+
+      assert(len(boxes) == 2)
+      self.boxes = boxes
+
+   def write(self):
+      result = ''
+      result += '\\begin{matrix}'
+      for entry_self in self.entries:
+         entry = ''
+         for subentry_self in entry_self:
+            entry += subentry_self.write()
+            entry += ' '
+         result += entry + '\\\\ '
+      result += '\\end{matrix}'
+      return result
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+# # texts: roman, sans, mono
 
 class Math_roman(ORGAN.Tissue):
 
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = ''
+
+   def parse(self):
+      self.source
+      if not isalnum(self.source):
+         data = self.give_data(0, len(source))
+         caution = CAUTION.Allowing_only_alphabets(**data)
+         caution.panic()
+      self.sink = self.source
+
+   def write(self):
+      result = ''
+      command = '\\mathrm'
+      result += write_command(command, self.sink)
+      return result
+
 class Math_sans(ORGAN.Tissue):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = ''
+
+   def parse(self):
+      self.source
+      if not isalnum(self.source):
+         data = self.give_data(0, len(source))
+         caution = CAUTION.Allowing_only_alphabets(**data)
+         caution.panic()
+      self.sink = self.source
+
+   def write(self):
+      result = ''
+      command = '\\mathsf'
+      result += write_command(command, self.sink)
+      return result
 
 class Math_mono(ORGAN.Tissue):
 
-class Math_accent(ORGAN.Tissue):
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = ''
+
+   def parse(self):
+      self.source
+      if not isalnum(self.source):
+         data = self.give_data(0, len(source))
+         caution = CAUTION.Allowing_only_alphabets(**data)
+         caution.panic()
+      self.sink = self.source
+
+   def write(self):
+      result = ''
+      command = '\\mathtt'
+      result += write_command(command, self.sink)
+      return result
+
 
