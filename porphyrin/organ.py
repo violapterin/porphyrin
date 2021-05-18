@@ -34,12 +34,12 @@ class Organ(object):
       return data
 
    def find_mark_greedy(self, mark_left, mark_right, head_left):
-         head_right = head_left
-         fragment = self.source[head_left:]
-         fragment = fragment.split(mark_left, 1)[1]
-         content = fragment.split(mark_right, 1)[0]
-         head_right = head_left + len(mark_left) + len(content) + len(mark_right)
-         return head_right
+      head_right = head_left
+      fragment = self.source[head_left:]
+      fragment = fragment.split(mark_left, 1)[1]
+      content = fragment.split(mark_right, 1)[0]
+      head_right = head_left + len(mark_left) + len(content) + len(mark_right)
+      return head_right
 
    def find_tip_balanced(self, tip_left, tip_right, head_left):
       head_right = head_left
@@ -128,16 +128,15 @@ class Stem(Organ):
 
       if (label == "BREAK"):
          head_right = head_left + len(mark_right)
-         data = self.get_data(head_left, head_right)
+         data = self.get_data(head_left, head_left)
          bough = STEM.Break(**data)
          return bough
 
-      content = segments[1]
+      head_right = self.find_mark_greedy(mark_left, mark_right, head_left)
       probe_left = head_left + len(mark_left)
       probe_right = probe_left + len(content)
-      head_right = probe_right + len(mark_right)
+      content = source[probe_left, probe_right]
 
-      labels_macro = {"INSTRUCTION", "DEFINITION_LEFT"}
       data = self.get_data(head_left, probe_left)
       if not AID.be_label_bough(label)):
          caution = CAUTION.Allowing_only_bough(**data)
@@ -183,37 +182,26 @@ class Stem(Organ):
    def snip_leaf(self, head_left):
       leaf = None
       source = self.source
-      segments = clip_segments(head_left)
-      mark_left = segments[0]
+      mark_left = probe_mark(head_left)
       mark_right = get_mark_right(mark_left)
       label = get_label(mark_left[0])
 
-      if (label in {"SPACE", "NEWLINE"}):
+      if (label in AID.be_hollow_leaf(label)):
          head_right = head_left + len(mark_right)
-         data_leaf = self.get_data_modified(
-            leftmost = get_left(head_left),
-            rightmost = get_right(head_right),
-         )
+         data = self.get_data(head_left, head_left)
          if (label == "SPACE"):
-            leaf = LEAF.Space(**data_leaf)
-            return leaf, head_right
+            leaf = LEAF.Space(**data)
+            return leaf
          if (label == "NEWLINE"):
-            leaf = LEAF.Newline(**data_leaf)
-            return leaf, head_right
+            leaf = LEAF.Newline(**data)
+            return leaf
 
-      assert(len(segments) = 3)
-      content = segments[1]
+      head_right = self.find_mark_greedy(mark_left, mark_right, head_left)
       probe_left = head_left + len(mark_left)
       probe_right = probe_left + len(content)
-      head_right = probe_right + len(mark_right)
+      content = source[probe_left, probe_right]
 
-      data_caution = {
-         "source" : mark_left,
-         "leftmost" : get_left(head_left),
-         "rightmost" : get_right(probe_left),
-         "count_line" : count_next_line(head_left),
-         "count_glyph" : count_next_glyph(head_left),
-      }
+      data = self.get_data(head_left, probe_left)
       if (probe_right > len(source)):
          caution = CAUTION.Not_matching_mark_leaf(**data_caution)
          caution.panic()
@@ -263,19 +251,16 @@ class Stem(Organ):
       branch = None
       source = self.source
       head_right = head_left
+      head_middle = head_left
       while head_right <= len(source) - 1:
-         organ, head_right = self.snip_leaf(head_right)
-         if (organ.KIND == kind_stop):
+         head_middle = head_right
+         head_right, leaf = self.snip_leaf(head_right)
+         size_leaf = len(leaf.source)
+         if (leaf.KIND == kind_stop):
             break
-      content = source[head_left: head_right]
-      data_organ = self.get_data_modified(
-         "source" : content,
-         "leftmost" : get_left(probe_left),
-         "rightmost" : get_right(probe_right),
-         "count_line" : count_next_line(probe_left),
-         "count_glyph" : count_next_glyph(probe_left),
-      }
-      branch = constructor(**data_organ)
+         head_middle += size_leaf
+      data = self.get_data(head_left, head_middle)
+      branch = constructor(**data)
       return branch, head_right
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -347,39 +332,87 @@ class Tissue(Organ):
    def snip_tissue_math(self, head_left):
       tissue = None
       source = self.source
-      tip_left = source[head_left]
-      label_left = get_label(tip_left)
       head_right = head_left
+      tip_left = source[head_left]
+      label_left = AID.get_label(tip_left)
 
+      tip_right = source[head_right]
+      label_right = AID.get_label(tip_right)
       if (AID.be_start_accent_math(label_left)):
          head_right += 1
-         label_right = get_label(source[head_right])
-         if (AID.be_start_accent_math(label_right)):
-            head_right += 2
-            tip_right = source[head_right]
-            label_right = get_label(tip_right)
-            data = give_data(head_left, head_right)
-            if (AID.be_start_symbol_math(label_right)):
-               tissue = TISSUE.Math_symbol(**data)
-               return tissue
-            caution = CAUTION.Not_being_valid_symbol(**data)
-            caution.panic()
+      tip_right = source[head_right]
+      label_right = AID.get_label(tip_right)
+      if (AID.be_start_accent_math(label_left)):
+         head_right += 1
+      if (AID.be_start_symbol_math(label_right)):
+         if (isupper(tip_left) or islower(tip_left)):
+            head_right += 1
+         head_right += 2
+      else:
+         head_right += 1
+         data = self.give_data(head_left, head_right)
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      if (head_right > len(source)):
+         head_right = min(head_right, len(source))
+         data = self.give_data(head_left, head_right)
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      data = self.give_data(head_left, head_right)
+      tissue = TISSUE.Math_symbol(**data)
+      return tissue, head_right
 
       if (AID.be_start_box_math(label_left)):
-         tip_right = get_tip_right_math(tip_left)
+         tip_right = AID.get_tip_right_math(tip_left)
          head_right = self.find_tip_balanced(tip_left, tip_right, head_left)
-         data = give_data(head_left, head_right)
-         tip_right = source[head_right]
-         label_right = get_label(tip_right)
+         probe_left = head_left + 1
+         probe_right = head_right - 1
+         data = give_data(probe_left, probe_right)
          if (label_left = "PAIR"):
             tissue = TISSUE.Math_pair(**data)
          if (label_left = "TRIPLET"):
             tissue = TISSUE.Math_triplet(**data)
          if (label_left = "TUPLE"):
             tissue = TISSUE.Math_tuple(**data)
-      return tissue
+      return tissue, head_right
 
    def snip_tissue_pseudo(self, head_left):
-      pass
+      tissue = None
+      source = self.source
+      head_right = head_left
+      tip_left = source[head_left]
+      label_left = AID.get_label(tip_left)
+
+      tip_right = source[head_right]
+      label_right = AID.get_label(tip_right)
+      if (AID.be_start_symbol_pseudo(label_right)):
+         head_right += 2
+      else:
+         head_right += 1
+         data = self.give_data(head_left, head_right)
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      if (head_right > len(source)):
+         head_right = min(head_right, len(source))
+         data = self.give_data(head_left, head_right)
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      data = self.give_data(head_left, head_right)
+      tissue = TISSUE.Math_symbol(**data)
+      return tissue, head_right
+
+      if (AID.be_start_box_math(label_left)):
+         tip_right = AID.get_tip_right_math(tip_left)
+         head_right = self.find_tip_balanced(tip_left, tip_right, head_left)
+         probe_left = head_left + 1
+         probe_right = head_right - 1
+         data = give_data(probe_left, probe_right)
+         if (label_left = "PAIR"):
+            tissue = TISSUE.Math_pair(**data)
+         if (label_left = "TRIPLET"):
+            tissue = TISSUE.Math_triplet(**data)
+         if (label_left = "TUPLE"):
+            tissue = TISSUE.Math_tuple(**data)
+      return tissue, head_right
 
 

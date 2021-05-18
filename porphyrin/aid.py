@@ -146,9 +146,8 @@ def be_start_macro(label):
    }
    return (label in labels)
 
-def be_start_hollow(label):
+def be_hollow_leaf(label):
    labels = {
-      "BREAK",
       "SPACE",
       "NEWLINE",
    }

@@ -3,6 +3,9 @@ import stem as STEM
 import caution as CAUTION
 import aid as AID
 
+# #    .a  .A  .b  .B  .0  .1  ..
+# # &  &a  &A  &b  &B          &.
+# # *                  *0  *1  *.
 class Pseudo_symbol(ORGAN.Tissue):
 
    def __init__(self, **data):
@@ -74,10 +77,9 @@ class Pseudo_bracket(ORGAN.Tissue):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# #     a   A   b   B   0   1  ..
-# # &  &a  &A  &b  &B          .&
-# # *                  *0  *1  .*
-
+# #    .a  .A  .b  .B  .0  .1  ..
+# # &  &a  &A  &b  &B          &.
+# # *                  *0  *1  *.
 class Math_symbol(ORGAN.Tissue):
 
    def __init__(self, **data):
