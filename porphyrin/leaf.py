@@ -11,28 +11,22 @@ class Serif_roman(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
       self.address = ''
-
-   def parse(self):
-      AID.tune_text()
-      head = 0
-      while head <= len(self.source) - 1:
-         text, head = self.snip_tissue_text(head)
-         sinks.append(text)
+      self.sink = ''
 
    def write(self):
       result = ''
+      content = ''
+      self.sink = self.tune_text()
+      tag = self.TAG
       if not (self.address == None):
          tag = 'a'
-      for sink in self.sinks:
-         result += write_element(
-            content = sink,
-            tag = self.TAG,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         result += ' '
+      result += write_element(
+         content = self.source,
+         tag = tag.
+         attributes = ["class"],
+         values = [self.KIND],
+      )
       return result
 
 class Serif_italic(ORGAN.Leaf):
@@ -42,30 +36,22 @@ class Serif_italic(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
       self.address = ''
-
-   def parse(self):
-      AID.tune_text()
-      head = 0
-      while head <= len(self.source) - 1:
-         text, head = self.snip_tissue_text(head)
-         sinks.append(text)
+      self.sink = ''
 
    def write(self):
       result = ''
+      content = ''
+      self.sink = self.tune_text()
       tag = self.TAG
       if not (self.address == None):
          tag = 'a'
-      for sink in self.sinks:
-         result += write_element(
-            content = sink,
-            tag = tag,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         result += ' '
-      result = AID.write_element(result, TAG)
+      result += write_element(
+         content = self.source,
+         tag = tag.
+         attributes = ["class"],
+         values = [self.KIND],
+      )
       return result
 
 class Serif_bold(ORGAN.Leaf):
@@ -75,61 +61,47 @@ class Serif_bold(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
       self.address = ''
-
-   def parse(self):
-      AID.tune_text()
-      head = 0
-      while head <= len(self.source) - 1:
-         text, head = self.snip_tissue_text(head)
-         sinks.append(text)
+      self.sink = ''
 
    def write(self):
       result = ''
+      content = ''
+      self.sink = self.tune_text()
       tag = self.TAG
       if not (self.address == None):
          tag = 'a'
-      for sink in self.sinks:
-         result += write_element(
-            content = sink,
-            tag = tag,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         result += ' '
-      result = AID.write_element(result, TAG)
+      result += write_element(
+         content = self.source,
+         tag = tag.
+         attributes = ["class"],
+         values = [self.KIND],
+      )
       return result
 
 class Sans_roman(ORGAN.Leaf):
 
    KIND = "sans-roman"
+   TAG = 'span'
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
       self.address = ''
-
-   def parse(self):
-      AID.tune_text()
-      head = 0
-      while head <= len(self.source) - 1:
-         text, head = self.snip_tissue_text(head)
-         sinks.append(text)
+      self.sink = ''
 
    def write(self):
       result = ''
+      content = ''
+      self.sink = self.tune_text()
       tag = self.TAG
       if not (self.address == None):
          tag = 'a'
-      for sink in self.sinks:
-         result += write_element(
-            content = sink,
-            tag = tag,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         result += ' '
+      result += write_element(
+         content = self.source,
+         tag = tag.
+         attributes = ["class"],
+         values = [self.KIND],
+      )
       return result
 
 class Sans_bold(ORGAN.Leaf):
@@ -139,30 +111,22 @@ class Sans_bold(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
       self.address = ''
-
-   def parse(self):
-      AID.tune_text()
-      head = 0
-      while head <= len(self.source) - 1:
-         text, head = self.snip_tissue_text(head)
-         sinks.append(text)
+      self.sink = ''
 
    def write(self):
       result = ''
+      content = ''
+      self.sink = self.tune_text()
       tag = self.TAG
       if not (self.address == None):
          tag = 'a'
-      for sink in self.sinks:
-         result += write_element(
-            content = sink,
-            tag = tag,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         result += ' '
-      result = AID.write_element(result, self.TAG)
+      result += write_element(
+         content = self.source,
+         tag = tag.
+         attributes = ["class"],
+         values = [self.KIND],
+      )
       return result
 
 class Comment(ORGAN.Leaf):
@@ -171,47 +135,37 @@ class Comment(ORGAN.Leaf):
       self.fill_basic(**data)
       self.sink = ''
 
-   def parse(self):
-      self.sink = tune_code(self.source)
-
    def write(self):
       token_left = "<!--"
       token_right = "-->"
-      result = token_left + ' ' + self.sink + ' ' + token_right
+      self.sink = self.tune_comment()
+      result = token_left + ' ' + self.source + ' ' + token_right
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Code(ORGAN.Leaf):
 
-   KIND = "sans-bold"
+   KIND = "code"
    TAG = "pre"
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
-
-   def parse(self):
-      AID.tune_text()
-      head = 0
-      while head <= len(self.source) - 1:
-         text, head = self.snip_tissue_text(head)
-         sinks.append(text)
+      self.sink = ''
 
    def write(self):
+      result = ''
       content = ''
+      self.sink = self.tune_code()
       tag = self.TAG
-      if (self.address is not None):
+      if not (self.address == None):
          tag = 'a'
-      for sink in self.sinks:
-         content += write_element(
-            content = sink,
-            tag = tag,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-         content += ' '
-      result = AID.write_element(content, self.TAG)
+      result += write_element(
+         content = self.sink,
+         tag = tag.
+         attributes = ["class"],
+         values = [self.KIND],
+      )
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -219,50 +173,47 @@ class Code(ORGAN.Leaf):
 class Math(ORGAN.Leaf):
 
    KIND = "math"
-   TAG = "math"
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
       self.sink = None
 
-   def parse(self):
-      data_organ = {
-         "source" : self.source,
-         "leftmost" : self.leftmost,
-         "rightmost" : self.rightmost,
-         "count_line" : self.count_line,
-         "count_glyph" : self.count_glyph,
-      }
-      self.sink = TISSUE.Box(**data_organ)
-
    def write(self):
       content = ' '
-      tag = self.TAG
-      for box in self.sink.sinks
-         content += '$' + box.write() + '$'
-         content += ' '
-      result = write_element(
-        content = content
-        tag = tag,
-        attributes = ["class"],
-        values = [self.KIND],
-      )
+      self.sink = TISSUE.Box(**self.get_data)
+      for subbox in self.sink
+         content += '$' + subbox.write() + '$'
+         result = write_element(
+            content = content
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+         )
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Pseudo(ORGAN.Leaf):
 
-   KIND = "serif-roman"
+   KIND = "pseudo"
    TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sinks = []
 
    def parse(self):
-      pass
 
    def write(self):
-      pass
+      content = ' '
+      box = TISSUE.Box(**self.get_data)
+      for box in self.sink.sinks
+         content += '$' + box.write() + '$'
+         result = write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+         )
+      return result
 

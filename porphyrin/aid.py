@@ -83,7 +83,7 @@ def write_element(**data):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def get_label(tip):
+def give_label(tip):
    labels = {
       '@': "SERIF_NORMAL",
       '%': "SERIF_ITALIC",
@@ -109,7 +109,21 @@ def get_label(tip):
       '_': "SPACE",
       '\'': "NEWLINE",
    }
+   return label
+
+def give_tips(tip):
+   labels = give_labels()
+   tips = {label: tip for tip, label in labels}
+   return tips
+
+def get_label(tip):
+   labels = give_labels()
    label = labels.get(tip)
+   return label
+
+def get_tip(label):
+   tips = give_tips()
+   tip = tips.get(label)
    return label
 
 def be_start_bough(label):
@@ -162,7 +176,7 @@ def write_brace(command, *options):
       result += '{' + option + '}' + ' '
    return result
 
-def get_label_math(tip):
+def give_label_math(tip):
    labels = {
       '.': "PLAIN",
       '#': "BOLD",
@@ -196,7 +210,21 @@ def get_label_math(tip):
       '!': "ACCENT_ONE",
       '?': "ACCENT_TWO",
    }
+   return label
+
+def give_tips_math(tip):
+   labels = give_labels_math()
+   tips = {label: tip for tip, label in labels}
+   return tips
+
+def get_label_math(tip):
+   labels = give_labels_math()
    label = labels.get(tip)
+   return label
+
+def get_tip_math(label):
+   tips = give_tips_math()
+   tip = tips.get(label)
    return label
 
 def be_start_letter_math(label):
@@ -226,12 +254,6 @@ def be_start_sign_math(label):
    }
    return (label in labels)
 
-def be_start_symbol_math(label):
-   return (
-      **be_start_sign_math(label)
-      or **be_start_sign_math(label)
-   )
-
 def be_start_box_math(label):
    labels = {
       "START_PAIR",
@@ -254,6 +276,12 @@ def be_start_accent_math(label):
       "ACCENT_TWO",
    }
    return (label in labels)
+
+def be_start_symbol_math(label):
+   return (
+      **be_start_sign_math(label)
+      or **be_start_sign_math(label)
+   )
 
 def get_tip_right_math(tip_left):
    assert(len(tip_left) == 1)
@@ -287,7 +315,7 @@ def get_tip_middle_math(tip_left):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def get_label_pseudo(tip):
+def give_labels_pseudo():
    labels = {
       "PLAIN": '.',
       "BOLD": ',',
@@ -323,8 +351,21 @@ def get_label_pseudo(tip):
       "START_ANGLE": '<',
       "STOP_ANGLE": '>',
    }
-   labels = get_labels()
+   return labels
+
+def give_tips_pseudo(tip):
+   labels = give_labels_pseudo()
+   tips = {label: tip for tip, label in labels}
+   return tips
+
+def get_label_pseudo(tip):
+   labels = give_labels_pseudo()
    label = labels.get(tip)
+   return label
+
+def get_tip_pseudo(label):
+   tips = give_tips_pseudo()
+   tip = tips.get(label)
    return label
 
 def be_letter_pseudo(label):
@@ -358,7 +399,19 @@ def be_sign_pseudo(label):
    return (label in labels)
 
 def be_bracket_pseudo(label):
-   labels = give_labels_bracket_pseudo()
+   labels = {
+      "START_ROUND",
+      "START_SQUARE",
+      "START_CURLY",
+      "STOP_ROUND",
+      "STOP_SQUARE",
+      "STOP_CURLY",
+      "CUT_RIGHT",
+      "CUT_MIDDLE",
+      "CUT_LEFT",
+      "START_ANGLE",
+      "STOP_ANGLE",
+   }
    return (label in labels)
 
 def get_tip_right_pseudo(tip_left):

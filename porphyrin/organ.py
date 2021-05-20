@@ -7,7 +7,7 @@ import aid as AID
 # # Stem: Document
 # # Stem (bough): Paragraphs, Lines, Rows, Image, Break,
 # # Stem (twig): Paragraph, Line, Row,
-# # Stem (frond): Sentence, Verse, Cell
+# # Stem (frond): Phrase, Verse, Cell
 # # Leaf: Math, Pseudo, Code
 # # Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold
 
@@ -289,19 +289,28 @@ class Stem(Organ):
 class Leaf(Organ):
 
    def tune_text(self):
-      glyphs_mark = set([
-         '{', '}', '<', '>',
-         '@', '#', '$', '%', '&',
-      ])
+      sink = self.source
+      glyphs_mark = set([])
+      glyphs_mark.add(AID.get_tip("SERIF_NORMAL"))
+      glyphs_mark.add(AID.get_tip("SERIF_ITALIC"))
+      glyphs_mark.add(AID.get_tip("SERIF_BOLD"))
+      glyphs_mark.add(AID.get_tip("SANS_NORMAL"))
+      glyphs_mark.add(AID.get_tip("SANS_BOLD"))
+      glyphs_mark.add(AID.get_tip("COMMENT_LEFT"))
+      glyphs_mark.add(AID.get_tip("COMMENT_RIGHT"))
       glyphs_space = set([' ', '\t', '\n'])
-      self.remove_token(glyphs_mark, sink)
-      self.erase_token(glyphs_space, sink)
+      sink = self.remove_token(glyphs_mark, sink)
+      sink = self.erase_token(glyphs_space, sink)
+      return sink
 
    def tune_code(self):
+      sink = self.source
       glyphs_space = set([' ', '\t', '\n'])
-      self.erase_token(glyphs_space)
+      sink = self.erase_token(glyphs_space)
+      return sink
 
-   def escape_hypertext(self):
+   def tune_hypertext(self):
+      sink = self.source
       escapes = {
          '<': "&lt;",
          '>': "&gt;",
@@ -309,38 +318,40 @@ class Leaf(Organ):
          '\"': "&quote;",
          '\'': "&apos;",
       }
-      self.replace_token(, escapes)
+      sink = self.replace_token(sink, escapes)
+      return sink
 
-   def escape_comment(self):
-      sink = source
+   def tune_comment(self):
+      sink = self.source
       escapes = {
          '----': '-',
          '---': '-',
          '--': '-',
       }
-      self.replace_token(sink, escapes)
+      sink = self.replace_token(sink, escapes)
+      return sink
 
    def remove_token(self, tokens):
       sink = self.source
       for glyph in tokens:
-         table = source.maketrans(glyph, '')
+         table = sink.maketrans(glyph, '')
          sink = sink.translate(table)
-      self.source = sink
+      return sink
 
    def erase_token(self, tokens):
-      sink = source
+      sink = self.source
       for glyph in tokens:
-         table = source.maketrans(glyph, ' ')
+         table = sink.maketrans(glyph, ' ')
          sink = sink.translate(table)
       ' '.join(sink.split())
-      self.source = sink
+      return sink
 
    def replace_token(self, tokens):
       sink = self.source
       for glyph in tokens:
-         table = source.maketrans(glyph, tokens[glyph])
+         table = sink.maketrans(glyph, tokens[glyph])
          sink = sink.translate(table)
-      self.source = sink
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

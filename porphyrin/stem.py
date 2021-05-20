@@ -20,11 +20,7 @@ class Document(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
-         bough, head = self.snip_bough(head)
-         if (bough is not None):
-            sinks.append(bough)
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          bough, head = self.snip_bough(head)
          if (bough is not None):
             sinks.append(bough)
@@ -107,7 +103,7 @@ class Paragraphs(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          twig, head = self.shatter(Line, "newline", head)
          sinks.append(twig)
 
@@ -135,7 +131,7 @@ class Lines(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          twig, head = self.shatter(Line, "newline", head)
          sinks.append(twig)
 
@@ -164,7 +160,7 @@ class Rows(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          twig, head = self.shatter(Row, "newline", head)
          sinks.append(twig)
 
@@ -203,8 +199,8 @@ class Paragraph(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
-         frond, head = self.shatter(Sentence, "space", head)
+      while (head < len(self.source)):
+         frond, head = self.shatter(Phrase, "space", head)
          sinks.append(frond)
 
    def write(self):
@@ -221,7 +217,7 @@ class Line(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          frond, head = self.shatter(Verse, "space", head)
          sinks.append(frond)
 
@@ -239,7 +235,7 @@ class Row(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          frond, head = self.shatter(Cell, "space", head)
          sinks.append(frond)
 
@@ -248,9 +244,9 @@ class Row(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Sentence(ORGAN.Stem):
+class Phrase(ORGAN.Stem):
 
-   KIND = "sentence"
+   KIND = "phrase"
    TAG = "span"
 
    def __init__(self, **data):
@@ -259,7 +255,7 @@ class Sentence(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          leaf, head = self.snip_leaf(head)
          if (leaf): sinks.append(leaf)
 
@@ -280,7 +276,7 @@ class Verse(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          leaf, head = self.snip_leaf(head)
          if (leaf): sinks.append(leaf)
 
@@ -301,7 +297,7 @@ class Cell(ORGAN.Stem):
 
    def parse(self):
       head = 0
-      while head <= len(self.source) - 1:
+      while (head < len(self.source)):
          leaf, head = self.snip_leaf(head)
          if (leaf): sinks.append(leaf)
 

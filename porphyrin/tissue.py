@@ -3,73 +3,6 @@ import stem as STEM
 import caution as CAUTION
 import aid as AID
 
-# #    .a  .A  .b  .B  .0  .1  ..
-# # &  &a  &A  &b  &B          &.
-# # *                  *0  *1  *.
-class Pseudo_symbol(ORGAN.Tissue):
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.sink = ''
-
-   def parse(self):
-      symbols = {}
-      
-      symbols['!'] = {
-         'A': '零', 'B': '壹', 'C': '貳', 'D': '參', 'E': '肆',
-      }
-      symbols['?'] = {
-         # # ... ...
-      }
-
-      # # ... ...
-      # # 零壹貳參肆伍陸柒捌玖
-      # # 甲乙丙丁戊己庚辛壬癸
-      # # 子丑寅卯辰巳午未申酉戌亥
-      # # 乾兌離震巽坎艮坤
-      # # 鼠牛虎兔龍蛇馬羊猴雞狗豬
-      # # 
-      # # 幫滂並明非敷奉微
-      # # 端透定泥知澈澄娘
-      # # 精清從心邪照穿床審禪
-      # # 見溪群疑影曉匣喻來日
-      # # 通江止遇蟹臻山效
-      # # 果假宕梗曾流深咸
-
-
-      symbols['~'] = {
-         '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
-         '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
-      }
-      # # い ろ は に ほ へ と ち り ぬ 
-      # # る を わ か よ た れ そ つ ね
-      # # な ら む う ゐ の お く や ま
-      # # け ふ こ え て あ さ き ゆ め
-      # # み し ゑ ひ も
-      # # ... ...
-
-      assert(len(source) == 2)
-      tip = source[0]
-      tail = source[1]
-      sink = symbols.get(tip).get(tail)
-      if (sink == None):
-         data = self.get_data_modified()
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
-      self.sinks[0] = sink
-
-   def write(self):
-      return self.sinks[0]
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Pseudo_bracket(ORGAN.Tissue):
-
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.sinks = []
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -83,7 +16,7 @@ class Math_symbol(ORGAN.Tissue):
       self.fill_basic(**data)
       self.sink = ''
 
-   def parse(self):
+   def write(self):
       assert(len(self.source) == 2)
       tip = self.source[0]
       tail = self.source[1]
@@ -136,7 +69,6 @@ class Math_symbol(ORGAN.Tissue):
       else:
          self.sinks.append(sink)
 
-   def write(self):
       return self.sinks[0]
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -152,7 +84,7 @@ class Math_pair(ORGAN.Tissue):
       self.tops = []
       self.bottoms = []
 
-   def parse(self):
+   def write(self):
       boxes = []
       cut = AID.get_tip_math("CUT_PAIR")
       source = self.source
@@ -171,7 +103,6 @@ class Math_pair(ORGAN.Tissue):
       self.tops = boxes[0]
       self.bottoms = boxes[1]
 
-   def write(self):
       result = ''
       top = ''
       for top in self.tops:
@@ -192,7 +123,7 @@ class Math_triplet(ORGAN.Tissue):
       self.mains = []
       self.bottoms = []
 
-   def parse(self):
+   def write(self):
       boxes = []
       cut = AID.get_tip_math("CUT_PAIR")
       source = self.source
@@ -212,7 +143,6 @@ class Math_triplet(ORGAN.Tissue):
       self.mains = boxes[1]
       self.bottoms = boxes[2]
 
-   def write(self):
       result = ''
       top = ''
       for top in self.tops:
@@ -237,7 +167,7 @@ class Math_tuple(ORGAN.Tissue):
       self.fill_basic(**data)
       self.entries = []
 
-   def parse(self):
+   def write(self):
       boxes = []
       cut = AID.get_tip_math("CUT_PAIR")
       source = self.source
@@ -255,16 +185,15 @@ class Math_tuple(ORGAN.Tissue):
       assert(len(boxes) == 2)
       self.boxes = boxes
 
-   def write(self):
       result = ''
-      result += '\\begin{matrix}'
+      result += AID.write_command("\\begin", "matrix")
       for entry_self in self.entries:
          entry = ''
          for subentry_self in entry_self:
             entry += subentry_self.write()
             entry += ' '
          result += entry + '\\\\ '
-      result += '\\end{matrix}'
+      result += AID.write_command("\\end", "matrix")
       return result
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -279,7 +208,7 @@ class Math_roman(ORGAN.Tissue):
       self.fill_basic(**data)
       self.sink = ''
 
-   def parse(self):
+   def write(self):
       self.source
       if not isalnum(self.source):
          data = self.give_data(0, len(source))
@@ -287,7 +216,6 @@ class Math_roman(ORGAN.Tissue):
          caution.panic()
       self.sink = self.source
 
-   def write(self):
       result = ''
       command = '\\mathrm'
       result += write_command(command, self.sink)
@@ -299,7 +227,7 @@ class Math_sans(ORGAN.Tissue):
       self.fill_basic(**data)
       self.sink = ''
 
-   def parse(self):
+   def write(self):
       self.source
       if not isalnum(self.source):
          data = self.give_data(0, len(source))
@@ -307,7 +235,6 @@ class Math_sans(ORGAN.Tissue):
          caution.panic()
       self.sink = self.source
 
-   def write(self):
       result = ''
       command = '\\mathsf'
       result += write_command(command, self.sink)
@@ -319,7 +246,7 @@ class Math_mono(ORGAN.Tissue):
       self.fill_basic(**data)
       self.sink = ''
 
-   def parse(self):
+   def write(self):
       self.source
       if not isalnum(self.source):
          data = self.give_data(0, len(source))
@@ -327,10 +254,91 @@ class Math_mono(ORGAN.Tissue):
          caution.panic()
       self.sink = self.source
 
-   def write(self):
       result = ''
       command = '\\mathtt'
       result += write_command(command, self.sink)
       return result
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+# #    .a  .A  .b  .B  .0  .1  ..
+# # &  &a  &A  &b  &B          &.
+# # *                  *0  *1  *.
+class Pseudo_symbol(ORGAN.Tissue):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = ''
+
+   def write(self):
+      symbols = {}
+      
+      symbols['!'] = {
+         'A': '零', 'B': '壹', 'C': '貳', 'D': '參', 'E': '肆',
+      }
+      symbols['?'] = {
+         # # ... ...
+      }
+
+      # # ... ...
+      # # 零壹貳參肆伍陸柒捌玖
+      # # 甲乙丙丁戊己庚辛壬癸
+      # # 子丑寅卯辰巳午未申酉戌亥
+      # # 乾兌離震巽坎艮坤
+      # # 鼠牛虎兔龍蛇馬羊猴雞狗豬
+      # # 
+      # # 幫滂並明非敷奉微
+      # # 端透定泥知澈澄娘
+      # # 精清從心邪照穿床審禪
+      # # 見溪群疑影曉匣喻來日
+      # # 通江止遇蟹臻山效
+      # # 果假宕梗曾流深咸
+
+
+      symbols['~'] = {
+         '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
+         '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
+      }
+      # # い ろ は に ほ へ と ち り ぬ 
+      # # る を わ か よ た れ そ つ ね
+      # # な ら む う ゐ の お く や ま
+      # # け ふ こ え て あ さ き ゆ め
+      # # み し ゑ ひ も
+      # # ... ...
+
+      assert(len(source) == 2)
+      tip = source[0]
+      tail = source[1]
+      sink = symbols.get(tip).get(tail)
+      if (sink == None):
+         data = self.get_data_modified()
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      self.sinks = sink
+
+      return self.sinks
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Pseudo_bracket(ORGAN.Tissue):
+
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = ''
+      self.level = 0
+
+   def write(self):
+      result = ''
+      result += self.sink + ' '
+      tag = "sub"
+      result += write_element(
+         content = self.level,
+         tag = tag,
+      )
+      result = ' '
+      return result
