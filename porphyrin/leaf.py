@@ -102,21 +102,19 @@ class Comment(ORGAN.Leaf):
 class Math(ORGAN.Leaf):
 
    KIND = "math"
-   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
       sink = ''
-      box = TISSUE.Math_box(**self.get_data)
-      content = "\\( " + box.write() + " \\)"
-      sink = write_element(
-         content = content,
-         tag = self.TAG,
-         attributes = ["class"],
-         values = [self.KIND],
-      )
+      source = self.source
+      head_left = 0
+      head_right = 0
+      while(head_right <= len(source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         tissue.OUTSIDE = True
+         sink += tissue.write()
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -124,20 +122,17 @@ class Math(ORGAN.Leaf):
 class Pseudo(ORGAN.Leaf):
 
    KIND = "pseudo"
-   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
       sink = ''
-      box = TISSUE.Pseudo_box(**self.get_data)
-      content = box.write()
-      sink = write_element(
-         content = content,
-         tag = self.TAG,
-         attributes = ["class"],
-         values = [self.KIND],
-      )
+      source = self.source
+      head_left = 0
+      head_right = 0
+      while(head_right <= len(source)):
+         tissue, head_right = self.snip_tissue_pseudo(head_left)
+         sink += tissue.write()
       return sink
 

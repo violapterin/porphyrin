@@ -169,7 +169,7 @@ def be_hollow_leaf(label):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def write_command(command, *options):
+def write_math_command(command, *options):
    sink = ''
    sink += command + ' '
    for option in options:

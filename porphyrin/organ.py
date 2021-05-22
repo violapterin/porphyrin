@@ -389,6 +389,25 @@ class Leaf(Organ):
          values.append(self.address)
       return values
 
+   def write_math_outside(self, content):
+      assert(hasattr(self, 'OUTSIDE'))
+      assert(hasattr(self, 'TAG'))
+      assert(hasattr(self, 'KIND'))
+      sink = ''
+      if (self.OUTSIDE):
+         content = "\\( " + content + " \\)"
+         sink = write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+         )
+      else:
+         sink = content
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
    def snip_tissue_math(self, head_left):
       tissue = None
       source = self.source

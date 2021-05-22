@@ -6,97 +6,132 @@ import aid as AID
 class Math_box(ORGAN.Leaf):
 
    TAG = "span"
+   OUTSIDE = False
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      sink = None
+      sink = ''
+      content = ''
       source = self.source
       head_left = 0
       head_right = 0
       while(head_right <= len(source)):
          tissue, head_right = self.snip_tissue_math(head_left)
-
-      self.boxes = boxes
-
-      sink = ''
-      box = TISSUE.Math_box(**self.get_data)
-      content = "\\( " + box.write() + " \\)"
-      sink = write_element(
-         content = content,
-         tag = self.TAG,
-         attributes = ["class"],
-         values = [self.KIND],
-      )
+         content += tissue.write()
+      sink = write_math_outside(self, content)
       return sink
-
-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # #    .a  .A  .b  .B  .0  .1  ..
 # # &  &a  &A  &b  &B          &.
 # # *                  *0  *1  *.
+class Math_plain(ORGAN.Leaf):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.accent = ''
+
+   def write(self):
+      tip = self.source[0]
+      label = get_label_math(tip)
+      symbols = {
+         "ABSTRACTION": "\\wp",
+         "ARITHMETICS": '+',
+         "OPERATION": "\\uparrow",
+         "SHAPE": "\\cdot",
+         "LINE": '-',
+         "ARROW_LEFT": "\\leftarrow",
+         "ARROW_MIDDLE": "\\downarrow",
+         "ARROW_RIGHT": "\\rightarrow",
+         "EQUIVALENCE": '=',
+         "ORDER_LEFT": '<',
+         "ORDER_RIGHT": '>',
+      }
+      symbol = symbols.get(label)
+
+      if (symbol == None):
+         data = self.get_data()
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      sink = write_math_outside(self, symbol)
+      return sink
+
 class Math_letter(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
+      self.accent = ''
 
    def write(self):
-      assert(len(self.source) == 2)
-      tip = self.source[0]
+      sink = ''
+      content = ''
+      if (len(self.source) >= 4):
+         tip_one = self.source[2]
+         tip_two = self.source[3]
+         label_one = get_label_math(tip_one)
+         label_two = get_label_math(tip_two)
+         if (label_one == "ACCENT_ONE"):
+            if (label_two == "ACCENT_ONE"):
+               self.accent = "\\bar"
+            elif (label_two == "ACCENT_TWO"):
+               self.accent = "\\hat"
+         elif (label_one == "ACCENT_TWO"):
+            if (label_two == "ACCENT_ONE"):
+               self.accent = "\\breve"
+            elif (label_two == "ACCENT_TWO"):
+               self.accent = "\\tilde"
+
+      tip = self.source[1]
       tail = self.source[1]
-      label = get_label_math(tip)
-      PLAIN = give_tips_math("PLAIN")
-      sink = None
+      plain = get_tip_math("PLAIN")
 
       if (label == "PLAIN"):
          if (tail.islower() or tail.isupper()):
-            sink = tail
-         elif (tail == PLAIN):
-            sink = "."
+            letter = tail
+         elif (tail == plain):
+            letter = "."
 
       if (label == "BOLD"):
          if (tail.islower() or tail.isupper()):
-            sink = tail
-         elif (tail == PLAIN):
-            sink = "\\#"
+            letter = tail
+         elif (tail == plain):
+            letter = "\\aleph"
 
       if (label == "BLACK"):
          if (tail.islower()):
-            sink = write_brace("\\mathbb", tail)
+            letter = write_math_command("\\mathbb", tail)
          elif (tail.isupper()):
-            sink = write_brace("\\fraktur", tail)
-         elif (tail == PLAIN):
-            sink = "\\&"
+            letter = write_math_command("\\fraktur", tail)
+         elif (tail == plain):
+            letter = "\\forall"
 
       if (label == "CURSIVE"):
          if (tail.islower()):
-            sink = write_brace("\\mathcal", tail)
+            letter = write_math_command("\\mathcal", tail)
          elif (tail.isupper()):
-            sink = write_brace("\\mathscr", tail)
-         elif (tail == PLAIN):
-            sink = "@"
+            letter = write_math_command("\\mathscr", tail)
+         elif (tail == plain):
+            letter = "\\rightsquigarrow"
 
       if (label == "GREEK"):
-         symbols = {
+         letters_greek = {
             'a': "\\alpha", 'b': "\\beta",
             # # ...
          }
          if (tail.islower() or tail.isupper()):
-            sink = symbols[tail]
+            letter = symbols[tail]
          elif (tail == PLAIN):
-            sink = "\\$"
+            letter = "\\exists"
 
-      if (sink == None):
-         data = self.get_data_modified()
+      if (letter == None):
+         data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
-      else:
-         self.sinks.append(sink)
-
-      return self.sinks[0]
+      sink = write_math_outside(self, letter)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -110,23 +145,43 @@ class Math_sign(ORGAN.Leaf):
       tip = self.source[0]
       tail = self.source[1]
       label = get_label_math(tip)
-      sink = None
+      sink = ''
+      keys = (
+         '0', '1', '2', '3', '4',
+         '5', '6', '7', '8', '9', '.',
+      )
+      signs = ()
 
-      if (label == "SHAPE"):
-         if (tail.islower() or tail.isupper()):
-            sink = tail
-         elif (tail == PLAIN):
-            sink = "."
+      elif (label == "ABSTRACTION"):
+         signs = ()
+      elif (label == "ARITHMETICS"):
+         signs = ()
+      elif (label == "OPERATION"):
+         signs = ()
+      elif (label == "SHAPE"):
+         signs = ()
+      elif (label == "LINE"):
+         signs = ()
+      elif (label == "ARROW_LEFT"):
+         signs = ()
+      elif (label == "ARROW_MIDDLE"):
+         signs = ()
+      elif (label == "ARROW_RIGHT"):
+         signs = ()
+      elif (label == "EQUIVALENCE"):
+         signs = ()
+      elif (label == "ORDER_LEFT"):
+         signs = ()
+      elif (label == "ORDER_RIGHT"):
+         signs = ()
+      sign = signs[keys.index(key)]
 
-
-      if (sink == None):
-         data = self.get_data_modified()
+      if (sign == None):
+         data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
-      else:
-         self.sinks.append(sink)
-
-      return self.sinks[0]
+      sink = write_math_outside(self, sign)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -157,7 +212,7 @@ class Math_pair(ORGAN.Leaf):
 
       sink_top = top.write()
       sink_bottom = bottom.write()
-      comman = "\\frac"
+      command = "\\frac"
       sink = AID.write_command(command, sink_top, sink_bottom)
       return sink
 
