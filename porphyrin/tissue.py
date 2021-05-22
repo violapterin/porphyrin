@@ -3,10 +3,6 @@ import stem as STEM
 import caution as CAUTION
 import aid as AID
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
 # #    .a  .A  .b  .B  .0  .1  ..
 # # &  &a  &A  &b  &B          &.
 # # *                  *0  *1  *.
@@ -270,7 +266,6 @@ class Pseudo_symbol(ORGAN.Tissue):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = ''
 
    def write(self):
       symbols = {}
@@ -329,7 +324,6 @@ class Pseudo_bracket(ORGAN.Tissue):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = ''
       self.level = 0
 
    def write(self):
@@ -342,3 +336,4 @@ class Pseudo_bracket(ORGAN.Tissue):
       )
       result = ' '
       return result
+

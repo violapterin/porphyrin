@@ -90,7 +90,7 @@ def give_label(tip):
       '#': "SERIF_BOLD",
       '$': "SANS_NORMAL",
       '&': "SANS_BOLD",
-      '+': "CODE",
+      '+': "mono",
       '*': "PSEUDO",
       '^': "MATH",
       '\\': "LINK",
@@ -143,7 +143,7 @@ def be_start_leaf(label):
       "SERIF_BOLD",
       "SANS_NORMAL",
       "SANS_BOLD",
-      "CODE",
+      "mono",
       "PSEUDO",
       "MATH",
       "LINK",
@@ -207,6 +207,8 @@ def give_label_math(tip):
       ';': "CUT_TUPLE",
       '\'': "SANS" ,
       '\"': "ROMAN",
+      '`': "MONO",
+      '_': "CHECK",
       '!': "ACCENT_ONE",
       '?': "ACCENT_TWO",
    }
@@ -279,8 +281,14 @@ def be_start_accent_math(label):
 
 def be_start_symbol_math(label):
    return (
-      **be_start_sign_math(label)
+      **be_start_letter_math(label)
       or **be_start_sign_math(label)
+   )
+
+def be_start_math(label):
+   return (
+      **be_start_symbol_math(label)
+      or **be_start_box_math(label)
    )
 
 def get_tip_right_math(tip_left):
@@ -295,7 +303,7 @@ def get_tip_right_math(tip_left):
       tip_right = get_tip_math("STOP_CURLY")
    if (label == "START_ANGLE"):
       tip_right = get_tip_math("STOP_ANGLE")
-   if (label in {"SANS", "ROMAN", "MONO"}):
+   if (label in {"SANS", "ROMAN", "MONO", "CHECK"}):
       tip_right = tip_left
    return tip_right
 

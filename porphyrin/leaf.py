@@ -7,127 +7,80 @@ import aid as AID
 class Serif_roman(ORGAN.Leaf):
 
    KIND = "serif-roman"
-   TAG = "span"
+   TAG_PLAIN = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
       self.address = ''
-      self.sink = ''
 
    def write(self):
-      result = ''
-      content = ''
-      self.sink = self.tune_text()
-      tag = self.TAG
-      if not (self.address == None):
-         tag = 'a'
-      result += write_element(
-         content = self.source,
-         tag = tag.
-         attributes = ["class"],
-         values = [self.KIND],
-      )
-      return result
+      sink = self.tune_text()
+      return self.write_text()
 
 class Serif_italic(ORGAN.Leaf):
 
    KIND = "serif-italic"
-   TAG = "em"
+   TAG_PLAIN = "em"
 
    def __init__(self, **data):
       self.fill_basic(**data)
       self.address = ''
-      self.sink = ''
 
    def write(self):
-      result = ''
-      content = ''
-      self.sink = self.tune_text()
-      tag = self.TAG
-      if not (self.address == None):
-         tag = 'a'
-      result += write_element(
-         content = self.source,
-         tag = tag.
-         attributes = ["class"],
-         values = [self.KIND],
-      )
-      return result
+      sink = self.tune_text()
+      return self.write_text()
 
 class Serif_bold(ORGAN.Leaf):
 
    KIND = "serif-bold"
-   TAG = 'b'
+   TAG_PLAIN = 'b'
 
    def __init__(self, **data):
       self.fill_basic(**data)
       self.address = ''
-      self.sink = ''
 
    def write(self):
-      result = ''
-      content = ''
-      self.sink = self.tune_text()
-      tag = self.TAG
-      if not (self.address == None):
-         tag = 'a'
-      result += write_element(
-         content = self.source,
-         tag = tag.
-         attributes = ["class"],
-         values = [self.KIND],
-      )
-      return result
+      sink = self.tune_text()
+      return self.write_text()
 
 class Sans_roman(ORGAN.Leaf):
 
    KIND = "sans-roman"
-   TAG = 'span'
+   TAG_PLAIN = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
       self.address = ''
-      self.sink = ''
 
    def write(self):
-      result = ''
-      content = ''
-      self.sink = self.tune_text()
-      tag = self.TAG
-      if not (self.address == None):
-         tag = 'a'
-      result += write_element(
-         content = self.source,
-         tag = tag.
-         attributes = ["class"],
-         values = [self.KIND],
-      )
-      return result
+      sink = self.tune_text()
+      return self.write_text()
 
 class Sans_bold(ORGAN.Leaf):
 
    KIND = "sans-bold"
-   TAG = 'b'
+   TAG_PLAIN = 'b'
 
    def __init__(self, **data):
       self.fill_basic(**data)
       self.address = ''
-      self.sink = ''
 
    def write(self):
-      result = ''
-      content = ''
-      self.sink = self.tune_text()
-      tag = self.TAG
-      if not (self.address == None):
-         tag = 'a'
-      result += write_element(
-         content = self.source,
-         tag = tag.
-         attributes = ["class"],
-         values = [self.KIND],
-      )
-      return result
+      sink = self.tune_text()
+      return self.write_text()
+
+class Mono(ORGAN.Leaf):
+
+   KIND = "mono"
+   TAG = "pre"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      sink = self.tune_code()
+      return self.write_text()
 
 class Comment(ORGAN.Leaf):
 
@@ -144,30 +97,6 @@ class Comment(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Code(ORGAN.Leaf):
-
-   KIND = "code"
-   TAG = "pre"
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.sink = ''
-
-   def write(self):
-      result = ''
-      content = ''
-      self.sink = self.tune_code()
-      tag = self.TAG
-      if not (self.address == None):
-         tag = 'a'
-      result += write_element(
-         content = self.sink,
-         tag = tag.
-         attributes = ["class"],
-         values = [self.KIND],
-      )
-      return result
-
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Math(ORGAN.Leaf):
@@ -177,20 +106,18 @@ class Math(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = None
 
    def write(self):
-      content = ' '
-      self.sink = TISSUE.Box(**self.get_data)
-      for subbox in self.sink
-         content += '$' + subbox.write() + '$'
-         result = write_element(
-            content = content
-            tag = self.TAG,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-      return result
+      sink = ''
+      box = TISSUE.Math_box(**self.get_data)
+      content = "\\( " + box.write() + " \\)"
+      sink = write_element(
+         content = content,
+         tag = self.TAG,
+         attributes = ["class"],
+         values = [self.KIND],
+      )
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -202,18 +129,15 @@ class Pseudo(ORGAN.Leaf):
    def __init__(self, **data):
       self.fill_basic(**data)
 
-   def parse(self):
-
    def write(self):
-      content = ' '
-      box = TISSUE.Box(**self.get_data)
-      for box in self.sink.sinks
-         content += '$' + box.write() + '$'
-         result = write_element(
-            content = content,
-            tag = self.TAG,
-            attributes = ["class"],
-            values = [self.KIND],
-         )
-      return result
+      sink = ''
+      box = TISSUE.Pseudo_box(**self.get_data)
+      content = box.write()
+      sink = write_element(
+         content = content,
+         tag = self.TAG,
+         attributes = ["class"],
+         values = [self.KIND],
+      )
+      return sink
 

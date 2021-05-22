@@ -8,7 +8,7 @@ import aid as AID
 # # Stem (bough): Paragraphs, Lines, Rows, Image, Break,
 # # Stem (twig): Paragraph, Line, Row,
 # # Stem (frond): Phrase, Verse, Cell
-# # Leaf: Math, Pseudo, Code
+# # Leaf: Math, Pseudo, Mono
 # # Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold
 
 class Organ(object):
@@ -256,8 +256,8 @@ class Stem(Organ):
          leaf = LEAF.Sans_normal(**data_leaf)
       if (label == "SANS_BOLD"):
          leaf = LEAF.Sans_bold(**data_leaf)
-      if (label == "CODE"):
-         leaf = LEAF.Code(**data_leaf)
+      if (label == "mono"):
+         leaf = LEAF.Mono(**data_leaf)
       if (label == "PSEUDO"):
          leaf = LEAF.Pseudo(**data_leaf)
       if (label == "MATH"):
@@ -354,6 +354,40 @@ class Leaf(Organ):
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+   def write_text(self):
+      result = ''
+      result += write_element(
+         content = sink,
+         tag = self.give_tag_text(),
+         attributes = self.give_attributes_text(),
+         values = self.give_values_text(),
+      )
+      return result
+
+   def give_tag_text(self):
+      assert(hasattr(self, 'address'))
+      if self.address:
+         tag = self.TAG_PLAIN
+      else:
+         tag = 'a'
+
+   def give_attributes_text(self):
+      assert(hasattr(self, 'address'))
+      attributes = ["class"]
+      if self.address:
+         attributes.append("href")
+      return attributes
+
+   def give_values_text(self):
+      assert(hasattr(self, 'KIND'))
+      assert(hasattr(self, 'address'))
+      values = [self.KIND]
+      if self.address:
+         values.append(self.address)
+      return values
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -362,27 +396,18 @@ class Tissue(Organ):
    def snip_tissue_math(self, head_left):
       tissue = None
       source = self.source
-      head_right = head_left
       tip_left = source[head_left]
-      label_left = AID.get_label(tip_left)
-
-      if (label_right == "IGNORED"):
-         tip_right = tip_left
-         head_right = self.find_balanced(tip_left, tip_right, head_left)
-         return None, head_right
-
-      tip_right = source[head_right]
-      label_right = AID.get_label(tip_right)
-      if (AID.be_accent_math(label_right)):
-         head_right = self.move(2, head_right)
-      tip_right = source[head_right]
-      label_right = AID.get_label(tip_right)
-      if (AID.be_start_symbol_math(label_right)):
-         head_right = self.move(2, head_right)
-      else:
+      label_left = AID.get_label_math(tip_left)
+      head_right = self.move(1, head_left)
+      if not AID.be_start_math(label_left):
          data = self.give_data(head_left, head_right)
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
+
+      if (AID.be_start_symbol_math(label_right)):
+         head_right = self.move(2, head_left)
+      if (AID.be_accent_math(label_right)):
+         head_right = self.move(2, head_right)
       if (head_right > len(source)):
          data = self.give_data(head_left, len(source))
          caution = CAUTION.Not_being_valid_symbol(**data)
@@ -394,37 +419,38 @@ class Tissue(Organ):
       if (AID.be_start_box_math(label_left)):
          tip_right = AID.get_tip_right_math(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, head_left)
-         probe_left = self.move(1, head_right)
+         probe_left = self.move(1, head_left)
          probe_right = self.move(-1, head_right)
          data = give_data(probe_left, probe_right)
-         if (label_left = "PAIR_LEFT"):
+         if (label_left == "PAIR_LEFT"):
             tissue = TISSUE.Math_pair(**data)
-         if (label_left = "TRIPLET_LEFT"):
+         if (label_left == "TRIPLET_LEFT"):
             tissue = TISSUE.Math_triplet(**data)
-         if (label_left = "TUPLE_LEFT"):
+         if (label_left == "TUPLE_LEFT"):
             tissue = TISSUE.Math_tuple(**data)
+         if (label_left == "SERIF"):
+            tissue = TISSUE.Math_serif(**data)
+         if (label_left == "SANS"):
+            tissue = TISSUE.Math_sans(**data)
+         if (label_left == "MONO"):
+            tissue = TISSUE.Math_mono(**data)
+         if (label_left == "CHECK"):
+            tissue = None
       return tissue, head_right
 
    def snip_tissue_pseudo(self, head_left):
       tissue = None
       source = self.source
-      head_right = head_left
       tip_left = source[head_left]
-      label_left = AID.get_label(tip_left)
-
-      if (label_right == "IGNORED"):
-         tip_right = tip_left
-         head_right = self.find_balanced(tip_left, tip_right, head_left)
-         return None, head_right
-
-      tip_right = source[head_right]
-      label_right = AID.get_label(tip_right)
-      if (AID.be_start_symbol_math(label_right)):
-         head_right = self.move(2, head_right)
-      else:
+      label_left = AID.get_label_math(tip_left)
+      head_right = self.move(1, head_left)
+      if not AID.be_start_pseudo(label_left):
          data = self.give_data(head_left, head_right)
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
+
+      if (AID.be_start_symbol_pseudo(label_right)):
+         head_right = self.move(2, head_left)
       if (head_right > len(source)):
          data = self.give_data(head_left, len(source))
          caution = CAUTION.Not_being_valid_symbol(**data)
@@ -433,10 +459,10 @@ class Tissue(Organ):
       tissue = TISSUE.Pseudo_symbol(**data)
       return tissue, head_right
 
-      if (AID.be_start_box_math(label_left)):
-         tip_right = AID.get_tip_right_math(tip_left)
+      if (AID.be_start_box_pseudo(label_left)):
+         tip_right = AID.get_tip_right_pseudo(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, head_left)
-         probe_left = self.move(1, head_right)
+         probe_left = self.move(1, head_left)
          probe_right = self.move(-1, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left = "ROUND_LEFT"):
@@ -451,8 +477,10 @@ class Tissue(Organ):
             tissue = TISSUE.Pseudo_serif(**data)
          if (label_left = "MONO"):
             tissue = TISSUE.Pseudo_mono(**data)
-         if (label_left = "COMMENT"):
-            tissue = TISSUE.Pseudo_comment(**data)
+         if (label_left = "MONO"):
+            tissue = TISSUE.Pseudo_mono(**data)
+         if (label_left = "CHECK"):
+            tissue = None
       return tissue, head_right
 
 
