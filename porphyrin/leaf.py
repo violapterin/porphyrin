@@ -102,7 +102,7 @@ class Comment(ORGAN.Leaf):
 class Math(ORGAN.Leaf):
 
    KIND = "math"
-   TAG = "span"
+   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -124,7 +124,7 @@ class Math(ORGAN.Leaf):
 class Pseudo(ORGAN.Leaf):
 
    KIND = "pseudo"
-   TAG = "span"
+   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)

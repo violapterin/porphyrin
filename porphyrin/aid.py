@@ -169,12 +169,24 @@ def be_hollow_leaf(label):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def write_brace(command, *options):
-   result = ''
-   result += command + ' '
+def write_command(command, *options):
+   sink = ''
+   sink += command + ' '
    for option in options:
-      result += '{' + option + '}' + ' '
-   return result
+      sink += '{' + option + '}' + ' '
+   return sink
+
+def write_math_word(self, command, source):
+   sink = ''
+   if not isalnum(self.source):
+      data = self.give_data(0, len(source))
+      caution = CAUTION.Allowing_only_alphabets(**data)
+      caution.panic()
+   content = self.source
+   sink += AID.write_command(command, content)
+   return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def give_label_math(tip):
    labels = {
@@ -183,6 +195,8 @@ def give_label_math(tip):
       '&': "BLACK",
       '@': "CURSIVE",
       '$': "GREEK",
+      '!': "ACCENT_ONE",
+      '?': "ACCENT_TWO",
       #
       '%': "ABSTRACTION",
       '+': "ARITHMETICS",
@@ -205,12 +219,10 @@ def give_label_math(tip):
       '{': "START_TUPLE",
       '}': "STOP_TUPLE",
       ';': "CUT_TUPLE",
+      '\"': "SERIF",
       '\'': "SANS" ,
-      '\"': "ROMAN",
       '`': "MONO",
       '_': "CHECK",
-      '!': "ACCENT_ONE",
-      '?': "ACCENT_TWO",
    }
    return label
 
@@ -267,8 +279,9 @@ def be_start_box_math(label):
       "START_TUPLE",
       "STOP_TUPLE",
       "CUT_TUPLE",
+      "SERIF",
       "SANS",
-      "ROMAN",
+      "MONO",
    }
    return (label in labels)
 
@@ -348,16 +361,16 @@ def give_labels_pseudo():
       "KANA_NINTH": '+',
       #
       "START_ROUND": '(',
-      "START_SQUARE": '[',
-      "START_CURLY": '{',
       "STOP_ROUND": ')',
+      "CUT_ROUND": '/',
+      "START_SQUARE": '[',
+      "CUT_SQUARE": '\\',
       "STOP_SQUARE": ']',
+      "START_CURLY": '{',
+      "CUT_CURLY": '|',
       "STOP_CURLY": '}',
-      "CUT_RIGHT": '/',
-      "CUT_MIDDLE": '|',
-      "CUT_LEFT": '\\',
-      "START_ANGLE": '<',
-      "STOP_ANGLE": '>',
+      "START_TINY": '<',
+      "STOP_TINY": '>',
    }
    return labels
 
@@ -376,12 +389,12 @@ def get_tip_pseudo(label):
    tip = tips.get(label)
    return label
 
-def be_letter_pseudo(label):
+def be_start_letter_pseudo(label):
    labels = {
       "PLAIN",
       "BOLD",
-      "ROMAN",
-      "ROMAN_BLACK",
+      "SERIF",
+      "SERIF_BLACK",
       "SANS",
       "SANS_BLACK",
       "GREEK",
@@ -391,7 +404,7 @@ def be_letter_pseudo(label):
    }
    return (label in labels)
 
-def be_sign_pseudo(label):
+def be_start_sign_pseudo(label):
    labels = {
       "KANA_ZEROTH",
       "KANA_FIRST",
@@ -406,21 +419,30 @@ def be_sign_pseudo(label):
    }
    return (label in labels)
 
-def be_bracket_pseudo(label):
+def be_start_bracket_pseudo(label):
    labels = {
       "START_ROUND",
       "START_SQUARE",
       "START_CURLY",
-      "STOP_ROUND",
-      "STOP_SQUARE",
-      "STOP_CURLY",
-      "CUT_RIGHT",
-      "CUT_MIDDLE",
-      "CUT_LEFT",
-      "START_ANGLE",
-      "STOP_ANGLE",
+      "START_TINY",
+      "SERIF",
+      "SANS",
+      "MONO",
+      "CHECK",
    }
    return (label in labels)
+
+def be_start_symbol_pseudo(label):
+   return (
+      **be_start_letter_pseudo(label)
+      or **be_start_sign_pseudo(label)
+   )
+
+def be_start_pseudo(label):
+   return (
+      **be_start_symbol_pseudo(label)
+      or **be_start_box_pseudo(label)
+   )
 
 def get_tip_right_pseudo(tip_left):
    assert(len(tip_left) == 1)

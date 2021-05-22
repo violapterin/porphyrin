@@ -3,14 +3,45 @@ import stem as STEM
 import caution as CAUTION
 import aid as AID
 
-# #    .a  .A  .b  .B  .0  .1  ..
-# # &  &a  &A  &b  &B          &.
-# # *                  *0  *1  *.
-class Math_symbol(ORGAN.Tissue):
+class Math_box(ORGAN.Leaf):
+
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = ''
+
+   def write(self):
+      sink = None
+      source = self.source
+      head_left = 0
+      head_right = 0
+      while(head_right <= len(source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+
+      self.boxes = boxes
+
+      sink = ''
+      box = TISSUE.Math_box(**self.get_data)
+      content = "\\( " + box.write() + " \\)"
+      sink = write_element(
+         content = content,
+         tag = self.TAG,
+         attributes = ["class"],
+         values = [self.KIND],
+      )
+      return sink
+
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+# #    .a  .A  .b  .B  .0  .1  ..
+# # &  &a  &A  &b  &B          &.
+# # *                  *0  *1  *.
+class Math_letter(ORGAN.Leaf):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
 
    def write(self):
       assert(len(self.source) == 2)
@@ -68,192 +99,164 @@ class Math_symbol(ORGAN.Tissue):
       return self.sinks[0]
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_sign(ORGAN.Leaf):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      assert(len(self.source) == 2)
+      tip = self.source[0]
+      tail = self.source[1]
+      label = get_label_math(tip)
+      sink = None
+
+      if (label == "SHAPE"):
+         if (tail.islower() or tail.isupper()):
+            sink = tail
+         elif (tail == PLAIN):
+            sink = "."
+
+
+      if (sink == None):
+         data = self.get_data_modified()
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      else:
+         self.sinks.append(sink)
+
+      return self.sinks[0]
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # # boxes: pair, triplet, tuple
 
-class Math_pair(ORGAN.Tissue):
+class Math_pair(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.tops = []
-      self.bottoms = []
 
    def write(self):
-      boxes = []
+      sink = None
       cut = AID.get_tip_math("CUT_PAIR")
       source = self.source
       head_left = 0
       head_right = 0
-      box = []
+      boxes = []
       while(head_right <= len(source)):
-         tissue, head_right = self.snip_tissue_math(head_left)
+         _, head_right = self.snip_tissue_math(head_left)
          if (source[head_right] == cut):
+            box = Math_box(source[head_left: head_right])
             boxes.append(box)
-            box = []
-         else:
-            box.append(tissue)
-
+            head_left = head_right
       assert(len(boxes) == 2)
-      self.tops = boxes[0]
-      self.bottoms = boxes[1]
+      top, bottom = *boxes
 
-      result = ''
-      top = ''
-      for top in self.tops:
-         top += top.write()
-         top += ' '
-      bottom = ''
-      for bottom in self.bottoms:
-         bottom += top.write()
-         bottom += ' '
-      result = AID.write_command("\\frac", top, down)
-      return result
+      sink_top = top.write()
+      sink_bottom = bottom.write()
+      comman = "\\frac"
+      sink = AID.write_command(command, sink_top, sink_bottom)
+      return sink
 
-class Math_triplet(ORGAN.Tissue):
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_triplet(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.tops = []
-      self.mains = []
-      self.bottoms = []
 
    def write(self):
-      boxes = []
-      cut = AID.get_tip_math("CUT_PAIR")
+      sink = None
+      cut = AID.get_tip_math("CUT_TRIPLET")
       source = self.source
       head_left = 0
       head_right = 0
-      box = []
+      boxes = []
       while(head_right <= len(source)):
-         tissue, head_right = self.snip_tissue_math(head_left)
+         _, head_right = self.snip_tissue_math(head_left)
          if (source[head_right] == cut):
+            box = Math_box(source[head_left: head_right])
             boxes.append(box)
-            box = []
-         else:
-            box.append(tissue)
+            head_left = head_right
+      assert(len(boxes) == 3)
+      main, top, bottom = *boxes
 
-      assert(len(boxes) == 2)
-      self.tops = boxes[0]
-      self.mains = boxes[1]
-      self.bottoms = boxes[2]
+      sink_main = main.write()
+      sink_top = top.write()
+      sink_bottom = bottom.write()
+      sink += '{' + sink_main + '}' + ' '
+      sink += '^{' + sink_top + '}' + ' '
+      sink += '_{' + sink_bottom + '}' + ' '
+      return sink
 
-      result = ''
-      top = ''
-      for top in self.tops:
-         top += top.write()
-         top += ' '
-      main = ''
-      for main in self.mains:
-         main += main.write()
-         main += ' '
-      bottom = ''
-      for bottom in self.bottoms:
-         bottom += top.write()
-         bottom += ' '
-      result += '{' + main + '}' + ' '
-      result += '^{' + top + '}' + ' '
-      result += '_{' + down + '}' + ' '
-      return result
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_tuple(ORGAN.Tissue):
+class Math_tuple(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.entries = []
 
    def write(self):
-      boxes = []
-      cut = AID.get_tip_math("CUT_PAIR")
+      sink = None
+      cut = AID.get_tip_math("CUT_TUPLE")
       source = self.source
       head_left = 0
       head_right = 0
-      box = []
+      boxes = []
       while(head_right <= len(source)):
-         tissue, head_right = self.snip_tissue_math(head_left)
+         _, head_right = self.snip_tissue_math(head_left)
          if (source[head_right] == cut):
+            box = Math_box(source[head_left: head_right])
             boxes.append(box)
-            box = []
-         else:
-            box.append(tissue)
-
+            head_left = head_right
       assert(len(boxes) == 2)
       self.boxes = boxes
 
-      result = ''
-      result += AID.write_command("\\begin", "matrix")
-      for entry_self in self.entries:
-         entry = ''
-         for subentry_self in entry_self:
-            entry += subentry_self.write()
-            entry += ' '
-         result += entry + '\\\\ '
-      result += AID.write_command("\\end", "matrix")
-      return result
+      newline = "\\\\"
+      sink += AID.write_command("\\begin", "matrix")
+      for box in boxes:
+         sink += box.write() + newline + ' '
+      sink += AID.write_command("\\end", "matrix")
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-# # texts: roman, sans, mono
+# # texts: serif, sans, mono
 
-class Math_roman(ORGAN.Tissue):
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.sink = ''
-
-   def write(self):
-      self.source
-      if not isalnum(self.source):
-         data = self.give_data(0, len(source))
-         caution = CAUTION.Allowing_only_alphabets(**data)
-         caution.panic()
-      self.sink = self.source
-
-      result = ''
-      command = '\\mathrm'
-      result += write_command(command, self.sink)
-      return result
-
-class Math_sans(ORGAN.Tissue):
+class Math_serif(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = ''
 
    def write(self):
-      self.source
-      if not isalnum(self.source):
-         data = self.give_data(0, len(source))
-         caution = CAUTION.Allowing_only_alphabets(**data)
-         caution.panic()
-      self.sink = self.source
+      command = "\\mathrm"
+      sink = AID.write_math_word(command, self.source)
+      return sink
 
-      result = ''
-      command = '\\mathsf'
-      result += write_command(command, self.sink)
-      return result
-
-class Math_mono(ORGAN.Tissue):
+class Math_sans(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = ''
 
    def write(self):
-      self.source
-      if not isalnum(self.source):
-         data = self.give_data(0, len(source))
-         caution = CAUTION.Allowing_only_alphabets(**data)
-         caution.panic()
-      self.sink = self.source
+      command = "\\mathsf"
+      sink = AID.write_math_word(command, self.source)
+      return sink
 
-      result = ''
-      command = '\\mathtt'
-      result += write_command(command, self.sink)
-      return result
+class Math_mono(ORGAN.Leaf):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      command = "\\mathtt"
+      sink = AID.write_math_word(command, self.source)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -262,7 +265,7 @@ class Math_mono(ORGAN.Tissue):
 # #    .a  .A  .b  .B  .0  .1  ..
 # # &  &a  &A  &b  &B          &.
 # # *                  *0  *1  *.
-class Pseudo_symbol(ORGAN.Tissue):
+class Pseudo_letter(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -291,6 +294,13 @@ class Pseudo_symbol(ORGAN.Tissue):
       # # 通江止遇蟹臻山效
       # # 果假宕梗曾流深咸
 
+class Pseudo_sign(ORGAN.Leaf):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      symbols = {}
 
       symbols['~'] = {
          '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
@@ -319,7 +329,7 @@ class Pseudo_symbol(ORGAN.Tissue):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_bracket(ORGAN.Tissue):
+class Pseudo_round(ORGAN.Leaf):
 
 
    def __init__(self, **data):
@@ -327,13 +337,27 @@ class Pseudo_bracket(ORGAN.Tissue):
       self.level = 0
 
    def write(self):
-      result = ''
-      result += self.sink + ' '
-      tag = "sub"
-      result += write_element(
+      sink += '('
+      sink += write_element(
          content = self.level,
-         tag = tag,
+         tag = "sub",
+      )
+      sink += ')'
+      sink += write_element(
+         content = self.level,
+         tag = "sub",
       )
       result = ' '
       return result
 
+class Pseudo_square(ORGAN.Leaf):
+
+class Pseudo_curly(ORGAN.Leaf):
+
+class Pseudo_serif(ORGAN.Leaf):
+
+class Pseudo_sans(ORGAN.Leaf):
+
+class Pseudo_mono(ORGAN.Leaf):
+
+class Pseudo_tiny(ORGAN.Leaf):

@@ -17,7 +17,7 @@ class Organ(object):
       self.fill_basic(**data)
    
    def fill_basic(**data):
-      self.source = data.pop("source", '')
+      self.source = data.pop("source", '').rstrip()
       self.leftmost = data.pop("leftmost", '')
       self.rightmost = data.pop("rightmost", '')
       self.count_line = data.pop("count_line", 0)
@@ -57,20 +57,21 @@ class Organ(object):
       fragment = self.source[head_left:]
       fragment = fragment.split(mark_left, 1)[1]
       content = fragment.split(mark_right, 1)[0]
-      head_right = head_left + len(mark_left) + len(content) + len(mark_right)
+      head_right += len(mark_left) + len(content) + len(mark_right)
       return head_right
 
-   def find_balanced(self, tip_left, tip_right, head_left):
+   def find_balanced(self, mark_left, mark_right, head_left):
+      assert(len(mark_left) == len(mark_right))
+      source = self.source
       head_right = head_left
-      if not (source[head_left] == tip_left):
+      if not self.compare(mark_left, head_left):
          return head_left
-
       count = 0
-      while (head_right <= len(source)):
-         tip_probe = source[head_right]
-         if (tip_probe == tip_left):
+      while (head_right + len(mark_right) <= len(source)):
+         mark_probe = source[head_right: head_right + len(mark_right)]
+         if (mark_probe == mark_left):
             count += 1
-         if (tip_probe == tip_right):
+         if (mark_probe == mark_right):
             count -= 1
          head_right += 1
          if (count == 0):
@@ -367,6 +368,7 @@ class Leaf(Organ):
 
    def give_tag_text(self):
       assert(hasattr(self, 'address'))
+      assert(hasattr(self, 'TAG_PLAIN'))
       if self.address:
          tag = self.TAG_PLAIN
       else:
@@ -387,12 +389,6 @@ class Leaf(Organ):
          values.append(self.address)
       return values
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-class Tissue(Organ):
-
    def snip_tissue_math(self, head_left):
       tissue = None
       source = self.source
@@ -404,16 +400,20 @@ class Tissue(Organ):
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
 
-      if (AID.be_start_symbol_math(label_right)):
+      if (AID.be_start_symbol_math(label_left)):
          head_right = self.move(2, head_left)
-      if (AID.be_accent_math(label_right)):
-         head_right = self.move(2, head_right)
-      if (head_right > len(source)):
-         data = self.give_data(head_left, len(source))
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
-      data = self.give_data(head_left, head_right)
-      tissue = TISSUE.Math_symbol(**data)
+         if (AID.be_accent_math(label_right)):
+            head_right = self.move(2, head_right)
+         if (head_right > len(source)):
+            data = self.give_data(head_left, len(source))
+            caution = CAUTION.Not_being_valid_symbol(**data)
+            caution.panic()
+         data = self.give_data(head_left, head_right)
+         if (AID.be_letter_math(label_left)):
+            tissue = TISSUE.Math_letter(**data)
+         elif (AID.be_sign_math(label_left)):
+            tissue = TISSUE.Math_letter(**data)
+         return tissue, head_right
       return tissue, head_right
 
       if (AID.be_start_box_math(label_left)):
@@ -449,38 +449,39 @@ class Tissue(Organ):
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
 
-      if (AID.be_start_symbol_pseudo(label_right)):
+      if (AID.be_start_symbol_pseudo(label_left)):
          head_right = self.move(2, head_left)
-      if (head_right > len(source)):
-         data = self.give_data(head_left, len(source))
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
-      data = self.give_data(head_left, head_right)
-      tissue = TISSUE.Pseudo_symbol(**data)
-      return tissue, head_right
+         if (head_right > len(source)):
+            data = self.give_data(head_left, len(source))
+            caution = CAUTION.Not_being_valid_symbol(**data)
+            caution.panic()
+         data = self.give_data(head_left, head_right)
+         if (AID.be_letter_pseudo(label_left)):
+            tissue = TISSUE.Pseudo_letter(**data)
+         elif (AID.be_sign_pseudo(label_left)):
+            tissue = TISSUE.Pseudo_letter(**data)
+         return tissue, head_right
 
-      if (AID.be_start_box_pseudo(label_left)):
+      if (AID.be_start_bracket_pseudo(label_left)):
          tip_right = AID.get_tip_right_pseudo(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, head_left)
          probe_left = self.move(1, head_left)
          probe_right = self.move(-1, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left = "ROUND_LEFT"):
-            tissue = TISSUE.Pseudo_pair(**data)
+            tissue = TISSUE.Pseudo_round(**data)
          if (label_left = "SQUARE_LEFT"):
-            tissue = TISSUE.Pseudo_triplet(**data)
+            tissue = TISSUE.Pseudo_square(**data)
          if (label_left = "CURLY_LEFT"):
-            tissue = TISSUE.Pseudo_tuple(**data)
+            tissue = TISSUE.Pseudo_curly(**data)
          if (label_left = "SANS"):
             tissue = TISSUE.Pseudo_sans(**data)
          if (label_left = "SERIF"):
             tissue = TISSUE.Pseudo_serif(**data)
          if (label_left = "MONO"):
             tissue = TISSUE.Pseudo_mono(**data)
-         if (label_left = "MONO"):
-            tissue = TISSUE.Pseudo_mono(**data)
+         if (label_left = "TINY"):
+            tissue = TISSUE.Pseudo_tiny(**data)
          if (label_left = "CHECK"):
             tissue = None
       return tissue, head_right
-
-
