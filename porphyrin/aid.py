@@ -73,8 +73,9 @@ def write_element(**data):
       assert(len(values) == len(attributes))
       size = len(attributes)
       for index in range(size)
-         sink += ' ' + data[attributes][index]
-         sink += "=\"" + data[values][index] + '\"'
+         sink += ' '
+         sink += data[attributes][index]
+         sink += "=\"" + data[values][index] + "\" "
    sink += "> "
    sink += enter + data[content] + ' ' + enter
    sink += "</" + data[tag] + '>'
@@ -172,8 +173,8 @@ def be_hollow_leaf(label):
 def write_math_command(command, *items):
    sink = ''
    sink += command + ' '
-   for option in items:
-      sink += '{' + option + '}' + ' '
+   for item in items:
+      sink += '{' + item + '}' + ' '
    return sink
 
 def write_math_word(self, command, source):
@@ -306,7 +307,7 @@ def be_start_math(label):
 
 def get_tip_right_math(tip_left):
    assert(len(tip_left) == 1)
-   tip_right = None
+   tip_right = ''
    label = get_label_math(tip_left)
    if (label == "START_ROUND"):
       tip_right = get_tip_math("STOP_ROUND")
@@ -322,7 +323,7 @@ def get_tip_right_math(tip_left):
 
 def get_tip_middle_math(tip_left):
    assert(len(tip_left) == 1)
-   tip_middle = None
+   tip_middle = ''
    label = get_label_math(tip_left)
    if (label == "START_ROUND"):
       tip_middle = get_tip_math("MIDDLE_ROUND")

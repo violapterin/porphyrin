@@ -5,28 +5,154 @@ import aid as AID
 
 class Math_box(ORGAN.Leaf):
 
-   KIND = "math"
-   TAG = "span"
    OUTSIDE = False
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
+      sink = ''
+      head = 0
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         sink = self.write_math_outside(tissue.write()) + ' '
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_round(ORGAN.Leaf):
+
+   OUTSIDE = False
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
       content = ''
-      head_left = 0
-      head_right = 0
-      while (head_right < len(self.source)):
-         tissue, head_right = self.snip_tissue_math(head_left)
-         content += tissue.write()
-      sink = write_math_outside(self, content)
+      head = 0
+      mark_left = "\\left("
+      mark_right = "\\right("
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      sink = self.write_math_outside(content)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-# #    .a  .A  .b  .B  .0  .1  ..
-# # &  &a  &A  &b  &B          &.
-# # *                  *0  *1  *.
+class Math_bracket_square(ORGAN.Leaf):
+
+   OUTSIDE = False
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      content = ''
+      head = 0
+      mark_left = "\\left["
+      mark_right = "\\right]"
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      sink = self.write_math_outside(content)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_curly(ORGAN.Leaf):
+
+   OUTSIDE = False
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      content = ''
+      head = 0
+      mark_left = "\\left\\{"
+      mark_right = "\\right\\}"
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      sink = self.write_math_outside(content)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_angle(ORGAN.Leaf):
+
+   OUTSIDE = False
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      content = ''
+      head = 0
+      mark_left = "\\left\\langle"
+      mark_right = "\\right\\rangle"
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      sink = self.write_math_outside(content)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_line_single(ORGAN.Leaf):
+
+   OUTSIDE = False
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      content = ''
+      head = 0
+      mark_left = "\\left|"
+      mark_right = "\\right|"
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      sink = self.write_math_outside(content)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_line_double(ORGAN.Leaf):
+
+   OUTSIDE = False
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      content = ''
+      head = 0
+      mark_left = "\\left\\|"
+      mark_right = "\\right\\|"
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      sink = self.write_math_outside(content)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+# # &  &a  &A  &b  &B
+# # *                  *0  *1
+# #    .a  .A  .b  .B  .0  .1  ..  &.  *.
 class Math_plain(ORGAN.Leaf):
 
    KIND = "math"
@@ -38,9 +164,15 @@ class Math_plain(ORGAN.Leaf):
       self.accent = ''
 
    def write(self):
-      tip = self.source[0]
-      label = get_label_math(tip)
+      tail = self.source[1]
+      label = get_label_math(tail)
       symbols = {
+         "PLAIN": ".",
+         "BOLD": "\\aleph",
+         "BLACK": "\\forall",
+         "CURSIVE": "\\rightsquigarrow",
+         "GREEK": "\\exists",
+         #
          "ABSTRACTION": "\\wp",
          "ARITHMETICS": '+',
          "OPERATION": "\\uparrow",
@@ -55,12 +187,14 @@ class Math_plain(ORGAN.Leaf):
       }
       symbol = symbols.get(label)
 
-      if (symbol == None):
+      if not symbol:
          data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       sink = write_math_outside(self, symbol)
       return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_letter(ORGAN.Leaf):
 
@@ -74,6 +208,7 @@ class Math_letter(ORGAN.Leaf):
 
    def write(self):
       content = ''
+      letter = ''
       if (len(self.source) >= 4):
          tip_one = self.source[2]
          tip_two = self.source[3]
@@ -92,51 +227,41 @@ class Math_letter(ORGAN.Leaf):
 
       tip = self.source[0]
       tail = self.source[1]
-      plain = get_tip_math("PLAIN")
-
       if (label == "PLAIN"):
          if (tail.islower() or tail.isupper()):
             letter = tail
-         elif (tail == plain):
-            letter = "."
-
       if (label == "BOLD"):
          if (tail.islower() or tail.isupper()):
             letter = tail
-         elif (tail == plain):
-            letter = "\\aleph"
-
       if (label == "BLACK"):
          if (tail.islower()):
-            letter = write_math_command("\\mathbb", tail)
+            letter = AID.write_math_command("\\mathbb", tail)
          elif (tail.isupper()):
-            letter = write_math_command("\\fraktur", tail)
-         elif (tail == plain):
-            letter = "\\forall"
-
+            letter = AID.write_math_command("\\fraktur", tail)
       if (label == "CURSIVE"):
          if (tail.islower()):
-            letter = write_math_command("\\mathcal", tail)
+            letter = AID.write_math_command("\\mathcal", tail)
          elif (tail.isupper()):
-            letter = write_math_command("\\mathscr", tail)
-         elif (tail == plain):
-            letter = "\\rightsquigarrow"
-
+            letter = AID.write_math_command("\\mathscr", tail)
       if (label == "GREEK"):
          letters_greek = {
-            'a': "\\alpha", 'b': "\\beta",
+            'a': "\\alpha", 'b': "\\beta", 'c': "\\gamma",
+            'd': "\\alpha", 'e': "\\beta", 'f': "\\gamma",
+            'g': "\\alpha", 'h': "\\beta", 'i': "\\gamma",
             # # ...
          }
          if (tail.islower() or tail.isupper()):
-            letter = symbols[tail]
-         elif (tail == PLAIN):
-            letter = "\\exists"
+            letter = letters_greek.get(tail)
 
-      if (letter == None):
+      if not letter:
          data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
-      sink = write_math_outside(self, letter)
+      if self.accent:
+         content = AID.write_math_command(self.accent, letter)
+      else:
+         content = letter
+      sink = write_math_outside(self, content)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -185,7 +310,7 @@ class Math_sign(ORGAN.Leaf):
          signs = ()
       sign = signs[keys.index(key)]
 
-      if (sign == None):
+      if not sign:
          data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
@@ -310,6 +435,8 @@ class Math_serif(ORGAN.Leaf):
       sink = AID.write_math_word(command, self.source)
       return sink
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 class Math_sans(ORGAN.Leaf):
 
    def __init__(self, **data):
@@ -319,6 +446,8 @@ class Math_sans(ORGAN.Leaf):
       command = "\\mathsf"
       sink = AID.write_math_word(command, self.source)
       return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_mono(ORGAN.Leaf):
 
@@ -334,9 +463,9 @@ class Math_mono(ORGAN.Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-# #    .a  .A  .b  .B  .0  .1  ..
-# # &  &a  &A  &b  &B          &.
-# # *                  *0  *1  *.
+# # &  &a  &A  &b  &B
+# # *                  *0  *1
+# #    .a  .A  .b  .B  .0  .1  ..  &.  *.
 class Pseudo_letter(ORGAN.Leaf):
 
    KIND = "pseudo-sign"
@@ -369,6 +498,8 @@ class Pseudo_letter(ORGAN.Leaf):
       # # 通江止遇蟹臻山效
       # # 果假宕梗曾流深咸
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 class Pseudo_sign(ORGAN.Leaf):
 
    KIND = "pseudo-sign"
@@ -395,7 +526,7 @@ class Pseudo_sign(ORGAN.Leaf):
       tip = self.source[0]
       tail = self.source[1]
       sink = symbols.get(tip).get(tail)
-      if (sink == None):
+      if not sink:
          data = self.get_data_modified()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
@@ -407,8 +538,6 @@ class Pseudo_sign(ORGAN.Leaf):
             values = [self.KIND],
       )
       return result
-
-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -427,13 +556,16 @@ class Pseudo_round(ORGAN.Leaf):
          content = self.level,
          tag = "sub",
       )
+
       sink += ')'
       sink += write_element(
          content = self.level,
          tag = "sub",
       )
-      result = ' '
+      result += ' '
       return result
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Pseudo_square(ORGAN.Leaf):
 
