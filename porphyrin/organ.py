@@ -6,10 +6,10 @@ import aid as AID
 
 # # Stem: Document
 # # Stem (bough): Paragraphs, Lines, Rows, Image, Break,
-# # Stem (twig): Paragraph, Line, Row,
-# # Stem (frond): Phrase, Verse, Cell
-# # Leaf: Math, Pseudo, Mono
-# # Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold
+# # Stem (twig): Paragraph, Line, Row, Newline
+# # Stem (frond): Phrase, Verse, Cell, Space
+# # Leaf: Math, Pseudo,
+# # Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold, Mono,
 
 class Organ(object):
 
@@ -98,13 +98,13 @@ class Organ(object):
 
    def get_fragment_left(self, head):
       left = self.source[: head]
-      result = self.left.split('\n')[-1]
-      return result
+      sink = self.left.split('\n')[-1]
+      return sink
 
    def get_fragment_right(self, head):
       right = self.source[head :]
-      result = self.right.split('\n')[0]
-      return result
+      sink = self.right.split('\n')[0]
+      return sink
 
    def count_next_glyph(self, head):
       count = self.count_glyph
@@ -233,7 +233,7 @@ class Stem(Organ):
          if (self.KIND == "image"):
             self.address = content
             return None, head_right
-         elif (hasattr(self, sinks) and len(sinks) is not None):
+         elif (len(sinks) > 0):
             self.sinks[-1].address = content
             return None, head_right
          else:
@@ -274,11 +274,10 @@ class Stem(Organ):
       head_middle = head_left
       while head_right <= len(source) - 1:
          head_middle = head_right
-         head_right, leaf = self.snip_leaf(head_right)
-         size_leaf = len(leaf.source)
+         leaf, head_right = self.snip_leaf(head_right)
          if (leaf.KIND == kind_stop):
             break
-         head_middle += size_leaf
+         head_middle = head_right
       data = self.get_data(head_left, head_middle)
       branch = constructor(**data)
       return branch, head_right
@@ -290,7 +289,7 @@ class Stem(Organ):
 class Leaf(Organ):
 
    def tune_text(self):
-      sink = self.source
+      glyphs_space = set([' ', '\t', '\n'])
       glyphs_mark = set([])
       glyphs_mark.add(AID.get_tip("SERIF_NORMAL"))
       glyphs_mark.add(AID.get_tip("SERIF_ITALIC"))
@@ -299,7 +298,8 @@ class Leaf(Organ):
       glyphs_mark.add(AID.get_tip("SANS_BOLD"))
       glyphs_mark.add(AID.get_tip("COMMENT_LEFT"))
       glyphs_mark.add(AID.get_tip("COMMENT_RIGHT"))
-      glyphs_space = set([' ', '\t', '\n'])
+
+      sink = self.source
       sink = self.remove_token(glyphs_mark, sink)
       sink = self.erase_token(glyphs_space, sink)
       return sink
@@ -356,15 +356,15 @@ class Leaf(Organ):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-   def write_text(self):
-      result = ''
-      result += write_element(
-         content = sink,
+   def write_text(self, content):
+      sink = ''
+      sink += write_element(
+         content = content,
          tag = self.give_tag_text(),
          attributes = self.give_attributes_text(),
          values = self.give_values_text(),
       )
-      return result
+      return sink
 
    def give_tag_text(self):
       assert(hasattr(self, 'address'))

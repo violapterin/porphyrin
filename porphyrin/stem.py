@@ -30,8 +30,8 @@ class Document(ORGAN.Stem):
       for bough in self.sinks:
          content += bough.write()
       result = write_element(
-            content = sinks[0],
-            tag = self.TAG,
+         content = sinks[0],
+         tag = self.TAG,
       )
       return result
 
@@ -45,6 +45,7 @@ class Image(ORGAN.Stem):
    def __init__(self, **data):
       self.fill_basic(**data)
       self.address = ''
+      self.sink = None
 
    def parse(self):
       self.escape_hypertext()
@@ -68,6 +69,7 @@ class Break(ORGAN.Stem):
 
    def __init__(self, **data):
       self.fill_basic(**data)
+      self.sinks = []
 
    def parse(self):
       dingbat = "&#10086;"
@@ -77,11 +79,7 @@ class Break(ORGAN.Stem):
    def write(self):
       content = ''
       for sink in self.sinks:
-         content += write_element(
-            content = sink,
-            tag = "span",
-         )
-         content += ' '
+         content += sink + ' '
       result = write_element(
             content = content,
             tag = self.TAG,
@@ -104,8 +102,8 @@ class Paragraphs(ORGAN.Stem):
    def parse(self):
       head = 0
       while (head < len(self.source)):
-         twig, head = self.shatter(Line, "newline", head)
-         sinks.append(twig)
+         twig, head = self.shatter_stem("newline", Paragraph, head)
+         self.sinks.append(twig)
 
    def write(self):
       content = ' '
@@ -132,20 +130,21 @@ class Lines(ORGAN.Stem):
    def parse(self):
       head = 0
       while (head < len(self.source)):
-         twig, head = self.shatter(Line, "newline", head)
-         sinks.append(twig)
+         twig, head = self.shatter_stem("newline", Line, head)
+         self.sinks.append(twig)
 
    def write(self):
       content = ' '
       for twig in self.sinks:
          content += twig.write()
          content += ' '
-      return result += write_element(
+      result = write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
             values = [self.KIND],
       )
+      return result
 
 class Rows(ORGAN.Stem):
 
@@ -161,7 +160,7 @@ class Rows(ORGAN.Stem):
    def parse(self):
       head = 0
       while (head < len(self.source)):
-         twig, head = self.shatter(Row, "newline", head)
+         twig, head = self.shatter_stem("newline", Row, head)
          sinks.append(twig)
 
    def write(self):
@@ -174,17 +173,26 @@ class Rows(ORGAN.Stem):
          values = [self.KIND],
       )
       for twig_body in self.sinks:
-         element += write_element(
+         content += write_element(
             content = twig_body.write(),
             tag = self.TAG_BODY,
          )
-         element += ' '
-      return write_element(
-         content = sink,
+         content += ' '
+      result = write_element(
+         content = content,
          tag = self.TAG_ALL,
          attributes = ["class"],
          values = [self.KIND],
       )
+      return result
+
+class Newline(ORGAN.Stem):
+
+   KIND = "newline"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = None
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -200,11 +208,12 @@ class Paragraph(ORGAN.Stem):
    def parse(self):
       head = 0
       while (head < len(self.source)):
-         frond, head = self.shatter(Phrase, "space", head)
-         sinks.append(frond)
+         frond, head = self.shatter_stem("space", Phrase, head)
+         self.sinks.append(frond)
 
    def write(self):
-      return self.write_element("paragraph")
+      result = self.write_element(self.KIND)
+      return result
 
 class Line(ORGAN.Stem):
 
@@ -218,11 +227,12 @@ class Line(ORGAN.Stem):
    def parse(self):
       head = 0
       while (head < len(self.source)):
-         frond, head = self.shatter(Verse, "space", head)
-         sinks.append(frond)
+         frond, head = self.shatter_stem("space", Verse, head)
+         self.sinks.append(frond)
 
    def write(self):
-      return self.write_element("line")
+      result = self.write_element(self.KIND)
+      return result
 
 class Row(ORGAN.Stem):
 
@@ -236,11 +246,20 @@ class Row(ORGAN.Stem):
    def parse(self):
       head = 0
       while (head < len(self.source)):
-         frond, head = self.shatter(Cell, "space", head)
-         sinks.append(frond)
+         frond, head = self.shatter_stem("space", Cell, head)
+         self.sinks.append(frond)
 
    def write(self):
-      return self.write_element("row")
+      sink = self.write_element(self.KIND)
+      return sink
+
+class Space(ORGAN.Stem):
+
+   KIND = "space"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = None
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -257,7 +276,7 @@ class Phrase(ORGAN.Stem):
       head = 0
       while (head < len(self.source)):
          leaf, head = self.snip_leaf(head)
-         if (leaf): sinks.append(leaf)
+         if (leaf): self.sinks.append(leaf)
 
    def write(self):
       result = ''
@@ -278,7 +297,7 @@ class Verse(ORGAN.Stem):
       head = 0
       while (head < len(self.source)):
          leaf, head = self.snip_leaf(head)
-         if (leaf): sinks.append(leaf)
+         if (leaf): self.sinks.append(leaf)
 
    def write(self):
       result = ''
@@ -299,10 +318,11 @@ class Cell(ORGAN.Stem):
       head = 0
       while (head < len(self.source)):
          leaf, head = self.snip_leaf(head)
-         if (leaf): sinks.append(leaf)
+         if (leaf): self.sinks.append(leaf)
 
    def write(self):
       result = ''
       for leaf in self.sinks:
          result += leaf.write()
       return result
+

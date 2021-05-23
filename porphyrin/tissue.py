@@ -5,6 +5,7 @@ import aid as AID
 
 class Math_box(ORGAN.Leaf):
 
+   KIND = "math"
    TAG = "span"
    OUTSIDE = False
 
@@ -12,12 +13,10 @@ class Math_box(ORGAN.Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
       content = ''
-      source = self.source
       head_left = 0
       head_right = 0
-      while(head_right <= len(source)):
+      while (head_right < len(self.source)):
          tissue, head_right = self.snip_tissue_math(head_left)
          content += tissue.write()
       sink = write_math_outside(self, content)
@@ -29,6 +28,10 @@ class Math_box(ORGAN.Leaf):
 # # &  &a  &A  &b  &B          &.
 # # *                  *0  *1  *.
 class Math_plain(ORGAN.Leaf):
+
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -61,12 +64,15 @@ class Math_plain(ORGAN.Leaf):
 
 class Math_letter(ORGAN.Leaf):
 
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
+
    def __init__(self, **data):
       self.fill_basic(**data)
       self.accent = ''
 
    def write(self):
-      sink = ''
       content = ''
       if (len(self.source) >= 4):
          tip_one = self.source[2]
@@ -84,7 +90,7 @@ class Math_letter(ORGAN.Leaf):
             elif (label_two == "ACCENT_TWO"):
                self.accent = "\\tilde"
 
-      tip = self.source[1]
+      tip = self.source[0]
       tail = self.source[1]
       plain = get_tip_math("PLAIN")
 
@@ -137,6 +143,10 @@ class Math_letter(ORGAN.Leaf):
 
 class Math_sign(ORGAN.Leaf):
 
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
@@ -145,7 +155,6 @@ class Math_sign(ORGAN.Leaf):
       tip = self.source[0]
       tail = self.source[1]
       label = get_label_math(tip)
-      sink = ''
       keys = (
          '0', '1', '2', '3', '4',
          '5', '6', '7', '8', '9', '.',
@@ -191,20 +200,22 @@ class Math_sign(ORGAN.Leaf):
 
 class Math_pair(ORGAN.Leaf):
 
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      sink = None
       cut = AID.get_tip_math("CUT_PAIR")
-      source = self.source
       head_left = 0
       head_right = 0
       boxes = []
-      while(head_right <= len(source)):
+      while (head_right < len(self.source)):
          _, head_right = self.snip_tissue_math(head_left)
-         if (source[head_right] == cut):
-            box = Math_box(source[head_left: head_right])
+         if (self.source[head_right] == cut):
+            box = Math_box(self.source[head_left: head_right])
             boxes.append(box)
             head_left = head_right
       assert(len(boxes) == 2)
@@ -220,57 +231,60 @@ class Math_pair(ORGAN.Leaf):
 
 class Math_triplet(ORGAN.Leaf):
 
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
+   
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      sink = None
       cut = AID.get_tip_math("CUT_TRIPLET")
-      source = self.source
       head_left = 0
       head_right = 0
       boxes = []
-      while(head_right <= len(source)):
+      while (head_right < len(self.source)):
          _, head_right = self.snip_tissue_math(head_left)
-         if (source[head_right] == cut):
-            box = Math_box(source[head_left: head_right])
+         if (self.source[head_right] == cut):
+            box = Math_box(self.source[head_left: head_right])
             boxes.append(box)
             head_left = head_right
       assert(len(boxes) == 3)
       main, top, bottom = *boxes
 
-      sink_main = main.write()
-      sink_top = top.write()
-      sink_bottom = bottom.write()
-      sink += '{' + sink_main + '}' + ' '
-      sink += '^{' + sink_top + '}' + ' '
-      sink += '_{' + sink_bottom + '}' + ' '
+      sink = ''
+      sink += AID.write_math_command('', main.write()) + ' '
+      sink += AID.write_math_command('^', top.write()) + ' '
+      sink += AID.write_math_command('_', bottom.write()) + ' '
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_tuple(ORGAN.Leaf):
 
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      sink = None
       cut = AID.get_tip_math("CUT_TUPLE")
-      source = self.source
       head_left = 0
       head_right = 0
       boxes = []
-      while(head_right <= len(source)):
+      while (head_right < len(self.source)):
          _, head_right = self.snip_tissue_math(head_left)
-         if (source[head_right] == cut):
-            box = Math_box(source[head_left: head_right])
+         if (self.source[head_right] == cut):
+            box = Math_box(self.source[head_left: head_right])
             boxes.append(box)
             head_left = head_right
       assert(len(boxes) == 2)
       self.boxes = boxes
 
       newline = "\\\\"
+      sink = ''
       sink += AID.write_command("\\begin", "matrix")
       for box in boxes:
          sink += box.write() + newline + ' '
@@ -284,6 +298,9 @@ class Math_tuple(ORGAN.Leaf):
 # # texts: serif, sans, mono
 
 class Math_serif(ORGAN.Leaf):
+
+   KIND = "math"
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -322,6 +339,9 @@ class Math_mono(ORGAN.Leaf):
 # # *                  *0  *1  *.
 class Pseudo_letter(ORGAN.Leaf):
 
+   KIND = "pseudo-sign"
+   TAG = "span"
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
@@ -351,6 +371,9 @@ class Pseudo_letter(ORGAN.Leaf):
 
 class Pseudo_sign(ORGAN.Leaf):
 
+   KIND = "pseudo-sign"
+   TAG = "span"
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
@@ -368,17 +391,24 @@ class Pseudo_sign(ORGAN.Leaf):
       # # み し ゑ ひ も
       # # ... ...
 
-      assert(len(source) == 2)
-      tip = source[0]
-      tail = source[1]
+      assert(len(self.source) == 2)
+      tip = self.source[0]
+      tail = self.source[1]
       sink = symbols.get(tip).get(tail)
       if (sink == None):
          data = self.get_data_modified()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
-      self.sinks = sink
 
-      return self.sinks
+      result = write_element(
+            content = sink,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
+      return result
+
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

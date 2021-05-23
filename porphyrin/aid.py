@@ -66,19 +66,19 @@ def write_element(**data):
    enter = ''
    if ('\n' in data[content]): enter = '\n'
 
-   result = '<' + data[tag] + ' '
+   sink = '<' + data[tag] + ' '
    if (attributes in data):
       attributes = data[attributes]
       values = data[values]
       assert(len(values) == len(attributes))
       size = len(attributes)
       for index in range(size)
-         result += ' ' + data[attributes][index]
-         result += "=\"" + data[values][index] + '\"'
-   result += "> "
-   result += enter + data[content] + ' ' + enter
-   result += "</" + data[tag] + '>'
-   return result
+         sink += ' ' + data[attributes][index]
+         sink += "=\"" + data[values][index] + '\"'
+   sink += "> "
+   sink += enter + data[content] + ' ' + enter
+   sink += "</" + data[tag] + '>'
+   return sink
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -169,10 +169,10 @@ def be_hollow_leaf(label):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def write_math_command(command, *options):
+def write_math_command(command, *items):
    sink = ''
    sink += command + ' '
-   for option in options:
+   for option in items:
       sink += '{' + option + '}' + ' '
    return sink
 

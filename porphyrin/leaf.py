@@ -14,8 +14,9 @@ class Serif_roman(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      sink = self.tune_text()
-      return self.write_text()
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
 
 class Serif_italic(ORGAN.Leaf):
 
@@ -27,8 +28,9 @@ class Serif_italic(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      sink = self.tune_text()
-      return self.write_text()
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
 
 class Serif_bold(ORGAN.Leaf):
 
@@ -40,8 +42,9 @@ class Serif_bold(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      sink = self.tune_text()
-      return self.write_text()
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
 
 class Sans_roman(ORGAN.Leaf):
 
@@ -53,8 +56,9 @@ class Sans_roman(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      sink = self.tune_text()
-      return self.write_text()
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
 
 class Sans_bold(ORGAN.Leaf):
 
@@ -66,8 +70,9 @@ class Sans_bold(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      sink = self.tune_text()
-      return self.write_text()
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
 
 class Mono(ORGAN.Leaf):
 
@@ -79,23 +84,21 @@ class Mono(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      sink = self.tune_code()
-      return self.write_text()
+      content = self.tune_code()
+      sink = self.write_text(content)
+      return content
 
 class Comment(ORGAN.Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = ''
 
    def write(self):
       token_left = "<!--"
       token_right = "-->"
-      self.sink = self.tune_comment()
-      result = token_left + ' ' + self.source + ' ' + token_right
-      return result
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+      sink = self.tune_comment()
+      sink = token_left + ' ' + sink + ' ' + token_right
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -108,10 +111,9 @@ class Math(ORGAN.Leaf):
 
    def write(self):
       sink = ''
-      source = self.source
       head_left = 0
       head_right = 0
-      while(head_right <= len(source)):
+      while(head_right <= len(self.source)):
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
          sink += tissue.write()
@@ -128,10 +130,9 @@ class Pseudo(ORGAN.Leaf):
 
    def write(self):
       sink = ''
-      source = self.source
       head_left = 0
       head_right = 0
-      while(head_right <= len(source)):
+      while(head_right <= len(self.source)):
          tissue, head_right = self.snip_tissue_pseudo(head_left)
          sink += tissue.write()
       return sink
