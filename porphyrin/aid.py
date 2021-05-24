@@ -144,7 +144,7 @@ def be_start_leaf(label):
       "SERIF_BOLD",
       "SANS_NORMAL",
       "SANS_BOLD",
-      "mono",
+      "MONO",
       "PSEUDO",
       "MATH",
       "LINK",
@@ -187,20 +187,42 @@ def write_math_word(self, command, source):
    sink += AID.write_command(command, content)
    return sink
 
-def get_table_signs(targets):
-   digits = {}
+def give_alphabets_upper():
+   alphabets = (
+      'A', 'B', 'C',
+      'D', 'E', 
+      'F', 'G', 'H', 
+      'I', 'J', 'K', 
+      'L', 'M', 'N', 
+      'O', 'P', 'Q', 
+      'R', 'S', 'T',
+      'U', 'V', 'W',
+      'X', 'Y', 'Z',
+   )
+   return alphabets
+
+def give_alphabets_lower():
+   alphabets = give_alphabets_upper().lower()
+   return alphabets
+
+def give_digits():
+   digits = (
+      '0', '1', '2', '3', '4',
+      '5', '6', '7', '8', '9',
+   )
+   return digits
+
+def get_table_sign(targets):
+   digits = give_digits()
    table = dict(zip(digits, targets))
    return table
 
-def get_table_letter_upper(targets):
-   alphabets = {}
-   table = dict(zip(digits, targets))
+def get_table_upper(targets):
+   table = dict(zip(give_alphabets_upper(), targets))
    return table
 
-
-def get_table_letter_lower(targets):
-   alphabets = {}
-   table = dict(zip(digits, targets))
+def get_table_lower(targets):
+   table = dict(zip(give_alphabets_lower(), targets))
    return table
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -216,28 +238,29 @@ def give_label_math(tip):
       '?': "ACCENT_TWO",
       #
       '%': "ABSTRACTION",
-      '+': "ARITHMETICS",
-      '^': "OPERATION",
-      '*': "SHAPE",
-      '-': "LINE",
+      '*': "GEOMETRY",
+      '/': "LINE",
+      '+': "OPERATION_ONE",
+      '-': "OPERATION_TWO",
+      '=': "EQUIVALENCE_ONE",
+      '~': "EQUIVALENCE_TWO",
+      '^': "ARROW_MIDDLE",
       '\\': "ARROW_LEFT",
-      '|': "ARROW_MIDDLE",
-      '/': "ARROW_RIGHT",
-      '=': "EQUIVALENCE",
+      '|': "ARROW_RIGHT",
       '<': "ORDER_LEFT",
       '>': "ORDER_RIGHT",
       #
       '(': "START_PAIR",
-      ':': "CUT_PAIR",
+      ',': "CUT_PAIR",
       ')': "STOP_PAIR",
       '[': "START_TRIPLET",
-      '': "CUT_TRIPLET",
+      ':': "CUT_TRIPLET",
       ']': "STOP_TRIPLET",
       '{': "START_TUPLE",
       '}': "STOP_TUPLE",
       ';': "CUT_TUPLE",
-      '\"': "SERIF",
-      '\'': "SANS" ,
+      '\'': "SERIF" ,
+      '\"': "SANS",
       '`': "MONO",
       '_': "CHECK",
    }
@@ -286,20 +309,24 @@ def be_start_sign_math(label):
 def be_start_box_math(label):
    labels = {
       "START_PAIR",
-      "CUT_PAIR",
-      "STOP_PAIR",
       "START_TRIPLET",
-      "CUT_TRIPLET",
-      "STOP_TRIPLET",
       "START_TUPLE",
-      "STOP_TUPLE",
-      "CUT_TUPLE",
       "START_SERIF",
-      "STOP_SERIF",
       "START_SANS",
-      "STOP_SANS",
+      "START_MONO",
    }
    return (label in labels)
+
+def be_start_bracket_math(label):
+   labels = {
+      "START_PAIR",
+      "START_TRIPLET",
+      "START_TUPLE",
+      "ARROW_LEFT",
+      "ORDER_LEFT",
+   }
+   return (label in labels)
+
 
 def be_start_accent_math(label):
    labels = {
@@ -332,9 +359,11 @@ def get_tip_right_math(tip_left):
       tip_right = get_tip_math("STOP_SQUARE")
    if (label == "START_CURLY"):
       tip_right = get_tip_math("STOP_CURLY")
-   if (label == "START_ANGLE"):
-      tip_right = get_tip_math("STOP_ANGLE")
-   if (label in {"SANS", "ROMAN", "MONO", "CHECK"}):
+   if (label == "ARROW_LEFT"):
+      tip_right = get_tip_math("ARROW_RIGHT")
+   if (label == "ORDER_LEFT"):
+      tip_right = get_tip_math("ORDER_RIGHT")
+   if (label in {"SERIF", "SANS", "MONO", "CHECK"}):
       tip_right = tip_left
    return tip_right
 

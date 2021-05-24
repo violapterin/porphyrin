@@ -399,6 +399,36 @@ class Leaf(Organ):
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
 
+      if (label_left == "PLAIN"):
+         probe_left = self.move(1, head_left)
+         tip_left = self.source[probe_left]
+         label_left = AID.get_label_math(tip_left)
+         if not AID.be_bracket_math(label_left):
+            head_right = self.move(1, probe_left)
+            data = self.give_data(head_left, head_right)
+            if (AID.be_letter_math(label_left)):
+               tissue = TISSUE.Math_letter(**data)
+            else:
+               tissue = TISSUE.Math_sign(**data)
+            return tissue, head_right
+
+         tip_right = AID.get_tip_right_math(tip_left)
+         head_right = self.find_balanced(tip_left, tip_right, probe_left)
+         probe_left = self.move(1, probe_left)
+         probe_right = self.move(-2, head_right)
+         data = give_data(probe_left, probe_right)
+         if (label_left == "START_PAIR"):
+            tissue = TISSUE.Math_bracket_round(**data)
+         if (label_left == "START_TRIPLET"):
+            tissue = TISSUE.Math_bracket_square(**data)
+         if (label_left == "START_TUPLE"):
+            tissue = TISSUE.Math_bracket_curly(**data)
+         if (label_left == "ORDER_LEFT"):
+            tissue = TISSUE.Math_bracket_angle(**data)
+         if (label_left == "ARROW_LEFT"):
+            tissue = TISSUE.Math_bracket_line(**data)
+         return tissue, head_right
+
       if (AID.be_start_symbol_math(label_left)):
          head_right = self.move(2, head_left)
          tip_right = self.source[head_right]
@@ -413,32 +443,11 @@ class Leaf(Organ):
          if (AID.be_letter_math(label_left)):
             tissue = TISSUE.Math_letter(**data)
          elif (AID.be_sign_math(label_left)):
-            tissue = TISSUE.Math_letter(**data)
+            tissue = TISSUE.Math_sign(**data)
          return tissue, head_right
       return tissue, head_right
 
       assert(AID.be_start_box_math(label_left))
-      tip_right = AID.get_tip_right_math(tip_left)
-      head_right = self.find_balanced(tip_left, tip_right, head_left)
-      probe_left = self.move(1, head_left)
-      probe_right = self.move(-1, head_right)
-      if (self.source[probe_left] == AID.get_tip_math("PLAIN")):
-         probe_left = self.move(1, probe_left)
-         head_right = self.move(1, head_right)
-         data = give_data(probe_left, probe_right)
-         if (label_left == "START_PAIR"):
-            tissue = TISSUE.Math_bracket_round(**data)
-         if (label_left == "START_TRIPLET"):
-            tissue = TISSUE.Math_bracket_square(**data)
-         if (label_left == "START_TUPLE"):
-            tissue = TISSUE.Math_bracket_curly(**data)
-         if (label_left == "ORDER_LEFT"):
-            tissue = TISSUE.Math_bracket_angle(**data)
-         if (label_left == "ARROW_LEFT"):
-            tissue = TISSUE.Math_line_single(**data)
-         if (label_left == "ARROW_MIDDLE"):
-            tissue = TISSUE.Math_line_double(**data)
-
       data = give_data(probe_left, probe_right)
       if (label_left == "PAIR_LEFT"):
          tissue = TISSUE.Math_pair(**data)
@@ -455,6 +464,8 @@ class Leaf(Organ):
       if (label_left == "CHECK"):
          tissue = None
       return tissue, head_right
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
    def snip_tissue_pseudo(self, head_left):
       tissue = None

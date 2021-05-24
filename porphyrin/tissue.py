@@ -106,7 +106,7 @@ class Math_bracket_angle(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_line_single(ORGAN.Leaf):
+class Math_bracket_line(ORGAN.Leaf):
 
    OUTSIDE = False
 
@@ -126,76 +126,12 @@ class Math_line_single(ORGAN.Leaf):
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-class Math_line_double(ORGAN.Leaf):
-
-   OUTSIDE = False
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      sink = ''
-      content = ''
-      head = 0
-      mark_left = "\\left\\|"
-      mark_right = "\\right\\|"
-      while (head < len(self.source)):
-         tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      sink = self.write_math_outside(content)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-# # &  &a  &A  &b  &B
-# # *                  *0  *1
-# #    .a  .A  .b  .B  .0  .1  ..  &.  *.
-class Math_plain(ORGAN.Leaf):
-
-   KIND = "math"
-   TAG = "span"
-   OUTSIDE = False
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      self.accent = ''
-
-   def write(self):
-      tail = self.source[1]
-      label = get_label_math(tail)
-      symbols = {
-         "PLAIN": ".",
-         "BOLD": "\\aleph",
-         "BLACK": "\\forall",
-         "CURSIVE": "\\rightsquigarrow",
-         "GREEK": "\\exists",
-         #
-         "ABSTRACTION": "\\wp",
-         "ARITHMETICS": '+',
-         "OPERATION": "\\uparrow",
-         "SHAPE": "\\cdot",
-         "LINE": '-',
-         "ARROW_LEFT": "\\leftarrow",
-         "ARROW_MIDDLE": "\\downarrow",
-         "ARROW_RIGHT": "\\rightarrow",
-         "EQUIVALENCE": '=',
-         "ORDER_LEFT": '<',
-         "ORDER_RIGHT": '>',
-      }
-      symbol = symbols.get(label)
-
-      if not symbol:
-         data = self.get_data()
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
-      sink = write_math_outside(self, symbol)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
+# #  &  &a  &A  &b  &B
+# #  *                  *0  *1
+# #     .a  .A  .b  .B  .0  .1  ..  .&  .*
 class Math_letter(ORGAN.Leaf):
 
    KIND = "math"
@@ -209,6 +145,11 @@ class Math_letter(ORGAN.Leaf):
    def write(self):
       content = ''
       letter = ''
+      tip = self.source[0]
+      tail = self.source[1]
+      label_tip = AID.get_label_math(tip)
+      label_tail = AID.get_label_math(tail)
+
       if (len(self.source) >= 4):
          tip_one = self.source[2]
          tip_two = self.source[3]
@@ -225,26 +166,33 @@ class Math_letter(ORGAN.Leaf):
             elif (label_two == "ACCENT_TWO"):
                self.accent = "\\tilde"
 
-      tip = self.source[0]
-      tail = self.source[1]
       if (label == "PLAIN"):
          if (tail.islower() or tail.isupper()):
             letter = tail
-      if (label == "BOLD"):
+         else:
+            table_sign = {
+               "PLAIN": ".",
+               "BOLD": "\\aleph",
+               "BLACK": "\\forall",
+               "CURSIVE": "\\rightsquigarrow",
+               "GREEK": "\\exists",
+            }
+            letter = table_sign.get(label_tail)
+      elif (label == "BOLD"):
          if (tail.islower() or tail.isupper()):
             letter = tail
-      if (label == "BLACK"):
+      elif (label == "BLACK"):
          if (tail.islower()):
             letter = AID.write_math_command("\\mathbb", tail)
          elif (tail.isupper()):
             letter = AID.write_math_command("\\fraktur", tail)
-      if (label == "CURSIVE"):
+      elif (label == "CURSIVE"):
          if (tail.islower()):
             letter = AID.write_math_command("\\mathcal", tail)
          elif (tail.isupper()):
             letter = AID.write_math_command("\\mathscr", tail)
-      if (label == "GREEK"):
-         letters_upper_greek = {
+      elif (label == "GREEK"):
+         uppers = (
             "\\@", "\\infty", "\\Xi",
             "\\Delta", "\\&",
             "\\Phi", "\\Gamma", "\\hslash",
@@ -254,66 +202,24 @@ class Math_letter(ORGAN.Leaf):
             "\\surd", "\\Sigma", "\\eth",
             "\\Upsilon", "\\$", "\\Omega",
             "\\#", "\\Psi", "\\partial",
-         }
-         letters_lower_greek = {
+         )
+         lowers = (
             "\\alpha", "\\beta", "\\xi",
             "\\delta", "\\varepsilon
             "\\varphi", "\\gamma", "\\eta",
-            "\\iota", "\\mathi","\\kappa",
+            "\\iota", "\\imath","\\kappa",
             "\\lambda", "\\mu", "\\nu",
             "\\varnothing", "\\pi", "\\vartheta",
             "\\rho", "\\sigma", "\\tau",
             "\\upsilon", "\\digamma", "\\omega",
             "\\chi", "\\psi", "\\zeta",
-         }
-
-         '''
-            'a': "@",          'b': "infty",     'c': "\\Xi",
-            'd': "\\Delta",    'e': "&",
-            'f': "\\Phi",      'g': "\\Gamma",   'h': "hslash",
-            'i': "bot",        'j': "top",       'k': "S",
-            'l': "\\Lambda",   'm': "mho",       'n': "nabla",
-            'o': "%",          'p': "\\Pi",      'q': "\\Theta",
-            'r': "surd",       's': "\\Sigma",   't': "eth",
-            'u': "\\Upsilon",  'v': "$",         'w': "\\Omega",
-            'x': "#", ?        'y': "\\Psi",     'z': "partial",
-            #
-            'a': "\\alpha",    'b': "\\beta",    'c': "\\xi",
-            'd': "\\delta",    'e': "\\varepsilon",
-            'f': "\\varphi",   'g': "\\gamma",   'h': "\\eta",
-            'i': "\\iota",     'j': "mathring i",'k': "\\kappa",
-            'l': "\\lambda",   'm': "\\mu",      'n': "\\nu",
-            'o': "varnothing", 'p': "\\pi",      'q': "\\vartheta",
-            'r': "\\rho",      's': "\\sigma",   't': "\\tau",
-            'u': "\\upsilon",  'v': "digamma",   'w': "\\omega",
-            'x': "\\chi",      'y': "\\psi",     'z': "\\zeta",
-         '''
-
-         '''
-         letters_greek = {
-            'a': "", 'b': "", 'c': "\\Xi",
-            'd': "\\Delta", 'e': "",
-            'f': "\\Phi", 'g': "\\Gamma", 'h': "",
-            'i': "", 'j': "", 'k': "",
-            'l': "\\Lambda", 'm': "", 'n': "",
-            'o': "", 'p': "\\Pi", 'q': "\\Theta",
-            'r': "", 's': "\\Sigma", 't': "",
-            'u': "\\Upsilon", 'v': "", 'w': "\\Omega",
-            'x': "", 'y': "\\Psi", 'z': "",
-            #
-            'a': "\\alpha", 'b': "\\beta", 'c': "\\xi",
-            'd': "\\delta", 'e': "\\varepsilon",
-            'f': "\\varphi", 'g': "\\gamma", 'h': "\\eta",
-            'i': "\\iota", 'j': "", 'k': "\\kappa",
-            'l': "\\lambda", 'm': "\\mu", 'n': "\\nu",
-            'o': "", 'p': "\\pi", 'q': "\\vartheta",
-            'r': "\\rho", 's': "\\sigma", 't': "\\tau",
-            'u': "\\upsilon", 'v': "", 'w': "\\omega",
-            'x': "\\chi", 'y': "\\psi", 'z': "\\zeta",
-         }
-         '''
-         if (tail.islower() or tail.isupper()):
-            letter = letters_greek.get(tail)
+         )
+         table_upper = get_table_upper(uppers)
+         table_lower = get_table_lower(lowers)
+         if (tail.isupper()):
+            letter = table_upper.get(tail)
+         elif (tail.islower()):
+            letter = table_lower.get(tail)
 
       if not letter:
          data = self.get_data()
@@ -339,38 +245,104 @@ class Math_sign(ORGAN.Leaf):
 
    def write(self):
       assert(len(self.source) == 2)
+      content = ''
+      sign = ''
       tip = self.source[0]
       tail = self.source[1]
-      label = get_label_math(tip)
-      keys = (
-         '0', '1', '2', '3', '4',
-         '5', '6', '7', '8', '9', '.',
-      )
-      signs = ()
+      label_tip = AID.get_label_math(tip)
+      label_tail = AID.get_label_math(tail)
+
+      if (label == "PLAIN"):
+         if (tail.isdigit()):
+            sign = tail
+         else:
+            table_sign = {
+               "ABSTRACTION": "\\wp",
+               "SHAPE": "\\cdot",
+               "LINE": '/',
+               "OPERATION_ONE": '+',
+               "OPERATION_TWO": '-',
+               "ARROW_MIDDLE": "\\uparrow",
+               "EQUIVALENCE_ONE": '=',
+               "EQUIVALENCE_TWO": '\\sim',
+               "SERIF": '\\mid',
+               "SANS": '\\|',
+               "MONO": '\\backslash',
+               "CUT_PAIR": ',',
+               "CUT_TRIPLET": ':',
+               "CUT_TUPLE": ';',
+               "PLAIN": '.',
+               "CHECK": '\\quad',
+               "ACCENT_ONE": '!',
+               "ACCENT_TWO": '?',
+            }
+            sign = table_sign.get(label_tail)
 
       elif (label == "ABSTRACTION"):
-         signs = ()
+         signs = (
+            "sum", "prod", "int", "oint", "bigoplus", 
+            "bigodot", "bigotimes", "bigcup", "bigcap", "bigsqcup",
+         )
       elif (label == "ARITHMETICS"):
-         signs = ()
+         signs = (
+            star, times, bullet, div
+            triangleleft, triangleright
+         )
+         table_sign = get_table_for_sign(signs)
+         if (tail.isdigit()):
+            letter = table_sign.get(tail)
       elif (label == "OPERATION"):
-         signs = ()
+         signs = (
+            pm, mp, sqcup, sqcap
+            oplus, otimes, odot
+            bullet, dagger, ddagger
+         ;
+         table_sign = get_table_for_sign(signs)
+         if (tail.isdigit()):
+            letter = table_sign.get(tail)
       elif (label == "SHAPE"):
-         signs = ()
+         signs = (
+            square, blacksquare, 
+            blacktriangle, blacktriangledown
+            spadesuit, clubsuit, heartsuit, diamondsuit,
+         )
+         table_sign = get_table_for_sign(signs)
+         if (tail.isdigit()):
+            letter = table_sign.get(tail)
       elif (label == "LINE"):
-         signs = ()
+         signs = (
+            "\\dotsc", "\\dotsb", "\\vdots", "\\ddots",
+         )
+         table_sign = get_table_for_sign(signs)
+         if (tail.isdigit()):
+            letter = table_sign.get(tail)
       elif (label == "ARROW_LEFT"):
-         signs = ()
-      elif (label == "ARROW_MIDDLE"):
-         signs = ()
+         signs = (
+            "\\leftarrow", "\\Leftarrow",
+            "\\leftarrowtail", "\\hookleftarrow", 
+            "\\twoheadleftarrow", "\\curvearrowright",
+            "\\triangleleft", "\\blacktriangleleft", 
+            "\\searrow", "\\nearrow",
+         )
       elif (label == "ARROW_RIGHT"):
          signs = ()
-      elif (label == "EQUIVALENCE"):
+      elif (label == "EQUIVALENCE_ONE"):
+         signs = (
+            "\\neq", "\\approx", "\\equiv", "\\asymp"
+            "\\gtrless", "\\lessgtr"
+         )
+      elif (label == "EQUIVALENCE_TWO"):
          signs = ()
       elif (label == "ORDER_LEFT"):
-         signs = ()
+         signs = (
+            "<", "\\leq", "\\ll",
+            "\\prec", "\\preceq",
+            "\\subset", "\\subseteq", "\\in",
+
+         )
       elif (label == "ORDER_RIGHT"):
          signs = ()
-      sign = signs[keys.index(key)]
+      sign = signs[tail]
 
       if not sign:
          data = self.get_data()
@@ -525,9 +497,9 @@ class Math_mono(ORGAN.Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-# # &  &a  &A  &b  &B
-# # *                  *0  *1
-# #    .a  .A  .b  .B  .0  .1  ..  &.  *.
+# #  &  &a  &A  &b  &B
+# #  *                  *0  *1
+# #     .a  .A  .b  .B  .0  .1  ..  &.  *.
 class Pseudo_letter(ORGAN.Leaf):
 
    KIND = "pseudo-sign"
