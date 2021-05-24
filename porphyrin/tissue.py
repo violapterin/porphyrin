@@ -244,12 +244,74 @@ class Math_letter(ORGAN.Leaf):
          elif (tail.isupper()):
             letter = AID.write_math_command("\\mathscr", tail)
       if (label == "GREEK"):
-         letters_greek = {
-            'a': "\\alpha", 'b': "\\beta", 'c': "\\gamma",
-            'd': "\\alpha", 'e': "\\beta", 'f': "\\gamma",
-            'g': "\\alpha", 'h': "\\beta", 'i': "\\gamma",
-            # # ...
+         letters_upper_greek = {
+            "\\@", "\\infty", "\\Xi",
+            "\\Delta", "\\&",
+            "\\Phi", "\\Gamma", "\\hslash",
+            "\\bot", "\\top", "\\S",
+            "\\Lambda", "\\mho", "\\nabla",
+            "\\%", "\\Pi", "\\Theta",
+            "\\surd", "\\Sigma", "\\eth",
+            "\\Upsilon", "\\$", "\\Omega",
+            "\\#", "\\Psi", "\\partial",
          }
+         letters_lower_greek = {
+            "\\alpha", "\\beta", "\\xi",
+            "\\delta", "\\varepsilon
+            "\\varphi", "\\gamma", "\\eta",
+            "\\iota", "\\mathi","\\kappa",
+            "\\lambda", "\\mu", "\\nu",
+            "\\varnothing", "\\pi", "\\vartheta",
+            "\\rho", "\\sigma", "\\tau",
+            "\\upsilon", "\\digamma", "\\omega",
+            "\\chi", "\\psi", "\\zeta",
+         }
+
+         '''
+            'a': "@",          'b': "infty",     'c': "\\Xi",
+            'd': "\\Delta",    'e': "&",
+            'f': "\\Phi",      'g': "\\Gamma",   'h': "hslash",
+            'i': "bot",        'j': "top",       'k': "S",
+            'l': "\\Lambda",   'm': "mho",       'n': "nabla",
+            'o': "%",          'p': "\\Pi",      'q': "\\Theta",
+            'r': "surd",       's': "\\Sigma",   't': "eth",
+            'u': "\\Upsilon",  'v': "$",         'w': "\\Omega",
+            'x': "#", ?        'y': "\\Psi",     'z': "partial",
+            #
+            'a': "\\alpha",    'b': "\\beta",    'c': "\\xi",
+            'd': "\\delta",    'e': "\\varepsilon",
+            'f': "\\varphi",   'g': "\\gamma",   'h': "\\eta",
+            'i': "\\iota",     'j': "mathring i",'k': "\\kappa",
+            'l': "\\lambda",   'm': "\\mu",      'n': "\\nu",
+            'o': "varnothing", 'p': "\\pi",      'q': "\\vartheta",
+            'r': "\\rho",      's': "\\sigma",   't': "\\tau",
+            'u': "\\upsilon",  'v': "digamma",   'w': "\\omega",
+            'x': "\\chi",      'y': "\\psi",     'z': "\\zeta",
+         '''
+
+         '''
+         letters_greek = {
+            'a': "", 'b': "", 'c': "\\Xi",
+            'd': "\\Delta", 'e': "",
+            'f': "\\Phi", 'g': "\\Gamma", 'h': "",
+            'i': "", 'j': "", 'k': "",
+            'l': "\\Lambda", 'm': "", 'n': "",
+            'o': "", 'p': "\\Pi", 'q': "\\Theta",
+            'r': "", 's': "\\Sigma", 't': "",
+            'u': "\\Upsilon", 'v': "", 'w': "\\Omega",
+            'x': "", 'y': "\\Psi", 'z': "",
+            #
+            'a': "\\alpha", 'b': "\\beta", 'c': "\\xi",
+            'd': "\\delta", 'e': "\\varepsilon",
+            'f': "\\varphi", 'g': "\\gamma", 'h': "\\eta",
+            'i': "\\iota", 'j': "", 'k': "\\kappa",
+            'l': "\\lambda", 'm': "\\mu", 'n': "\\nu",
+            'o': "", 'p': "\\pi", 'q': "\\vartheta",
+            'r': "\\rho", 's': "\\sigma", 't': "\\tau",
+            'u': "\\upsilon", 'v': "", 'w': "\\omega",
+            'x': "\\chi", 'y': "\\psi", 'z': "\\zeta",
+         }
+         '''
          if (tail.islower() or tail.isupper()):
             letter = letters_greek.get(tail)
 

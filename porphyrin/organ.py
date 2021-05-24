@@ -43,12 +43,9 @@ class Organ(object):
          head_right += 1
          while (head_right <= len(self.source)):
             if (self.source[head_right] in whitespaces):
-               if (positive):
-                  head_right += 1
-               else:
-                  head_right -= 1
-            else:
-               break
+               if (positive): head_right += 1
+               else: head_right -= 1
+            else: break
       return head_right
 
    def find_greedy(self, mark_left, mark_right, head_left):
@@ -489,20 +486,20 @@ class Leaf(Organ):
          probe_left = self.move(1, head_left)
          probe_right = self.move(-1, head_right)
          data = give_data(probe_left, probe_right)
-         if (label_left = "ROUND_LEFT"):
+         if (label_left = "START_ROUND"):
             tissue = TISSUE.Pseudo_round(**data)
-         if (label_left = "SQUARE_LEFT"):
+         if (label_left = "START_SQUARE"):
             tissue = TISSUE.Pseudo_square(**data)
-         if (label_left = "CURLY_LEFT"):
+         if (label_left = "START_CURLY"):
             tissue = TISSUE.Pseudo_curly(**data)
-         if (label_left = "SANS"):
-            tissue = TISSUE.Pseudo_sans(**data)
+         if (label_left = "START_COMMENT"):
+            tissue = TISSUE.Pseudo_curly(**data)
          if (label_left = "SERIF"):
             tissue = TISSUE.Pseudo_serif(**data)
+         if (label_left = "SANS"):
+            tissue = TISSUE.Pseudo_sans(**data)
          if (label_left = "MONO"):
             tissue = TISSUE.Pseudo_mono(**data)
-         if (label_left = "TINY"):
-            tissue = TISSUE.Pseudo_tiny(**data)
          if (label_left = "CHECK"):
             tissue = None
       return tissue, head_right

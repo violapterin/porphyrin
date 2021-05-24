@@ -187,6 +187,22 @@ def write_math_word(self, command, source):
    sink += AID.write_command(command, content)
    return sink
 
+def get_table_signs(targets):
+   digits = {}
+   table = dict(zip(digits, targets))
+   return table
+
+def get_table_letter_upper(targets):
+   alphabets = {}
+   table = dict(zip(digits, targets))
+   return table
+
+
+def get_table_letter_lower(targets):
+   alphabets = {}
+   table = dict(zip(digits, targets))
+   return table
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def give_label_math(tip):
@@ -260,9 +276,7 @@ def be_start_sign_math(label):
       "OPERATION",
       "SHAPE",
       "LINE",
-      "ARROW_LEFT",
-      "ARROW_MIDDLE",
-      "ARROW_RIGHT",
+      "ARROW",
       "EQUIVALENCE",
       "ORDER_LEFT",
       "ORDER_RIGHT",
@@ -280,9 +294,10 @@ def be_start_box_math(label):
       "START_TUPLE",
       "STOP_TUPLE",
       "CUT_TUPLE",
-      "SERIF",
-      "SANS",
-      "MONO",
+      "START_SERIF",
+      "STOP_SERIF",
+      "START_SANS",
+      "STOP_SANS",
    }
    return (label in labels)
 
@@ -294,16 +309,18 @@ def be_start_accent_math(label):
    return (label in labels)
 
 def be_start_symbol_math(label):
-   return (
+   being = (
       **be_start_letter_math(label)
       or **be_start_sign_math(label)
    )
+   return being
 
 def be_start_math(label):
-   return (
+   being = (
       **be_start_symbol_math(label)
       or **be_start_box_math(label)
    )
+   return being
 
 def get_tip_right_math(tip_left):
    assert(len(tip_left) == 1)
@@ -350,7 +367,6 @@ def give_labels_pseudo():
       "KANJI_FIRST": '!',
       "KANJI_SECOND": '?',
       #
-      "KANA_ZEROTH": '_',
       "KANA_FIRST": '~',
       "KANA_SECOND": '@',
       "KANA_THIRD": '#',
@@ -370,8 +386,12 @@ def give_labels_pseudo():
       "START_CURLY": '{',
       "CUT_CURLY": '|',
       "STOP_CURLY": '}',
-      "START_TINY": '<',
-      "STOP_TINY": '>',
+      "START_COMMENT": '<',
+      "STOP_COMMENT": '>',
+      "SERIF": '\"',
+      "SERIF": '\'',
+      "SERIF": '`',
+      "SANS": '_',
    }
    return labels
 
@@ -425,7 +445,7 @@ def be_start_bracket_pseudo(label):
       "START_ROUND",
       "START_SQUARE",
       "START_CURLY",
-      "START_TINY",
+      "START_COMMENT",
       "SERIF",
       "SANS",
       "MONO",
@@ -434,16 +454,18 @@ def be_start_bracket_pseudo(label):
    return (label in labels)
 
 def be_start_symbol_pseudo(label):
-   return (
+   being = (
       **be_start_letter_pseudo(label)
       or **be_start_sign_pseudo(label)
    )
+   return being
 
 def be_start_pseudo(label):
-   return (
+   being = (
       **be_start_symbol_pseudo(label)
       or **be_start_box_pseudo(label)
    )
+   return being
 
 def get_tip_right_pseudo(tip_left):
    assert(len(tip_left) == 1)
