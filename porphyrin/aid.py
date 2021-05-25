@@ -170,7 +170,7 @@ def be_hollow_leaf(label):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def write_math_command(command, *items):
+def write_latex(command, *items):
    sink = ''
    sink += command + ' '
    for item in items:
@@ -238,10 +238,10 @@ def give_label_math(tip):
       '?': "ACCENT_TWO",
       #
       '%': "ABSTRACTION",
-      '*': "GEOMETRY",
       '/': "LINE",
       '+': "OPERATION_ONE",
       '-': "OPERATION_TWO",
+      '*': "OPERATION_THREE",
       '=': "EQUIVALENCE_ONE",
       '~': "EQUIVALENCE_TWO",
       '^': "ARROW_MIDDLE",

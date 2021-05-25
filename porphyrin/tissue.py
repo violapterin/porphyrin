@@ -6,16 +6,22 @@ import aid as AID
 class Math_box(ORGAN.Leaf):
 
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
       sink = ''
+      tissue = None
       head = 0
+      count = 0
       while (head < len(self.source)):
          tissue, head = self.snip_tissue_math(head)
          sink = self.write_math_outside(tissue.write()) + ' '
+         count += 1
+      if (count == 1) and (tissue.LATERAL):
+         self.LATERAL == False
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -25,6 +31,7 @@ class Math_box(ORGAN.Leaf):
 class Math_bracket_round(ORGAN.Leaf):
 
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -46,6 +53,7 @@ class Math_bracket_round(ORGAN.Leaf):
 class Math_bracket_square(ORGAN.Leaf):
 
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -67,6 +75,7 @@ class Math_bracket_square(ORGAN.Leaf):
 class Math_bracket_curly(ORGAN.Leaf):
 
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -88,6 +97,7 @@ class Math_bracket_curly(ORGAN.Leaf):
 class Math_bracket_angle(ORGAN.Leaf):
 
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -109,6 +119,7 @@ class Math_bracket_angle(ORGAN.Leaf):
 class Math_bracket_line(ORGAN.Leaf):
 
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -132,11 +143,78 @@ class Math_bracket_line(ORGAN.Leaf):
 # #  &  &a  &A  &b  &B
 # #  *                  *0  *1
 # #     .a  .A  .b  .B  .0  .1  ..  .&  .*
+class Math_plain(ORGAN.Leaf):
+
+   KIND = "math"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      assert(len(self.source) == 2)
+      content = ''
+      sign = ''
+      tip = self.source[0]
+      tail = self.source[1]
+      label_tip = AID.get_label_math(tip)
+      label_tail = AID.get_label_math(tail)
+
+      if (tail.islower() or tail.isupper()):
+         sign = tail
+      elif (tail.isdigit()):
+         sign = tail
+      else:
+         table_symbol = {
+            "PLAIN": '.',
+            "BOLD": "\\aleph",
+            "BLACK": "\\forall",
+            "CURSIVE": "\\leftthreetimes",
+            "GREEK": "\\exists",
+            #
+            "ABSTRACTION": "\\wp",
+            "LINE": '/',
+            "OPERATION_ONE": '+',
+            "OPERATION_TWO": '-',
+            "OPERATION_THREE": "\\cdot",
+            "ARROW_MIDDLE": "\\uparrow",
+            "EQUIVALENCE_ONE": '=',
+            "EQUIVALENCE_TWO": "\\sim",
+            "SERIF": "\\prime",
+            "SANS": "\\prime\\prime",
+            "MONO": "\\prime\\prime\\prime",
+            "CUT_PAIR": ',',
+            "CUT_TRIPLET": ':',
+            "CUT_TUPLE": ';',
+            "PLAIN": '.',
+            "CHECK": "\\quad",
+            "ACCENT_ONE": '!',
+            "ACCENT_TWO": '?',
+         }
+         sign = table_symbol.get(label_tail)
+         labels_not_lateral = {
+            "EQUIVALENCE_ONE", "EQUIVALENCE_TWO",
+         }
+         if (label_tail in labels_not_lateral):
+            self.LATERAL = False
+
+      if not sign:
+         data = self.get_data()
+         caution = CAUTION.Not_being_valid_symbol(**data)
+         caution.panic()
+      sink = write_math_outside(self, sign)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 class Math_letter(ORGAN.Leaf):
 
    KIND = "math"
    TAG = "span"
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -166,31 +244,19 @@ class Math_letter(ORGAN.Leaf):
             elif (label_two == "ACCENT_TWO"):
                self.accent = "\\tilde"
 
-      if (label == "PLAIN"):
-         if (tail.islower() or tail.isupper()):
-            letter = tail
-         else:
-            table_sign = {
-               "PLAIN": ".",
-               "BOLD": "\\aleph",
-               "BLACK": "\\forall",
-               "CURSIVE": "\\rightsquigarrow",
-               "GREEK": "\\exists",
-            }
-            letter = table_sign.get(label_tail)
       elif (label == "BOLD"):
          if (tail.islower() or tail.isupper()):
             letter = tail
       elif (label == "BLACK"):
          if (tail.islower()):
-            letter = AID.write_math_command("\\mathbb", tail)
+            letter = AID.write_latex("\\mathbb", tail)
          elif (tail.isupper()):
-            letter = AID.write_math_command("\\fraktur", tail)
+            letter = AID.write_latex("\\fraktur", tail)
       elif (label == "CURSIVE"):
          if (tail.islower()):
-            letter = AID.write_math_command("\\mathcal", tail)
+            letter = AID.write_latex("\\mathcal", tail)
          elif (tail.isupper()):
-            letter = AID.write_math_command("\\mathscr", tail)
+            letter = AID.write_latex("\\mathscr", tail)
       elif (label == "GREEK"):
          uppers = (
             "\\@", "\\infty", "\\Xi",
@@ -226,7 +292,7 @@ class Math_letter(ORGAN.Leaf):
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       if self.accent:
-         content = AID.write_math_command(self.accent, letter)
+         content = AID.write_latex(self.accent, letter)
       else:
          content = letter
       sink = write_math_outside(self, content)
@@ -239,6 +305,7 @@ class Math_sign(ORGAN.Leaf):
    KIND = "math"
    TAG = "span"
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -252,98 +319,98 @@ class Math_sign(ORGAN.Leaf):
       label_tip = AID.get_label_math(tip)
       label_tail = AID.get_label_math(tail)
 
-      if (label == "PLAIN"):
-         if (tail.isdigit()):
-            sign = tail
-         else:
-            table_sign = {
-               "ABSTRACTION": "\\wp",
-               "SHAPE": "\\cdot",
-               "LINE": '/',
-               "OPERATION_ONE": '+',
-               "OPERATION_TWO": '-',
-               "ARROW_MIDDLE": "\\uparrow",
-               "EQUIVALENCE_ONE": '=',
-               "EQUIVALENCE_TWO": '\\sim',
-               "SERIF": '\\mid',
-               "SANS": '\\|',
-               "MONO": '\\backslash',
-               "CUT_PAIR": ',',
-               "CUT_TRIPLET": ':',
-               "CUT_TUPLE": ';',
-               "PLAIN": '.',
-               "CHECK": '\\quad',
-               "ACCENT_ONE": '!',
-               "ACCENT_TWO": '?',
-            }
-            sign = table_sign.get(label_tail)
-
-      elif (label == "ABSTRACTION"):
+      if (label == "ABSTRACTION"):
          signs = (
-            "sum", "prod", "int", "oint", "bigoplus", 
-            "bigodot", "bigotimes", "bigcup", "bigcap", "bigsqcup",
+            "\\sum", "\\prod", "\\int", "\\oint",
+            "\\bigoplus", "\\bigodot", "\\bigotimes",
+            "\\bigcup", "\\bigcap", "\\bigsqcup",
          )
-      elif (label == "ARITHMETICS"):
+      elif (label == "OPERATION_ONE"):
          signs = (
-            star, times, bullet, div
-            triangleleft, triangleright
+            "\\pm", "\\oplus", "\\cup",
+            "\\sqcup", "\\vee", "\\curlyvee",
+            "\\spadesuit", "\\heartsuit",
+            "\\diamondsuit", "\\clubsuit", 
          )
-         table_sign = get_table_for_sign(signs)
-         if (tail.isdigit()):
-            letter = table_sign.get(tail)
-      elif (label == "OPERATION"):
+      elif (label == "OPERATION_TWO"):
          signs = (
-            pm, mp, sqcup, sqcap
-            oplus, otimes, odot
-            bullet, dagger, ddagger
-         ;
-         table_sign = get_table_for_sign(signs)
-         if (tail.isdigit()):
-            letter = table_sign.get(tail)
-      elif (label == "SHAPE"):
-         signs = (
-            square, blacksquare, 
-            blacktriangle, blacktriangledown
-            spadesuit, clubsuit, heartsuit, diamondsuit,
+            "\\mp", "\\ominus", "\\cap",
+            "\\sqcap", "\\wedge", "\\curlywedge",
+            "\\neg", "\\angle",
+            "\\square", "\\blacksquare",
          )
-         table_sign = get_table_for_sign(signs)
-         if (tail.isdigit()):
-            letter = table_sign.get(tail)
+      elif (label == "OPERATION_THREE"):
+         signs = (
+            "\\times", "\\odot", "\\otimes",
+            "\\bullet", "\\circ", "\\star",
+            "\\ltimes", "\\rtimes", "\\div", "\\oslash", 
+         )
       elif (label == "LINE"):
          signs = (
+            "\\mid", "\\nmid", "\\backslash",
+            "\\parallel", "\\nparallel", "\\between",
             "\\dotsc", "\\dotsb", "\\vdots", "\\ddots",
          )
-         table_sign = get_table_for_sign(signs)
-         if (tail.isdigit()):
-            letter = table_sign.get(tail)
       elif (label == "ARROW_LEFT"):
+         self.LATERAL = False
          signs = (
             "\\leftarrow", "\\Leftarrow",
-            "\\leftarrowtail", "\\hookleftarrow", 
-            "\\twoheadleftarrow", "\\curvearrowright",
+            "\\nwarrow", "\\swarrow",
+            "\\leftarrowtail", "\\twoheadleftarrow", 
+            "\\hookleftarrow", "\\curvearrowleft",
             "\\triangleleft", "\\blacktriangleleft", 
-            "\\searrow", "\\nearrow",
          )
       elif (label == "ARROW_RIGHT"):
-         signs = ()
-      elif (label == "EQUIVALENCE_ONE"):
+         self.LATERAL = False
          signs = (
-            "\\neq", "\\approx", "\\equiv", "\\asymp"
-            "\\gtrless", "\\lessgtr"
+            "\\rightarrow", "\\Rightarrow",
+            "\\nearrow", "\\searrow",
+            "\\rightarrowtail", "\\twoheadrightarrow", 
+            "\\hookrightarrow", "\\curvearrowright",
+            "\\triangleright", "\\blacktriangleright", 
+         )
+      elif (label == "ARROW_MIDDLE"):
+         self.LATERAL = False
+         signs = (
+            "\\downarrow", "\\Uparrow", "\\Downarrow",
+            "\\updownarrow", "\\Updownarrow",
+            "\\blacktriangle", "\\blacktriangledown",
+            "\\dagger", "\\ddagger", "\\wr",
+         )
+      elif (label == "EQUIVALENCE_ONE"):
+         self.LATERAL = False
+         signs = (
+            "\\neq", "\\equiv", "\\not\\equiv", "\\doteq",
+            "\\leftrightarrow", "\\not\\leftrightarrow",
+            "\\Leftrightarrow", "\\not\\Leftrightarrow",
+            "\\leftrightsquigarrow", "\\not\\leftrightsquigarrow",
          )
       elif (label == "EQUIVALENCE_TWO"):
-         signs = ()
-      elif (label == "ORDER_LEFT"):
+         self.LATERAL = False
          signs = (
-            "<", "\\leq", "\\ll",
-            "\\prec", "\\preceq",
-            "\\subset", "\\subseteq", "\\in",
-
+            "\\approx", "\\simeq", "\\approxeq", "\\cong",
+            "\\propto", "\\asymp", "\\gtreqless", "\\lesseqgtr"
+            "\\leftrightarrows", "\\rightleftarrows",
+         )
+      elif (label == "ORDER_LEFT"):
+         self.LATERAL = False
+         signs = (
+            "\\leq", "<", "\\ll", "\\lesssim",
+            "\\subseteq", "\\subsetneq", "\\in",
+            "\\preceq", "\\precneqq", "\\dashv",
          )
       elif (label == "ORDER_RIGHT"):
-         signs = ()
-      sign = signs[tail]
+         self.LATERAL = False
+         signs = (
+            "\\geq", ">", "\\gtrsim", "\\gg",
+            "\\supseteq", "\\supsetneq", "\\notin",
+            "\\succeq", "\\succneqq", "\\vdash",
+         )
 
+      if signs:
+         table_sign = get_table_for_sign(signs)
+      if tail.isdigit():
+         sign = table_sign.get(tail)
       if not sign:
          data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
@@ -362,6 +429,7 @@ class Math_pair(ORGAN.Leaf):
    KIND = "math"
    TAG = "span"
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -393,6 +461,7 @@ class Math_triplet(ORGAN.Leaf):
    KIND = "math"
    TAG = "span"
    OUTSIDE = False
+   LATERAL = True
    
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -409,12 +478,19 @@ class Math_triplet(ORGAN.Leaf):
             boxes.append(box)
             head_left = head_right
       assert(len(boxes) == 3)
-      main, top, bottom = *boxes
+      box_top, box_main, box_bottom = *boxes
+      top = top.write()
+      main = main.write()
+      bottom = bottom.write()
 
       sink = ''
-      sink += AID.write_math_command('', main.write()) + ' '
-      sink += AID.write_math_command('^', top.write()) + ' '
-      sink += AID.write_math_command('_', bottom.write()) + ' '
+      if (self.LATERAL):
+         sink += AID.write_latex('', main) + ' '
+         sink += AID.write_latex('^', top) + ' '
+         sink += AID.write_latex('_', bottom) + ' '
+      else:
+         underset = AID.write_latex("\\underset", bottom, main)
+         sink += AID.write_latex("\\overset", top, underset)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -424,6 +500,7 @@ class Math_tuple(ORGAN.Leaf):
    KIND = "math"
    TAG = "span"
    OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -460,6 +537,7 @@ class Math_serif(ORGAN.Leaf):
 
    KIND = "math"
    TAG = "span"
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -473,6 +551,10 @@ class Math_serif(ORGAN.Leaf):
 
 class Math_sans(ORGAN.Leaf):
 
+   KIND = "math"
+   TAG = "span"
+   LATERAL = True
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
@@ -484,6 +566,10 @@ class Math_sans(ORGAN.Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_mono(ORGAN.Leaf):
+
+   KIND = "math"
+   TAG = "span"
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
