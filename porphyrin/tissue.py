@@ -1,7 +1,145 @@
 import organ as ORGAN
 import stem as STEM
 import caution as CAUTION
+import tissue as TISSUE
 import aid as AID
+
+class Serif_roman(ORGAN.Leaf):
+
+   KIND = "serif-roman"
+   TAG_PLAIN = "span"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
+
+class Serif_italic(ORGAN.Leaf):
+
+   KIND = "serif-italic"
+   TAG_PLAIN = "em"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
+
+class Serif_bold(ORGAN.Leaf):
+
+   KIND = "serif-bold"
+   TAG_PLAIN = 'b'
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
+
+class Sans_roman(ORGAN.Leaf):
+
+   KIND = "sans-roman"
+   TAG_PLAIN = "span"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
+
+class Sans_bold(ORGAN.Leaf):
+
+   KIND = "sans-bold"
+   TAG_PLAIN = 'b'
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      content = self.tune_text()
+      sink = self.write_text(content)
+      return content
+
+class Mono(ORGAN.Leaf):
+
+   KIND = "mono"
+   TAG = "pre"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.address = ''
+
+   def write(self):
+      content = self.tune_code()
+      sink = self.write_text(content)
+      return content
+
+class Comment(ORGAN.Leaf):
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      token_left = "<!--"
+      token_right = "-->"
+      sink = self.tune_comment()
+      sink = token_left + ' ' + sink + ' ' + token_right
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Math(ORGAN.Leaf):
+
+   KIND = "math"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      head_left = 0
+      head_right = 0
+      while(head_right <= len(self.source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         tissue.OUTSIDE = True
+         sink += tissue.write()
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+class Pseudo(ORGAN.Leaf):
+
+   KIND = "pseudo"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      sink = ''
+      head_left = 0
+      head_right = 0
+      while(head_right <= len(self.source)):
+         tissue, head_right = self.snip_tissue_pseudo(head_left)
+         sink += tissue.write()
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_box(ORGAN.Leaf):
 
@@ -20,7 +158,7 @@ class Math_box(ORGAN.Leaf):
          tissue, head = self.snip_tissue_math(head)
          sink = self.write_math_outside(tissue.write()) + ' '
          count += 1
-      if (count == 1) and (tissue.LATERAL):
+      if (count == 1) and not tissue.LATERAL:
          self.LATERAL == False
       return sink
 
@@ -42,9 +180,11 @@ class Math_bracket_round(ORGAN.Leaf):
       head = 0
       mark_left = "\\left("
       mark_right = "\\right("
+      content += mark_left
       while (head < len(self.source)):
          tissue, head = self.snip_tissue_math(head)
          content = tissue.write() + ' '
+      content += mark_right
       sink = self.write_math_outside(content)
       return sink
 
@@ -59,16 +199,9 @@ class Math_bracket_square(ORGAN.Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
-      content = ''
-      head = 0
       mark_left = "\\left["
       mark_right = "\\right]"
-      while (head < len(self.source)):
-         tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      sink = self.write_math_outside(content)
-      return sink
+      return self.write_math_bracket(mark_left, mark_right)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -81,16 +214,9 @@ class Math_bracket_curly(ORGAN.Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
-      content = ''
-      head = 0
       mark_left = "\\left\\{"
       mark_right = "\\right\\}"
-      while (head < len(self.source)):
-         tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      sink = self.write_math_outside(content)
-      return sink
+      return self.write_math_bracket(mark_left, mark_right)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -103,16 +229,9 @@ class Math_bracket_angle(ORGAN.Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
-      content = ''
-      head = 0
       mark_left = "\\left\\langle"
       mark_right = "\\right\\rangle"
-      while (head < len(self.source)):
-         tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      sink = self.write_math_outside(content)
-      return sink
+      return self.write_math_bracket(mark_left, mark_right)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -125,16 +244,9 @@ class Math_bracket_line(ORGAN.Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
-      content = ''
-      head = 0
       mark_left = "\\left|"
       mark_right = "\\right|"
-      while (head < len(self.source)):
-         tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      sink = self.write_math_outside(content)
-      return sink
+      return self.write_math_bracket(mark_left, mark_right)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -179,32 +291,36 @@ class Math_plain(ORGAN.Leaf):
             "OPERATION_ONE": '+',
             "OPERATION_TWO": '-',
             "OPERATION_THREE": "\\cdot",
-            "ARROW_MIDDLE": "\\uparrow",
             "EQUIVALENCE_ONE": '=',
             "EQUIVALENCE_TWO": "\\sim",
+            "ARROW_MIDDLE": "\\uparrow",
+            "ARROW_LEFT": "\\leftarrow",
+            "ARROW_RIGHT": "\\rightarrow",
+            #
             "SERIF": "\\prime",
             "SANS": "\\prime\\prime",
             "MONO": "\\prime\\prime\\prime",
             "CUT_PAIR": ',',
             "CUT_TRIPLET": ':',
             "CUT_TUPLE": ';',
-            "PLAIN": '.',
             "CHECK": "\\quad",
             "ACCENT_ONE": '!',
             "ACCENT_TWO": '?',
          }
          sign = table_symbol.get(label_tail)
-         labels_not_lateral = {
-            "EQUIVALENCE_ONE", "EQUIVALENCE_TWO",
-         }
-         if (label_tail in labels_not_lateral):
-            self.LATERAL = False
 
       if not sign:
          data = self.get_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       sink = write_math_outside(self, sign)
+
+      labels_not_lateral = {
+         "BOLD", "BLACK", "CURSIVE", "GREEK",
+         "EQUIVALENCE_ONE", "EQUIVALENCE_TWO",
+      }
+      if (label_tail in labels_not_lateral):
+         self.LATERAL = False
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -221,7 +337,7 @@ class Math_letter(ORGAN.Leaf):
       self.accent = ''
 
    def write(self):
-      content = ''
+      letter_accent = ''
       letter = ''
       tip = self.source[0]
       tail = self.source[1]
@@ -292,10 +408,10 @@ class Math_letter(ORGAN.Leaf):
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       if self.accent:
-         content = AID.write_latex(self.accent, letter)
+         letter_accent = AID.write_latex(self.accent, letter)
       else:
-         content = letter
-      sink = write_math_outside(self, content)
+         letter_accent = letter
+      sink = write_math_outside(self, letter_accent)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -314,6 +430,7 @@ class Math_sign(ORGAN.Leaf):
       assert(len(self.source) == 2)
       content = ''
       sign = ''
+      signs = ()
       tip = self.source[0]
       tail = self.source[1]
       label_tip = AID.get_label_math(tip)
@@ -354,7 +471,7 @@ class Math_sign(ORGAN.Leaf):
       elif (label == "ARROW_LEFT"):
          self.LATERAL = False
          signs = (
-            "\\leftarrow", "\\Leftarrow",
+            "\\Leftarrow", "\\Lleftarrow",
             "\\nwarrow", "\\swarrow",
             "\\leftarrowtail", "\\twoheadleftarrow", 
             "\\hookleftarrow", "\\curvearrowleft",
@@ -363,7 +480,7 @@ class Math_sign(ORGAN.Leaf):
       elif (label == "ARROW_RIGHT"):
          self.LATERAL = False
          signs = (
-            "\\rightarrow", "\\Rightarrow",
+            "\\Rightarrow", "\\Rrightarrow",
             "\\nearrow", "\\searrow",
             "\\rightarrowtail", "\\twoheadrightarrow", 
             "\\hookrightarrow", "\\curvearrowright",
@@ -408,7 +525,7 @@ class Math_sign(ORGAN.Leaf):
          )
 
       if signs:
-         table_sign = get_table_for_sign(signs)
+         table_sign = get_table_sign(signs)
       if tail.isdigit():
          sign = table_sign.get(tail)
       if not sign:
@@ -484,7 +601,7 @@ class Math_triplet(ORGAN.Leaf):
       bottom = bottom.write()
 
       sink = ''
-      if (self.LATERAL):
+      if (main.LATERAL):
          sink += AID.write_latex('', main) + ' '
          sink += AID.write_latex('^', top) + ' '
          sink += AID.write_latex('_', bottom) + ' '
@@ -516,15 +633,13 @@ class Math_tuple(ORGAN.Leaf):
             box = Math_box(self.source[head_left: head_right])
             boxes.append(box)
             head_left = head_right
-      assert(len(boxes) == 2)
-      self.boxes = boxes
 
       newline = "\\\\"
       sink = ''
-      sink += AID.write_command("\\begin", "matrix")
+      sink += AID.write_command("\\begin", "matrix") + ' '
       for box in boxes:
          sink += box.write() + newline + ' '
-      sink += AID.write_command("\\end", "matrix")
+      sink += AID.write_command("\\end", "matrix") + ' '
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

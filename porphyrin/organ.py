@@ -370,6 +370,18 @@ class Leaf(Organ):
          values.append(self.address)
       return values
 
+   def write_math_bracket(self, mark_left, mark_right):
+      sink = ''
+      content = ''
+      head = 0
+      content += mark_left
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         content = tissue.write() + ' '
+      content += mark_right
+      sink = self.write_math_outside(content)
+      return sink
+
    def write_math_outside(self, content):
       assert(hasattr(self, 'OUTSIDE'))
       kind = "math"
