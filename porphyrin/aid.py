@@ -1,10 +1,9 @@
 import os
 
-import organ as ORGAN
-import stem as STEM
-import leaf as LEAF
-import tissue as TISSUE
-import caution as CAUTION
+from . import organ as ORGAN
+from . import stem as STEM
+from . import leaf as LEAF
+from . import caution as CAUTION
 
 def make(folder_in, folder_out):
    extension = ".ppr"
@@ -50,10 +49,10 @@ def get_mark_right(mark_left):
       return mark_left
 
    mark_right = mark_left
-   if (label = "DEFINITION_LEFT"):
+   if (label == "DEFINITION_LEFT"):
       tip_left = get_tip("DEFINITION_LEFT")
       tip_right = get_tip("DEFINITION_RIGHT")
-   if (label = "COMMENT_LEFT"):
+   if (label == "COMMENT_LEFT"):
       tip_left = get_tip("COMMENT_LEFT")
       tip_right = get_tip("COMMENT_RIGHT")
    table = mark_right.maketrans(tip_left, tip_right)
@@ -72,7 +71,7 @@ def write_element(**data):
       values = data[values]
       assert(len(values) == len(attributes))
       size = len(attributes)
-      for index in range(size)
+      for index in range(size):
          sink += ' '
          sink += data[attributes][index]
          sink += "=\"" + data[values][index] + "\" "
@@ -167,6 +166,70 @@ def be_hollow_leaf(label):
       "NEWLINE",
    }
    return (label in labels)
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+def tune_text(source):
+   glyphs_space = set([' ', '\t', '\n'])
+   glyphs_mark = set([])
+   glyphs_mark.add(get_tip("SERIF_NORMAL"))
+   glyphs_mark.add(get_tip("SERIF_ITALIC"))
+   glyphs_mark.add(get_tip("SERIF_BOLD"))
+   glyphs_mark.add(get_tip("SANS_NORMAL"))
+   glyphs_mark.add(get_tip("SANS_BOLD"))
+   glyphs_mark.add(get_tip("COMMENT_LEFT"))
+   glyphs_mark.add(get_tip("COMMENT_RIGHT"))
+
+   sink = remove_token(glyphs_mark, source)
+   sink = erase_token(glyphs_space, sink)
+   return sink
+
+def tune_code(source):
+   glyphs_space = set([' ', '\t', '\n'])
+   sink = erase_token(glyphs_space, source)
+   return sink
+
+def tune_comment(source):
+   escapes = {
+      '----': '-',
+      '---': '-',
+      '--': '-',
+   }
+   sink = replace_token(escapes, source)
+   return sink
+
+def tune_hypertext(source):
+   escapes = {
+      '<': "&lt;",
+      '>': "&gt;",
+      '&': "&amp;",
+      '\"': "&quote;",
+      '\'': "&apos;",
+   }
+   sink = replace_token(escapes, source)
+   return sink
+
+def remove_token(tokens, source):
+   sink = ''
+   for glyph in tokens:
+      table = source.maketrans(glyph, '')
+      sink = source.translate(table)
+   return sink
+
+def erase_token(tokens, source):
+   sink = ''
+   for glyph in tokens:
+      table = source.maketrans(glyph, ' ')
+      sink = source.translate(table)
+   ' '.join(sink.split())
+   return sink
+
+def replace_token(tokens, source):
+   sink = ''
+   for glyph in tokens:
+      table = source.maketrans(glyph, tokens[glyph])
+      sink = source.translate(table)
+   return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -336,17 +399,11 @@ def be_start_accent_math(label):
    return (label in labels)
 
 def be_start_symbol_math(label):
-   being = (
-      **be_start_letter_math(label)
-      or **be_start_sign_math(label)
-   )
+   being = (be_start_letter_math(label) or be_start_sign_math(label))
    return being
 
 def be_start_math(label):
-   being = (
-      **be_start_symbol_math(label)
-      or **be_start_box_math(label)
-   )
+   being = (be_start_symbol_math(label) or be_start_box_math(label))
    return being
 
 def get_tip_right_math(tip_left):
@@ -483,17 +540,11 @@ def be_start_bracket_pseudo(label):
    return (label in labels)
 
 def be_start_symbol_pseudo(label):
-   being = (
-      **be_start_letter_pseudo(label)
-      or **be_start_sign_pseudo(label)
-   )
+   being = (be_start_letter_pseudo(label) or be_start_sign_pseudo(label))
    return being
 
 def be_start_pseudo(label):
-   being = (
-      **be_start_symbol_pseudo(label)
-      or **be_start_box_pseudo(label)
-   )
+   being = (be_start_symbol_pseudo(label) or be_start_box_pseudo(label))
    return being
 
 def get_tip_right_pseudo(tip_left):

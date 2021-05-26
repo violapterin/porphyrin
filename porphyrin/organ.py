@@ -1,15 +1,15 @@
-import stem as STEM
-import leaf as LEAF
-import tissue as TISSUE
-import caution as CAUTION
-import aid as AID
+from . import stem as STEM
+from . import leaf as LEAF
+from . import caution as CAUTION
+from . import aid as AID
 
 # # Stem: Document
 # # Stem (bough): Paragraphs, Lines, Rows, Image, Break,
 # # Stem (twig): Paragraph, Line, Row, Newline
 # # Stem (frond): Phrase, Verse, Cell, Space
 # # Leaf: Math, Pseudo,
-# # Leaf: Serif_roman, Serif_italic, Serif_bold, Sans_roman, Sans_bold, Mono,
+# # Leaf: Serif_roman, Serif_italic, Serif_bold,
+# # Leaf: Sans_roman, Sans_bold, Mono,
 
 class Organ(object):
 
@@ -53,13 +53,14 @@ class Organ(object):
       fragment = self.source[head_left:]
       fragment = fragment.split(mark_left, 1)[1]
       content = fragment.split(mark_right, 1)[0]
-      head_right += len(mark_left) + len(content) + len(mark_right)
+      head_right = len(mark_left) + len(content) + len(mark_right) + head_left
       return head_right
 
    def find_balanced(self, mark_left, mark_right, head_left):
       probe_left = self.move(len(mark_left), head_left)
       probe_right = probe_left
-      if not self.compare(mark_left, head_left):
+      token = self.source[head_left: head_left + len(mark_left)]
+      if not (token == mark_left):
          return head_left
       count = 0
       while (probe_right <= len(self.source) - len(mark_right)):
@@ -95,20 +96,19 @@ class Organ(object):
       return sink
 
    def count_next_glyph(self, head):
-      count = self.count_glyph
       left = self.source[: head]
-      segments = left.split('\n')
-      if (len(segments) == 1):
-         count += len(segments[0])
-         return count
-      count = len(segments[-1])
-      return count
+      fragments = left.split('\n')
+      if (len(fragments) == 1):
+         self.count_glyph += len(fragments[0])
+         return self.count_glyph
+      self.count_glyph = len(fragments[-1])
+      return self.count_glyph
 
    def count_next_line(self, head):
       count = self.count_line
       left = self.source[: head]
-      segments = left.split('\n')
-      count += len(segments) - 1
+      fragments = left.split('\n')
+      count += len(fragments) - 1
       return count
 
    def compare(self, target, head):
@@ -130,8 +130,8 @@ class Stem(Organ):
    def snip_bough(self, head_left):
       bough = None
       mark_left = probe_mark(head_left)
-      mark_right = get_mark_right(mark_left)
-      label = get_label(mark_left[0])
+      mark_right = AID.get_mark_right(mark_left)
+      label = AID.get_label(mark_left[0])
 
       if (label == "BREAK"):
          head_right = self.move(len(mark_left), head_left)
@@ -145,23 +145,23 @@ class Stem(Organ):
       content = self.source[probe_left, probe_right]
 
       data = self.get_data(head_left, probe_left)
-      if not AID.be_label_bough(label)):
+      if not AID.be_start_bough(label)):
          caution = CAUTION.Allowing_only_bough(**data)
          caution.panic()
-      if (probe_right > len(self.source)):
+      elif (probe_right > len(self.source)):
          caution = CAUTION.Not_matching_mark_bough(**data)
          caution.panic()
-      if (AID.be_macro_start(label) and self.expanded):
+      elif (AID.be_macro_start(label) and self.expanded):
          caution = CAUTION.Macro_not_gathered(**data)
          caution.panic()
 
       if (label == "INSTRUCTION"):
          self.instructions.append(content)
          return None, head_right
-      if (label == "DEFINITION_LEFT"):
+      elif (label == "DEFINITION_LEFT"):
          self.definitions.append(content)
          return None, head_right
-      if not self.expanded:
+      elif not self.expanded:
          self.expand()
          self.expanded = True
 
@@ -189,12 +189,12 @@ class Stem(Organ):
    def snip_leaf(self, head_left):
       leaf = None
       mark_left = probe_mark(head_left)
-      mark_right = get_mark_right(mark_left)
-      label = get_label(mark_left[0])
+      mark_right = AID.get_mark_right(mark_left)
+      label = AID.get_label(mark_left[0])
 
       if (label in AID.be_hollow_leaf(label)):
          head_right = self.move(len(mark_left), head_left)
-         data = self.get_data(head_left, head_left)
+         data = self.get_data(head_left, head_right)
          if (label == "SPACE"):
             leaf = LEAF.Space(**data)
             return leaf
@@ -211,17 +211,17 @@ class Stem(Organ):
       if (probe_right > len(self.source)):
          caution = CAUTION.Not_matching_mark_leaf(**data)
          caution.panic()
-      if not self.be_label_leaf(label)):
+      if not self.be_start_leaf(label)):
          caution = CAUTION.Allowing_only_leaf(**data)
          caution.panic()
 
       if (label == "LINK"):
          data = self.get_data(probe_left, probe_right)
          if (self.KIND == "image"):
-            self.address = content
+            self.address = self.tune_hypertext(content)
             return None, head_right
          elif (len(sinks) > 0):
-            self.sinks[-1].address = content
+            self.sinks[-1].address = self.tune_hypertext(content)
             return None, head_right
          else:
             caution = CAUTION.Disallowing_link(**data)
@@ -238,7 +238,7 @@ class Stem(Organ):
          leaf = LEAF.Sans_normal(**data)
       if (label == "SANS_BOLD"):
          leaf = LEAF.Sans_bold(**data)
-      if (label == "mono"):
+      if (label == "MONO"):
          leaf = LEAF.Mono(**data)
       if (label == "PSEUDO"):
          leaf = LEAF.Pseudo(**data)
@@ -254,8 +254,7 @@ class Stem(Organ):
       head_middle = head_left
       while head_right < len(self.source):
          head_middle = head_right
-         l
-         eaf, head_right = self.snip_leaf(head_right)
+         leaf, head_right = self.snip_leaf(head_right)
          if (leaf.KIND == kind_stop):
             break
          head_middle = head_right
@@ -268,74 +267,6 @@ class Stem(Organ):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Leaf(Organ):
-
-   def tune_text(self):
-      glyphs_space = set([' ', '\t', '\n'])
-      glyphs_mark = set([])
-      glyphs_mark.add(AID.get_tip("SERIF_NORMAL"))
-      glyphs_mark.add(AID.get_tip("SERIF_ITALIC"))
-      glyphs_mark.add(AID.get_tip("SERIF_BOLD"))
-      glyphs_mark.add(AID.get_tip("SANS_NORMAL"))
-      glyphs_mark.add(AID.get_tip("SANS_BOLD"))
-      glyphs_mark.add(AID.get_tip("COMMENT_LEFT"))
-      glyphs_mark.add(AID.get_tip("COMMENT_RIGHT"))
-
-      sink = self.source
-      sink = self.remove_token(glyphs_mark, sink)
-      sink = self.erase_token(glyphs_space, sink)
-      return sink
-
-   def tune_code(self):
-      sink = self.source
-      glyphs_space = set([' ', '\t', '\n'])
-      sink = self.erase_token(glyphs_space)
-      return sink
-
-   def tune_hypertext(self):
-      sink = self.source
-      escapes = {
-         '<': "&lt;",
-         '>': "&gt;",
-         '&': "&amp;",
-         '\"': "&quote;",
-         '\'': "&apos;",
-      }
-      sink = self.replace_token(sink, escapes)
-      return sink
-
-   def tune_comment(self):
-      sink = self.source
-      escapes = {
-         '----': '-',
-         '---': '-',
-         '--': '-',
-      }
-      sink = self.replace_token(sink, escapes)
-      return sink
-
-   def remove_token(self, tokens):
-      sink = self.source
-      for glyph in tokens:
-         table = sink.maketrans(glyph, '')
-         sink = sink.translate(table)
-      return sink
-
-   def erase_token(self, tokens):
-      sink = self.source
-      for glyph in tokens:
-         table = sink.maketrans(glyph, ' ')
-         sink = sink.translate(table)
-      ' '.join(sink.split())
-      return sink
-
-   def replace_token(self, tokens):
-      sink = self.source
-      for glyph in tokens:
-         table = sink.maketrans(glyph, tokens[glyph])
-         sink = sink.translate(table)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
    def write_text(self, content):
       sink = ''
@@ -399,7 +330,7 @@ class Leaf(Organ):
          sink = content
       return sink
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+   # # # # # # # # # # # # # # # #
 
    def snip_tissue_math(self, head_left):
       tissue = None
@@ -418,10 +349,7 @@ class Leaf(Organ):
          if not AID.be_bracket_math(label_left):
             head_right = self.move(1, probe_left)
             data = self.give_data(head_left, head_right)
-            if (AID.be_letter_math(label_left)):
-               tissue = TISSUE.Math_letter(**data)
-            else:
-               tissue = TISSUE.Math_sign(**data)
+            tissue = TISSUE.Math_plain(**data)
             return tissue, head_right
 
          tip_right = AID.get_tip_right_math(tip_left)
@@ -477,7 +405,7 @@ class Leaf(Organ):
          tissue = None
       return tissue, head_right
 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+   # # # # # # # # # # # # # # # #
 
    def snip_tissue_pseudo(self, head_left):
       tissue = None

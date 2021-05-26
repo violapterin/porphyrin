@@ -1,0 +1,12 @@
+#! /usr/bin/env python3
+
+import os
+
+import porphyrin.aid as AID
+
+subfolder_in = "test-in"
+subfolder_out = "test-out"
+folder_this = os.path.dirname(__file__)
+folder_in = os.path.join(folder_this, subfolder_in)
+folder_out = os.path.join(folder_this, subfolder_out)
+AID.make(folder_in, folder_out)

@@ -1,8 +1,7 @@
-import organ as ORGAN
-import stem as STEM
-import caution as CAUTION
-import tissue as TISSUE
-import aid as AID
+from . import organ as ORGAN
+from . import stem as STEM
+from . import caution as CAUTION
+from . import aid as AID
 
 class Serif_roman(ORGAN.Leaf):
 
@@ -14,7 +13,7 @@ class Serif_roman(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      content = self.tune_text()
+      content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
 
@@ -28,7 +27,7 @@ class Serif_italic(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      content = self.tune_text()
+      content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
 
@@ -42,7 +41,7 @@ class Serif_bold(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      content = self.tune_text()
+      content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
 
@@ -56,7 +55,7 @@ class Sans_roman(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      content = self.tune_text()
+      content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
 
@@ -70,7 +69,7 @@ class Sans_bold(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      content = self.tune_text()
+      content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
 
@@ -84,7 +83,7 @@ class Mono(ORGAN.Leaf):
       self.address = ''
 
    def write(self):
-      content = self.tune_code()
+      content = AID.tune_code(self.source)
       sink = self.write_text(content)
       return content
 
@@ -96,7 +95,7 @@ class Comment(ORGAN.Leaf):
    def write(self):
       token_left = "<!--"
       token_right = "-->"
-      sink = self.tune_comment()
+      sink = AID.tune_comment(self.source)
       sink = token_left + ' ' + sink + ' ' + token_right
       return sink
 

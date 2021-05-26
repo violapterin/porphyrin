@@ -1,8 +1,7 @@
-import organ as ORGAN
-import leaf as LEAF
-import tissue as TISSUE
-import caution as CAUTION
-import aid as AID
+from . import organ as ORGAN
+from . import leaf as LEAF
+from . import caution as CAUTION
+from . import aid as AID
 
 
 class Document(ORGAN.Stem):

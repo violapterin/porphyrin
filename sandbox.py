@@ -1,13 +1,9 @@
 #! /usr/bin/env python3
 
-'''
-import organ as ORGAN
-import stem as STEM
-import leaf as LEAF
-import tissue as TISSUE
-import caution as CAUTION
-import aid as AID
-'''
+import porphyrin.organ as ORGAN
+import porphyrin.stem as STEM
+import porphyrin.leaf as LEAF
+import porphyrin.aid as AID
 
 class Flower(object):
    def __init__(self, color):

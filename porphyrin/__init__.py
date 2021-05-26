@@ -1,2 +1,1 @@
-
-__all__ = ["organ", "stem", "leaf", "tissue", "caution", "aid"]
+__all__ = ["organ", "stem", "leaf", "caution", "aid"]
