@@ -1,35 +1,4 @@
-from . import organ as ORGAN
-from . import stem as STEM
-from . import leaf as LEAF
-from . import aid as AID
-
-class Caution(ORGAN.Organ):
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-      message_left = ''
-      message_right = ''
-
-   def panic(self):
-      self.warn()
-      raise SystemExit()
-
-   def warn(self):
-      color_stress = "\033[93m"
-      color_normal = "\033[0m"
-      print("At ", place.emit(), ":\n")
-      print(
-         "      ", leftmost, ' ',
-         color_stress, token_error,
-         color_normal, rightmost, '\n'
-      )
-      print(
-         message_left,
-         color_stress, token_error,
-         color_normal, message_right
-      )
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+from .organ import Caution
 
 class Not_valid_mark_bough(Caution):
 
@@ -79,17 +48,17 @@ class Not_being_balanced_bracket(Caution):
 class Not_being_valid_symbol(Caution):
 
    message_left = "Token"
-   message_right = "is not a valid symbol".
+   message_right = "is not a valid symbol."
 
 class Conflicting_delimiter_tissue(Caution):
 
    message_left = "Tissue"
-   message_right = "contain conflicting delimiters".
+   message_right = "contain conflicting delimiters."
 
 class Macro_not_gathered(Caution):
 
    message_left = "Macro"
-   message_right = "is not gathered in the very beginning".
+   message_right = "is not gathered in the very beginning."
 
 class Disallowing_link(Caution):
 

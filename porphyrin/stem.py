@@ -1,10 +1,7 @@
-from . import organ as ORGAN
-from . import leaf as LEAF
-from . import caution as CAUTION
+from .organ import Stem
 from . import aid as AID
 
-
-class Document(ORGAN.Stem):
+class Document(Stem):
 
    KIND = "document"
    TAG = "body"
@@ -36,7 +33,7 @@ class Document(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Image(ORGAN.Stem):
+class Image(Stem):
 
    KIND = "image"
    TAG = "img"
@@ -61,7 +58,7 @@ class Image(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Break(ORGAN.Stem):
+class Break(Stem):
 
    KIND = "break"
    TAG = "div"
@@ -89,7 +86,7 @@ class Break(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraphs(ORGAN.Stem):
+class Paragraphs(Stem):
 
    KIND = "paragraphs"
    TAG = "div"
@@ -117,7 +114,7 @@ class Paragraphs(ORGAN.Stem):
       )
       return result
 
-class Lines(ORGAN.Stem):
+class Lines(Stem):
 
    KIND = "lines"
    TAG = "div"
@@ -145,7 +142,7 @@ class Lines(ORGAN.Stem):
       )
       return result
 
-class Rows(ORGAN.Stem):
+class Rows(Stem):
 
    KIND = "rows"
    TAG_ALL = "table"
@@ -185,7 +182,7 @@ class Rows(ORGAN.Stem):
       )
       return result
 
-class Newline(ORGAN.Stem):
+class Newline(Stem):
 
    KIND = "newline"
 
@@ -195,7 +192,7 @@ class Newline(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Paragraph(ORGAN.Stem):
+class Paragraph(Stem):
 
    KIND = "paragraph"
    TAG = "p"
@@ -214,7 +211,7 @@ class Paragraph(ORGAN.Stem):
       result = self.write_element(self.KIND)
       return result
 
-class Line(ORGAN.Stem):
+class Line(Stem):
 
    KIND = "line"
    TAG = "span"
@@ -233,7 +230,7 @@ class Line(ORGAN.Stem):
       result = self.write_element(self.KIND)
       return result
 
-class Row(ORGAN.Stem):
+class Row(Stem):
 
    KIND = "row"
    TAG = "tr"
@@ -252,7 +249,7 @@ class Row(ORGAN.Stem):
       sink = self.write_element(self.KIND)
       return sink
 
-class Space(ORGAN.Stem):
+class Space(Stem):
 
    KIND = "space"
 
@@ -262,7 +259,7 @@ class Space(ORGAN.Stem):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Phrase(ORGAN.Stem):
+class Phrase(Stem):
 
    KIND = "phrase"
    TAG = "span"
@@ -283,7 +280,7 @@ class Phrase(ORGAN.Stem):
          result += leaf.write()
       return result
 
-class Verse(ORGAN.Stem):
+class Verse(Stem):
 
    KIND = "verse"
    TAG = "span"
@@ -304,7 +301,7 @@ class Verse(ORGAN.Stem):
          result += leaf.write()
       return result
 
-class Cell(ORGAN.Stem):
+class Cell(Stem):
 
    KIND = "cell"
    TAG = "td"

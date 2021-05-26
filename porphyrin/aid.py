@@ -1,49 +1,7 @@
 import os
 
-from . import organ as ORGAN
-from . import stem as STEM
-from . import leaf as LEAF
-from . import caution as CAUTION
-
-def make(folder_in, folder_out):
-   extension = ".ppr"
-   things_in = os.scandir(folder_in)
-   for thing_in in things_in:
-      name_in = thing.name
-      path_in = os.path.join(folder_in, name_in)
-      if not thing_in.is_file():
-         print("Warning: ", name_in, " is not a file.")
-         continue
-      if not path_in.endswith(extension):
-         print(
-            "Warning: file ", name_in,
-            " does not end in \"", extension, "\".",
-         )
-         continue
-      path_out = os.path.join(folder_out, path_in)
-      if os.path.isfile(path_out):
-         time_in = thing.stat().st_ctime
-         time_out = os.path.getmtime(path_out)
-         if time_in < time_out:
-            continue
-      convert(path_in, path_out) 
-
-def convert(path_in, path_out):
-   handle_in = open(path_in, mode = 'r')
-   source = handle_in.read()
-   handle_in.close()
-   document = STEM.Document({"source": source})
-   document.parse()
-   sink = document.write()
-   handle_out = open(path_out, mode = 'w')
-   handle_out.write(sink)
-   handle_out.close()
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 def get_mark_right(mark_left):
-   assert(len([glyph for glyph in mark_left]) == 1)
-   label = get_label_math(mark_left[0])
+   label = get_label(mark_left[0])
    considered = {"DEFINITION_LEFT", "COMMENT_LEFT"}
    if (label not in considered):
       return mark_left
@@ -238,16 +196,6 @@ def write_latex(command, *items):
    sink += command + ' '
    for item in items:
       sink += '{' + item + '}' + ' '
-   return sink
-
-def write_math_word(self, command, source):
-   sink = ''
-   if not isalnum(self.source):
-      data = self.give_data(0, len(source))
-      caution = CAUTION.Allowing_only_alphabets(**data)
-      caution.panic()
-   content = self.source
-   sink += AID.write_command(command, content)
    return sink
 
 def give_alphabets_upper():

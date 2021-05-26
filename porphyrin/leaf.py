@@ -1,9 +1,7 @@
-from . import organ as ORGAN
-from . import stem as STEM
-from . import caution as CAUTION
+from .organ import Leaf
 from . import aid as AID
 
-class Serif_roman(ORGAN.Leaf):
+class Serif_roman(Leaf):
 
    KIND = "serif-roman"
    TAG_PLAIN = "span"
@@ -17,7 +15,7 @@ class Serif_roman(ORGAN.Leaf):
       sink = self.write_text(content)
       return content
 
-class Serif_italic(ORGAN.Leaf):
+class Serif_italic(Leaf):
 
    KIND = "serif-italic"
    TAG_PLAIN = "em"
@@ -31,7 +29,7 @@ class Serif_italic(ORGAN.Leaf):
       sink = self.write_text(content)
       return content
 
-class Serif_bold(ORGAN.Leaf):
+class Serif_bold(Leaf):
 
    KIND = "serif-bold"
    TAG_PLAIN = 'b'
@@ -45,7 +43,7 @@ class Serif_bold(ORGAN.Leaf):
       sink = self.write_text(content)
       return content
 
-class Sans_roman(ORGAN.Leaf):
+class Sans_roman(Leaf):
 
    KIND = "sans-roman"
    TAG_PLAIN = "span"
@@ -59,7 +57,7 @@ class Sans_roman(ORGAN.Leaf):
       sink = self.write_text(content)
       return content
 
-class Sans_bold(ORGAN.Leaf):
+class Sans_bold(Leaf):
 
    KIND = "sans-bold"
    TAG_PLAIN = 'b'
@@ -73,7 +71,7 @@ class Sans_bold(ORGAN.Leaf):
       sink = self.write_text(content)
       return content
 
-class Mono(ORGAN.Leaf):
+class Mono(Leaf):
 
    KIND = "mono"
    TAG = "pre"
@@ -87,7 +85,7 @@ class Mono(ORGAN.Leaf):
       sink = self.write_text(content)
       return content
 
-class Comment(ORGAN.Leaf):
+class Comment(Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -101,7 +99,7 @@ class Comment(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Math(ORGAN.Leaf):
+class Math(Leaf):
 
    KIND = "math"
 
@@ -120,7 +118,7 @@ class Math(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo(ORGAN.Leaf):
+class Pseudo(Leaf):
 
    KIND = "pseudo"
 
@@ -140,7 +138,7 @@ class Pseudo(ORGAN.Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_box(ORGAN.Leaf):
+class Math_box(Leaf):
 
    OUTSIDE = False
    LATERAL = True
@@ -165,7 +163,7 @@ class Math_box(ORGAN.Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_bracket_round(ORGAN.Leaf):
+class Math_bracket_round(Leaf):
 
    OUTSIDE = False
    LATERAL = True
@@ -189,7 +187,7 @@ class Math_bracket_round(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_bracket_square(ORGAN.Leaf):
+class Math_bracket_square(Leaf):
 
    OUTSIDE = False
    LATERAL = True
@@ -204,7 +202,7 @@ class Math_bracket_square(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_bracket_curly(ORGAN.Leaf):
+class Math_bracket_curly(Leaf):
 
    OUTSIDE = False
    LATERAL = True
@@ -219,7 +217,7 @@ class Math_bracket_curly(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_bracket_angle(ORGAN.Leaf):
+class Math_bracket_angle(Leaf):
 
    OUTSIDE = False
    LATERAL = True
@@ -234,7 +232,7 @@ class Math_bracket_angle(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_bracket_line(ORGAN.Leaf):
+class Math_bracket_line(Leaf):
 
    OUTSIDE = False
    LATERAL = True
@@ -254,7 +252,7 @@ class Math_bracket_line(ORGAN.Leaf):
 # #  &  &a  &A  &b  &B
 # #  *                  *0  *1
 # #     .a  .A  .b  .B  .0  .1  ..  .&  .*
-class Math_plain(ORGAN.Leaf):
+class Math_plain(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -309,8 +307,9 @@ class Math_plain(ORGAN.Leaf):
          sign = table_symbol.get(label_tail)
 
       if not sign:
-         data = self.get_data()
-         caution = CAUTION.Not_being_valid_symbol(**data)
+         data = self.give_data(0, len(self.source))
+         from .caution import Not_being_valid_symbol
+         caution = Not_being_valid_symbol(**data)
          caution.panic()
       sink = write_math_outside(self, sign)
 
@@ -324,7 +323,7 @@ class Math_plain(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_letter(ORGAN.Leaf):
+class Math_letter(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -386,7 +385,7 @@ class Math_letter(ORGAN.Leaf):
          )
          lowers = (
             "\\alpha", "\\beta", "\\xi",
-            "\\delta", "\\varepsilon
+            "\\delta", "\\varepsilon",
             "\\varphi", "\\gamma", "\\eta",
             "\\iota", "\\imath","\\kappa",
             "\\lambda", "\\mu", "\\nu",
@@ -403,8 +402,9 @@ class Math_letter(ORGAN.Leaf):
             letter = table_lower.get(tail)
 
       if not letter:
-         data = self.get_data()
-         caution = CAUTION.Not_being_valid_symbol(**data)
+         data = self.give_data(0, len(self.source))
+         from .caution import Not_being_valid_symbol
+         caution = Not_being_valid_symbol(**data)
          caution.panic()
       if self.accent:
          letter_accent = AID.write_latex(self.accent, letter)
@@ -415,7 +415,7 @@ class Math_letter(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_sign(ORGAN.Leaf):
+class Math_sign(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -528,7 +528,7 @@ class Math_sign(ORGAN.Leaf):
       if tail.isdigit():
          sign = table_sign.get(tail)
       if not sign:
-         data = self.get_data()
+         data = self.give_data(0, len(self.source))
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
       sink = write_math_outside(self, sign)
@@ -540,7 +540,7 @@ class Math_sign(ORGAN.Leaf):
 
 # # boxes: pair, triplet, tuple
 
-class Math_pair(ORGAN.Leaf):
+class Math_pair(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -562,7 +562,7 @@ class Math_pair(ORGAN.Leaf):
             boxes.append(box)
             head_left = head_right
       assert(len(boxes) == 2)
-      top, bottom = *boxes
+      top, bottom = boxes
 
       sink_top = top.write()
       sink_bottom = bottom.write()
@@ -572,7 +572,7 @@ class Math_pair(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_triplet(ORGAN.Leaf):
+class Math_triplet(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -594,7 +594,7 @@ class Math_triplet(ORGAN.Leaf):
             boxes.append(box)
             head_left = head_right
       assert(len(boxes) == 3)
-      box_top, box_main, box_bottom = *boxes
+      box_top, box_main, box_bottom = boxes
       top = top.write()
       main = main.write()
       bottom = bottom.write()
@@ -611,7 +611,7 @@ class Math_triplet(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_tuple(ORGAN.Leaf):
+class Math_tuple(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -647,7 +647,7 @@ class Math_tuple(ORGAN.Leaf):
 
 # # texts: serif, sans, mono
 
-class Math_serif(ORGAN.Leaf):
+class Math_serif(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -658,12 +658,16 @@ class Math_serif(ORGAN.Leaf):
 
    def write(self):
       command = "\\mathrm"
-      sink = AID.write_math_word(command, self.source)
+      if not isalnum(self.source):
+         data = self.give_data()
+         caution = CAUTION.Allowing_only_alphabets(**data)
+         caution.panic()
+      sink = AID.write_latex(command, self.source)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_sans(ORGAN.Leaf):
+class Math_sans(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -674,12 +678,16 @@ class Math_sans(ORGAN.Leaf):
 
    def write(self):
       command = "\\mathsf"
-      sink = AID.write_math_word(command, self.source)
+      if not isalnum(self.source):
+         data = self.give_data()
+         caution = CAUTION.Allowing_only_alphabets(**data)
+         caution.panic()
+      sink = AID.write_latex(command, self.source)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_mono(ORGAN.Leaf):
+class Math_mono(Leaf):
 
    KIND = "math"
    TAG = "span"
@@ -690,7 +698,11 @@ class Math_mono(ORGAN.Leaf):
 
    def write(self):
       command = "\\mathtt"
-      sink = AID.write_math_word(command, self.source)
+      if not isalnum(self.source):
+         data = self.give_data()
+         caution = CAUTION.Allowing_only_alphabets(**data)
+         caution.panic()
+      sink = AID.write_latex(command, self.source)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -700,7 +712,7 @@ class Math_mono(ORGAN.Leaf):
 # #  &  &a  &A  &b  &B
 # #  *                  *0  *1
 # #     .a  .A  .b  .B  .0  .1  ..  &.  *.
-class Pseudo_letter(ORGAN.Leaf):
+class Pseudo_letter(Leaf):
 
    KIND = "pseudo-sign"
    TAG = "span"
@@ -734,7 +746,7 @@ class Pseudo_letter(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Pseudo_sign(ORGAN.Leaf):
+class Pseudo_sign(Leaf):
 
    KIND = "pseudo-sign"
    TAG = "span"
@@ -761,7 +773,7 @@ class Pseudo_sign(ORGAN.Leaf):
       tail = self.source[1]
       sink = symbols.get(tip).get(tail)
       if not sink:
-         data = self.get_data_modified()
+         data = self.give_data()
          caution = CAUTION.Not_being_valid_symbol(**data)
          caution.panic()
 
@@ -777,7 +789,7 @@ class Pseudo_sign(ORGAN.Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_round(ORGAN.Leaf):
+class Pseudo_round(Leaf):
 
 
    def __init__(self, **data):
@@ -801,14 +813,20 @@ class Pseudo_round(ORGAN.Leaf):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-class Pseudo_square(ORGAN.Leaf):
+class Pseudo_square(Leaf):
+   pass
 
-class Pseudo_curly(ORGAN.Leaf):
+class Pseudo_curly(Leaf):
+   pass
 
-class Pseudo_serif(ORGAN.Leaf):
+class Pseudo_serif(Leaf):
+   pass
 
-class Pseudo_sans(ORGAN.Leaf):
+class Pseudo_sans(Leaf):
+   pass
 
-class Pseudo_mono(ORGAN.Leaf):
+class Pseudo_mono(Leaf):
+   pass
 
-class Pseudo_tiny(ORGAN.Leaf):
+class Pseudo_tiny(Leaf):
+   pass
