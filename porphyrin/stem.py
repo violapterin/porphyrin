@@ -1,3 +1,5 @@
+from pdb import set_trace
+
 from .organ import Stem
 from . import aid as AID
 
@@ -16,20 +18,32 @@ class Document(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          bough, head = self.snip_bough(head)
-         if (bough is not None):
+         if bough:
             sinks.append(bough)
 
    def write(self):
       content = ''
       for bough in self.sinks:
          content += bough.write()
-      result = write_element(
-         content = sinks[0],
+      result = AID.write_element(
+         content = content,
          tag = self.TAG,
       )
       return result
+
+   def expand(self, head_left):
+      assert (len(self.definitions) == len(self.instructions))
+      sink = self.source[head_left:]
+      for count in range(len(self.definitions)):
+         definition = self.definitions[count]
+         instruction = self.instructions[count]
+         sink = sink.replace(definition, instruction)
+      self.source = sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -48,11 +62,11 @@ class Image(Stem):
       sinks.append(self.source)
 
    def write(self):
-      result = write_element(
-            content = sinks[0],
-            tag = self.TAG,
-            attributes = ["class"],
-            values = [self.KIND],
+      result = AID.write_element(
+         content = '',
+         tag = self.TAG,
+         attributes = ["class"],
+         values = [self.KIND],
       )
       return result
 
@@ -76,11 +90,11 @@ class Break(Stem):
       content = ''
       for sink in self.sinks:
          content += sink + ' '
-      result = write_element(
-            content = content,
-            tag = self.TAG,
-            attributes = ["class"],
-            values = [self.KIND],
+      result = AID.write_element(
+         content = content,
+         tag = self.TAG,
+         attributes = ["class"],
+         values = [self.KIND],
       )
       return result
 
@@ -97,16 +111,19 @@ class Paragraphs(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          twig, head = self.shatter_stem("newline", Paragraph, head)
-         self.sinks.append(twig)
+         if twig:
+            self.sinks.append(twig)
 
    def write(self):
       content = ' '
       for twig in self.sinks:
-         content += twig.write()
-         content += ' '
-      result = write_element(
+         content += twig.write() + ' '
+      result = AID.write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -125,16 +142,19 @@ class Lines(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          twig, head = self.shatter_stem("newline", Line, head)
-         self.sinks.append(twig)
+         if twig:
+            self.sinks.append(twig)
 
    def write(self):
       content = ' '
       for twig in self.sinks:
-         content += twig.write()
-         content += ' '
-      result = write_element(
+         content += twig.write() + ' '
+      result = AID.write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -155,26 +175,30 @@ class Rows(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          twig, head = self.shatter_stem("newline", Row, head)
-         sinks.append(twig)
+         if twig:
+            sinks.append(twig)
 
    def write(self):
       content = ' '
       twig_prefix = self.sinks.pop(0)
-      content += write_element(
+      content += AID.write_element(
          content = twig_prefix.write(),
          tag = self.TAG_PREFIX,
          attributes = ["class"],
          values = [self.KIND],
       )
       for twig_body in self.sinks:
-         content += write_element(
+         content += AID.write_element(
             content = twig_body.write(),
             tag = self.TAG_BODY,
          )
          content += ' '
-      result = write_element(
+      result = AID.write_element(
          content = content,
          tag = self.TAG_ALL,
          attributes = ["class"],
@@ -203,12 +227,24 @@ class Paragraph(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          frond, head = self.shatter_stem("space", Phrase, head)
-         self.sinks.append(frond)
+         if frond:
+            self.sinks.append(frond)
 
    def write(self):
-      result = self.write_element(self.KIND)
+      content = ' '
+      for frond in self.sinks:
+         content += frond.write() + ' '
+      result = AID.write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return result
 
 class Line(Stem):
@@ -222,12 +258,24 @@ class Line(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          frond, head = self.shatter_stem("space", Verse, head)
-         self.sinks.append(frond)
+         if frond:
+            self.sinks.append(frond)
 
    def write(self):
-      result = self.write_element(self.KIND)
+      content = ' '
+      for frond in self.sinks:
+         content += frond.write() + ' '
+      result = AID.write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return result
 
 class Row(Stem):
@@ -241,13 +289,25 @@ class Row(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         if (head >= len(self.source)):
+            break
+         head = self.move(0, head)
          frond, head = self.shatter_stem("space", Cell, head)
-         self.sinks.append(frond)
+         if frond:
+            self.sinks.append(frond)
 
    def write(self):
-      sink = self.write_element(self.KIND)
-      return sink
+      content = ' '
+      for frond in self.sinks:
+         content += frond.write() + ' '
+      result = AID.write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
+      return result
 
 class Space(Stem):
 
@@ -270,14 +330,24 @@ class Phrase(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         head = self.move(0, head)
+         if (head >= len(self.source)):
+            break
          leaf, head = self.snip_leaf(head)
-         if (leaf): self.sinks.append(leaf)
+         if leaf:
+            self.sinks.append(leaf)
 
    def write(self):
-      result = ''
+      content = ' '
       for leaf in self.sinks:
-         result += leaf.write()
+         content += leaf.write() + ' '
+      result = AID.write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return result
 
 class Verse(Stem):
@@ -291,14 +361,23 @@ class Verse(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         head = self.move(0, head)
+         if (head >= len(self.source)):
+            break
          leaf, head = self.snip_leaf(head)
-         if (leaf): self.sinks.append(leaf)
+         if leaf: self.sinks.append(leaf)
 
    def write(self):
-      result = ''
+      content = ' '
       for leaf in self.sinks:
-         result += leaf.write()
+         content += leaf.write() + ' '
+      result = AID.write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return result
 
 class Cell(Stem):
@@ -312,13 +391,22 @@ class Cell(Stem):
 
    def parse(self):
       head = 0
-      while (head < len(self.source)):
+      while (True):
+         head = self.move(0, head)
+         if (head >= len(self.source)):
+            break
          leaf, head = self.snip_leaf(head)
-         if (leaf): self.sinks.append(leaf)
+         if leaf: self.sinks.append(leaf)
 
    def write(self):
-      result = ''
+      content = ' '
       for leaf in self.sinks:
-         result += leaf.write()
+         content += leaf.write() + ' '
+      result = AID.write_element(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return result
 

@@ -1,3 +1,5 @@
+from pdb import set_trace
+
 from .organ import Leaf
 from . import aid as AID
 
@@ -110,7 +112,8 @@ class Math(Leaf):
       sink = ''
       head_left = 0
       head_right = 0
-      while(head_right <= len(self.source)):
+      interval = range(len(self.source))
+      for head in interval:
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
          sink += tissue.write()
@@ -129,7 +132,8 @@ class Pseudo(Leaf):
       sink = ''
       head_left = 0
       head_right = 0
-      while(head_right <= len(self.source)):
+      interval = range(len(self.source))
+      for head in interval:
          tissue, head_right = self.snip_tissue_pseudo(head_left)
          sink += tissue.write()
       return sink
@@ -149,9 +153,10 @@ class Math_box(Leaf):
    def write(self):
       sink = ''
       tissue = None
-      head = 0
       count = 0
-      while (head < len(self.source)):
+      head = self.move_beginning()
+      interval = range(len(self.source))
+      for head in interval:
          tissue, head = self.snip_tissue_math(head)
          sink = self.write_math_outside(tissue.write()) + ' '
          count += 1
@@ -174,11 +179,12 @@ class Math_bracket_round(Leaf):
    def write(self):
       sink = ''
       content = ''
-      head = 0
       mark_left = "\\left("
       mark_right = "\\right("
+      head = self.move_beginning()
       content += mark_left
-      while (head < len(self.source)):
+      interval = range(len(self.source))
+      for head in interval:
          tissue, head = self.snip_tissue_math(head)
          content = tissue.write() + ' '
       content += mark_right
@@ -555,7 +561,8 @@ class Math_pair(Leaf):
       head_left = 0
       head_right = 0
       boxes = []
-      while (head_right < len(self.source)):
+      interval = range(len(self.source))
+      for head in interval:
          _, head_right = self.snip_tissue_math(head_left)
          if (self.source[head_right] == cut):
             box = Math_box(self.source[head_left: head_right])
@@ -587,7 +594,8 @@ class Math_triplet(Leaf):
       head_left = 0
       head_right = 0
       boxes = []
-      while (head_right < len(self.source)):
+      interval = range(len(self.source))
+      for head in interval:
          _, head_right = self.snip_tissue_math(head_left)
          if (self.source[head_right] == cut):
             box = Math_box(self.source[head_left: head_right])
@@ -626,7 +634,8 @@ class Math_tuple(Leaf):
       head_left = 0
       head_right = 0
       boxes = []
-      while (head_right < len(self.source)):
+      interval = range(len(self.source))
+      for head in interval:
          _, head_right = self.snip_tissue_math(head_left)
          if (self.source[head_right] == cut):
             box = Math_box(self.source[head_left: head_right])

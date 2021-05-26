@@ -1,3 +1,5 @@
+from pdb import set_trace
+
 from . import aid as AID
 
 # # Stem: Document
@@ -14,18 +16,24 @@ class Organ(object):
       self.fill_basic(**data)
    
    def fill_basic(self, **data):
-      self.source = data.pop("source", '').rstrip()
+      self.source = data.pop("source", '')
       self.leftmost = data.pop("leftmost", '')
       self.rightmost = data.pop("rightmost", '')
       self.count_line = data.pop("count_line", 0)
       self.count_glyph = data.pop("count_glyph", 0)
       if (hasattr(self, "KIND")):
-         print(f"Creating a \"{self.KIND}\"...", flush = True)
-      print(f"    Source: {self.source}", flush = True)
+         print(f"Creating an organ with source:", flush = True)
+         fragments = self.source.split('\n')
+         counts = []
+         for count in range(len(fragments)):
+            if (abs(count) < 3) or (abs(count - len(fragments)) < 3):
+               counts.append(count)
+         for count in counts:
+            print(">>", fragments[count])
 
    def give_data(self, head_left, head_right):
       data = {
-         "source" : self.source[head_left, head_right],
+         "source" : self.source[head_left: head_right],
          "leftmost" : self.get_fragment_left(head_left),
          "rightmost" : self.get_fragment_right(head_right),
          "count_line" : self.count_next_line(head_left),
@@ -35,25 +43,39 @@ class Organ(object):
 
    def move(self, size, head_left):
       head_right = head_left
-      positive = True
-      if (size < 0):
-         positive = False
-      for _ in range(abs(size)):
-         whitespaces = {' ', '\t', '\n'}
-         head_right += 1
-         while (head_right <= len(self.source)):
+      if (size == 0):
+         interval = range(len(self.source) + 1)
+         while (head_right in interval):
+            whitespaces = {' ', '\t', '\n'}
             if (self.source[head_right] in whitespaces):
-               if (positive): head_right += 1
-               else: head_right -= 1
-            else: break
+               head_right += 1
+            else:
+               break
+         return head_right
+
+      positive = False
+      if (size > 0):
+         positive = True
+      for _ in range(abs(size)):
+         interval = range(len(self.source) + 1)
+         while (head_right in interval):
+            whitespaces = {' ', '\t', '\n'}
+            if (positive):
+               head_right += 1
+            else:
+               head_right -= 1
+            if (self.source[head_right] not in whitespaces):
+               break
+      if (head_right >= len(self.source)):
+         head_right = len(self.source)
       return head_right
 
    def find_greedy(self, mark_left, mark_right, head_left):
-      head_right = head_left
       fragment = self.source[head_left:]
       fragment = fragment.split(mark_left, 1)[1]
       content = fragment.split(mark_right, 1)[0]
-      head_right = len(mark_left) + len(content) + len(mark_right) + head_left
+      head_right = head_left
+      head_right += len(mark_left) + len(content) + len(mark_right)
       return head_right
 
    def find_balanced(self, mark_left, mark_right, head_left):
@@ -63,7 +85,8 @@ class Organ(object):
       if not (token == mark_left):
          return head_left
       count = 0
-      while (probe_right <= len(self.source) - len(mark_right)):
+      interval = range(len(self.source) - len(mark_right) + 1)
+      while (probe_right in interval):
          head_right = probe_right + len(mark_right)
          mark_probe = self.source[head_right: probe_right]
          if (mark_probe == mark_left):
@@ -79,20 +102,22 @@ class Organ(object):
       mark = ''
       tip = self.source[head_left]
       head_right = head_left
-      while (head_right <= len(self.source)):
+      interval = range(len(self.source) + 1)
+      while (head_right in interval):
          if not (self.source[head_right] == tip):
             break
          head_right = self.move(1, head_right)
       mark_left = self.source[head_left: head_right]
+      return mark_left
 
    def get_fragment_left(self, head):
       left = self.source[: head]
-      sink = self.left.split('\n')[-1]
+      sink = self.leftmost.split('\n')[-1]
       return sink
 
    def get_fragment_right(self, head):
       right = self.source[head :]
-      sink = self.right.split('\n')[0]
+      sink = self.rightmost.split('\n')[0]
       return sink
 
    def count_next_glyph(self, head):
@@ -126,7 +151,11 @@ class Stem(Organ):
    def snip_bough(self, head_left):
       from .organ import Stem as STEM
       bough = None
-      mark_left = self.probe_mark(head_left)
+      head_left = 0
+      probe_left = 0
+      probe_right = 0
+      mark_right = 0
+      mark_left = self.probe_mark(head_left).rstrip()
       mark_right = AID.get_mark_right(mark_left)
       label = AID.get_label(mark_left[0])
 
@@ -134,12 +163,16 @@ class Stem(Organ):
          head_right = self.move(len(mark_left), head_left)
          data = self.give_data(head_left, head_left)
          bough = STEM.Break(**data)
-         return bough
+         return bough, head_right
 
       head_right = self.find_greedy(mark_left, mark_right, head_left)
       probe_left = self.move(len(mark_left), head_left)
-      probe_right = self.move(-len(mark_right), head_right)
-      content = self.source[probe_left, probe_right]
+      probe_right = self.move(- len(mark_right) - 1, head_right) + 1
+      content = self.source[probe_left: probe_right]
+      print("head_left:", head_left)
+      print("head_right:", head_right)
+      print("probe_left:", probe_left)
+      print("probe_right:", probe_right)
 
       data = self.give_data(head_left, probe_left)
       if not AID.be_start_bough(label):
@@ -150,7 +183,7 @@ class Stem(Organ):
          from .caution import Not_matching_mark_bough
          caution = Not_matching_mark_bough(**data)
          caution.panic()
-      elif (AID.be_macro_start(label) and self.expanded):
+      elif (AID.be_start_macro(label) and self.expanded):
          from .caution import Macro_not_gathered
          caution = Macro_not_gathered(**data)
          caution.panic()
@@ -162,8 +195,9 @@ class Stem(Organ):
          self.definitions.append(content)
          return None, head_right
       elif not self.expanded:
-         self.expand()
+         self.expand(head_left)
          self.expanded = True
+         return None, 0
 
       data = self.give_data(probe_left, probe_right)
       if (label == "SECTION"):
@@ -189,6 +223,10 @@ class Stem(Organ):
    def snip_leaf(self, head_left):
       from .organ import Leaf as LEAF
       leaf = None
+      head_left = 0
+      probe_left = 0
+      probe_right = 0
+      mark_right = 0
       mark_left = probe_mark(head_left)
       mark_right = AID.get_mark_right(mark_left)
       label = AID.get_label(mark_left[0])
@@ -198,15 +236,19 @@ class Stem(Organ):
          data = self.give_data(head_left, head_right)
          if (label == "SPACE"):
             leaf = LEAF.Space(**data)
-            return leaf
+            return leaf, head_right
          if (label == "NEWLINE"):
             leaf = LEAF.Newline(**data)
-            return leaf
+            return leaf, head_right
 
       head_right = self.find_greedy(mark_left, mark_right, head_left)
       probe_left = self.move(len(mark_left), head_left)
-      probe_right = self.move(-len(mark_right), head_right)
-      content = self.source[probe_left, probe_right]
+      probe_right = self.move(- len(mark_right) - 1, head_right) + 1
+      content = self.source[probe_left: probe_right]
+      # print("head_left:", head_left)
+      # print("head_right:", head_right)
+      # print("probe_left:", probe_left)
+      # print("probe_right:", probe_right)
 
       data = self.give_data(head_left, probe_left)
       if (probe_right > len(self.source)):
@@ -308,7 +350,7 @@ class Leaf(Organ):
    def write_math_bracket(self, mark_left, mark_right):
       sink = ''
       content = ''
-      head = 0
+      head = self.move_beginning()
       content += mark_left
       while (head < len(self.source)):
          tissue, head = self.snip_tissue_math(head)
@@ -472,11 +514,7 @@ class Leaf(Organ):
 class Caution(Organ):
 
    def __init__(self, **data):
-      source = data.pop("source", '').rstrip()
-      leftmost = data.pop("leftmost", '')
-      rightmost = data.pop("rightmost", '')
-      count_line = data.pop("count_line", 0)
-      count_glyph = data.pop("count_glyph", 0)
+      self.fill_basic(**data)
       message_left = ''
       message_right = ''
 
@@ -487,14 +525,17 @@ class Caution(Organ):
    def warn(self):
       color_stress = "\033[93m"
       color_normal = "\033[0m"
-      print("At ", place.emit(), ":\n")
       print(
-         "      ", leftmost, ' ',
-         color_stress, token_error,
-         color_normal, rightmost, '\n'
+         f"At line {self.count_line},",
+         f"character {self.count_glyph}:"
       )
       print(
-         message_left,
-         color_stress, token_error,
-         color_normal, message_right
+         ">> \t", self.leftmost,
+         color_stress, self.source,
+         color_normal, self.rightmost, '\n'
+      )
+      print(
+         self.message_left,
+         color_stress, self.source,
+         color_normal, self.message_right
       )

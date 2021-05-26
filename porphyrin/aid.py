@@ -13,35 +13,34 @@ def get_mark_right(mark_left):
    if (label == "COMMENT_LEFT"):
       tip_left = get_tip("COMMENT_LEFT")
       tip_right = get_tip("COMMENT_RIGHT")
-   table = mark_right.maketrans(tip_left, tip_right)
-   mark_right = mark_right.translate(table)
+   mark_right = mark_right.replace(tip_left, tip_right)
    return mark_right
 
 def write_element(**data):
-   assert(content in data)
-   assert(tag in data)
+   assert("content" in data)
+   assert("tag" in data)
    enter = ''
-   if ('\n' in data[content]): enter = '\n'
+   if ('\n' in data["content"]): enter = '\n'
 
-   sink = '<' + data[tag] + ' '
-   if (attributes in data):
-      attributes = data[attributes]
-      values = data[values]
+   sink = '<' + data["tag"] + ' '
+   if ("attributes" in data):
+      attributes = data["attributes"]
+      values = data["values"]
       assert(len(values) == len(attributes))
       size = len(attributes)
       for index in range(size):
          sink += ' '
-         sink += data[attributes][index]
-         sink += "=\"" + data[values][index] + "\" "
+         sink += data["attributes"][index]
+         sink += "=\"" + data["values"][index] + "\" "
    sink += "> "
-   sink += enter + data[content] + ' ' + enter
-   sink += "</" + data[tag] + '>'
+   sink += enter + data["content"] + ' ' + enter
+   sink += "</" + data["tag"] + '>'
    return sink
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def give_label(tip):
+def give_labels():
    labels = {
       '@': "SERIF_NORMAL",
       '%': "SERIF_ITALIC",
@@ -67,7 +66,7 @@ def give_label(tip):
       '_': "SPACE",
       '\'': "NEWLINE",
    }
-   return label
+   return labels
 
 def give_tips(tip):
    labels = give_labels()
@@ -168,25 +167,22 @@ def tune_hypertext(source):
    return sink
 
 def remove_token(tokens, source):
-   sink = ''
-   for glyph in tokens:
-      table = source.maketrans(glyph, '')
-      sink = source.translate(table)
+   sink = source
+   for token in tokens:
+      sink = sink.replace(token, '')
    return sink
 
 def erase_token(tokens, source):
-   sink = ''
-   for glyph in tokens:
-      table = source.maketrans(glyph, ' ')
-      sink = source.translate(table)
+   sink = source
+   for token in tokens:
+      sink = sink.replace(token, ' ')
    ' '.join(sink.split())
    return sink
 
-def replace_token(tokens, source):
-   sink = ''
-   for glyph in tokens:
-      table = source.maketrans(glyph, tokens[glyph])
-      sink = source.translate(table)
+def replace_token(tokens_out, source):
+   sink = source
+   for token_in in tokens_out:
+      sink = sink.replace(token_in, tokens_out[token_in])
    return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -238,7 +234,7 @@ def get_table_lower(targets):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def give_label_math(tip):
+def give_labels_math():
    labels = {
       '.': "PLAIN",
       '#': "BOLD",
@@ -275,7 +271,7 @@ def give_label_math(tip):
       '`': "MONO",
       '_': "CHECK",
    }
-   return label
+   return labels
 
 def give_tips_math(tip):
    labels = give_labels_math()
