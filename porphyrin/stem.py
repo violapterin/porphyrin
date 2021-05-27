@@ -5,7 +5,6 @@ from . import aid as AID
 
 class Document(Stem):
 
-   KIND = "document"
    TAG = "body"
 
    def __init__(self, **data):
@@ -28,10 +27,11 @@ class Document(Stem):
 
    def write(self):
       content = ''
+      self.explain()
       self.parse()
       for bough in self.sinks:
          content += bough.write()
-      result = AID.write_element(
+      result = AID.write_element_stem(
          content = content,
          tag = self.TAG,
       )
@@ -62,8 +62,9 @@ class Image(Stem):
       address = AID.tune_hypertext(self.address)
 
    def write(self):
+      self.explain()
       self.parse()
-      result = AID.write_element(
+      result = AID.write_element_stem(
          content = '',
          tag = self.TAG,
          attributes = ["class"],
@@ -89,10 +90,11 @@ class Break(Stem):
 
    def write(self):
       content = ''
+      self.explain()
       self.parse()
       for sink in self.sinks:
          content += sink + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
          content = content,
          tag = self.TAG,
          attributes = ["class"],
@@ -123,10 +125,11 @@ class Paragraphs(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for twig in self.sinks:
          content += twig.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -155,10 +158,11 @@ class Lines(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for twig in self.sinks:
          content += twig.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -189,21 +193,22 @@ class Rows(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       twig_prefix = self.sinks.pop(0)
-      content += AID.write_element(
+      content += AID.write_element_stem(
          content = twig_prefix.write(),
          tag = self.TAG_PREFIX,
          attributes = ["class"],
          values = [self.KIND],
       )
       for twig_body in self.sinks:
-         content += AID.write_element(
+         content += AID.write_element_stem(
             content = twig_body.write(),
             tag = self.TAG_BODY,
          )
          content += ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
          content = content,
          tag = self.TAG_ALL,
          attributes = ["class"],
@@ -242,10 +247,11 @@ class Paragraph(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for frond in self.sinks:
          content += frond.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -274,10 +280,11 @@ class Line(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for frond in self.sinks:
          content += frond.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -306,10 +313,11 @@ class Row(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for frond in self.sinks:
          content += frond.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -348,10 +356,11 @@ class Phrase(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for leaf in self.sinks:
          content += leaf.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -380,10 +389,11 @@ class Verse(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for leaf in self.sinks:
          content += leaf.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -412,10 +422,11 @@ class Cell(Stem):
 
    def write(self):
       content = ' '
+      self.explain()
       self.parse()
       for leaf in self.sinks:
          content += leaf.write() + ' '
-      result = AID.write_element(
+      result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
             attributes = ["class"],

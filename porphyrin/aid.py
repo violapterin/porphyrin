@@ -17,14 +17,24 @@ def get_mark_right(mark_left):
    mark_right = mark_left.replace(tip_left, tip_right)
    return mark_right
 
-def write_element(**data):
+
+def write_element_leaf(**data):
+   cut = ' '
+   element = write_element(cut, data)
+   return element
+
+def write_element_stem(**data):
+   cut = '\n'
+   element = write_element(cut, data)
+   return element
+
+def write_element(cut, data):
    assert ("content" in data)
    assert ("tag" in data)
-   enter = ''
-   if ('\n' in data["content"]): enter = '\n'
 
-   sink = '<' + data["tag"] + ' '
+   sink = '<' + data["tag"]
    if ("attributes" in data):
+      sink += ' '
       attributes = data["attributes"]
       values = data["values"]
       assert (len(values) == len(attributes))
@@ -32,12 +42,35 @@ def write_element(**data):
       for index in range(size):
          sink += ' '
          sink += data["attributes"][index]
-         sink += "=\"" + data["values"][index] + "\" "
+         sink += "=\"" + data["values"][index] + "\""
    sink += "> "
-   sink += enter + data["content"] + ' ' + enter
+   sink += cut + data["content"] + ' ' + cut
    sink += "</" + data["tag"] + '>'
    return sink
 
+def be_bough(kind):
+   kinds = {
+      "paragraphs",
+      "lines",
+      "rows",
+   }
+   return (kind in kinds)
+
+def be_stem(kind):
+   kinds = {
+      "paragraph",
+      "line",
+      "row",
+   }
+   return (kind in kinds)
+
+def be_frond(kind):
+   kinds = {
+      "phrase",
+      "verse",
+      "cell",
+   }
+   return (kind in kinds)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 

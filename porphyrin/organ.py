@@ -21,8 +21,10 @@ class Organ(object):
       self.rightmost = data.pop("rightmost", '')
       self.count_line = data.pop("count_line", 0)
       self.count_glyph = data.pop("count_glyph", 0)
+
+   def explain(self):
       if (hasattr(self, "KIND")):
-         print(f"Creating organ with source:", flush = True)
+         print(f"Writing {self.KIND} with source:", flush = True)
          fragments = self.source.split('\n')
          counts = []
          for count in range(len(fragments)):
@@ -340,7 +342,7 @@ class Leaf(Organ):
 
    def write_text(self, content):
       sink = ''
-      sink += AID.write_element(
+      sink += AID.write_element_leaf(
          content = content,
          tag = self.give_tag_text(),
          attributes = self.give_attributes_text(),
@@ -391,7 +393,7 @@ class Leaf(Organ):
       sink = ''
       if (self.OUTSIDE):
          content = "\\( " + content + " \\)"
-         sink = AID.write_element(
+         sink = AID.write_element_leaf(
             content = content,
             tag = tag,
             attributes = ["class"],

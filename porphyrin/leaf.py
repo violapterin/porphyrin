@@ -13,6 +13,7 @@ class Serif_roman(Leaf):
       self.address = ''
 
    def write(self):
+      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
@@ -27,6 +28,7 @@ class Serif_italic(Leaf):
       self.address = ''
 
    def write(self):
+      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
@@ -41,6 +43,7 @@ class Serif_bold(Leaf):
       self.address = ''
 
    def write(self):
+      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
@@ -55,6 +58,7 @@ class Sans_roman(Leaf):
       self.address = ''
 
    def write(self):
+      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
@@ -69,6 +73,7 @@ class Sans_bold(Leaf):
       self.address = ''
 
    def write(self):
+      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return content
@@ -83,6 +88,7 @@ class Mono(Leaf):
       self.address = ''
 
    def write(self):
+      self.explain()
       content = AID.tune_code(self.source)
       sink = self.write_text(content)
       return content
@@ -113,6 +119,7 @@ class Math(Leaf):
       head_left = 0
       head_right = 0
       interval = range(len(self.source))
+      self.explain()
       for head in interval:
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
@@ -132,6 +139,7 @@ class Pseudo(Leaf):
       sink = ''
       head_left = 0
       head_right = 0
+      self.explain()
       interval = range(len(self.source))
       for head in interval:
          tissue, head_right = self.snip_tissue_pseudo(head_left)
@@ -784,7 +792,7 @@ class Pseudo_sign(Leaf):
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
 
-      result = write_element(
+      result = write_element_leaf(
             content = sink,
             tag = self.TAG,
             attributes = ["class"],
@@ -805,13 +813,13 @@ class Pseudo_round(Leaf):
 
    def write(self):
       sink += '('
-      sink += write_element(
+      sink += write_element_leaf(
          content = self.level,
          tag = "sub",
       )
 
       sink += ')'
-      sink += write_element(
+      sink += write_element_leaf(
          content = self.level,
          tag = "sub",
       )

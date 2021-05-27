@@ -22,6 +22,7 @@ def make(folder_in, folder_out):
          )
          continue
       name_out = name_in.replace(extension_in, extension_out)
+      name_out = name_in.replace("in", "out")
       path_out = os.path.join(folder_out, name_out)
       '''
       if os.path.isfile(path_out):
