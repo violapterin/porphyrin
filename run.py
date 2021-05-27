@@ -23,11 +23,13 @@ def make(folder_in, folder_out):
          continue
       name_out = name_in.replace(extension_in, extension_out)
       path_out = os.path.join(folder_out, name_out)
+      '''
       if os.path.isfile(path_out):
          time_in = thing_in.stat().st_ctime
          time_out = os.path.getmtime(path_out)
          if time_in < time_out:
             continue
+      '''
       print(f"Trying to convert {path_in} to {path_out}:")
       convert(path_in, path_out) 
 

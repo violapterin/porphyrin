@@ -19,15 +19,16 @@ class Document(Stem):
    def parse(self):
       head = 0
       while (True):
+         head = self.move_right(0, head)
          if (head >= len(self.source)):
             break
-         head = self.move_right(0, head)
          bough, head = self.snip_bough(head)
          if bough:
-            sinks.append(bough)
+            self.sinks.append(bough)
 
    def write(self):
       content = ''
+      self.parse()
       for bough in self.sinks:
          content += bough.write()
       result = AID.write_element(
@@ -58,10 +59,10 @@ class Image(Stem):
       self.sink = None
 
    def parse(self):
-      self.escape_hypertext()
-      sinks.append(self.source)
+      address = AID.tune_hypertext(self.address)
 
    def write(self):
+      self.parse()
       result = AID.write_element(
          content = '',
          tag = self.TAG,
@@ -88,6 +89,7 @@ class Break(Stem):
 
    def write(self):
       content = ''
+      self.parse()
       for sink in self.sinks:
          content += sink + ' '
       result = AID.write_element(
@@ -121,6 +123,7 @@ class Paragraphs(Stem):
 
    def write(self):
       content = ' '
+      self.parse()
       for twig in self.sinks:
          content += twig.write() + ' '
       result = AID.write_element(
@@ -152,6 +155,7 @@ class Lines(Stem):
 
    def write(self):
       content = ' '
+      self.parse()
       for twig in self.sinks:
          content += twig.write() + ' '
       result = AID.write_element(
@@ -181,10 +185,11 @@ class Rows(Stem):
          head = self.move_right(0, head)
          twig, head = self.shatter_stem("newline", Row, head)
          if twig:
-            sinks.append(twig)
+            self.sinks.append(twig)
 
    def write(self):
       content = ' '
+      self.parse()
       twig_prefix = self.sinks.pop(0)
       content += AID.write_element(
          content = twig_prefix.write(),
@@ -237,6 +242,7 @@ class Paragraph(Stem):
 
    def write(self):
       content = ' '
+      self.parse()
       for frond in self.sinks:
          content += frond.write() + ' '
       result = AID.write_element(
@@ -268,6 +274,7 @@ class Line(Stem):
 
    def write(self):
       content = ' '
+      self.parse()
       for frond in self.sinks:
          content += frond.write() + ' '
       result = AID.write_element(
@@ -299,6 +306,7 @@ class Row(Stem):
 
    def write(self):
       content = ' '
+      self.parse()
       for frond in self.sinks:
          content += frond.write() + ' '
       result = AID.write_element(
@@ -340,6 +348,7 @@ class Phrase(Stem):
 
    def write(self):
       content = ' '
+      self.parse()
       for leaf in self.sinks:
          content += leaf.write() + ' '
       result = AID.write_element(
@@ -366,10 +375,12 @@ class Verse(Stem):
          if (head >= len(self.source)):
             break
          leaf, head = self.snip_leaf(head)
-         if leaf: self.sinks.append(leaf)
+         if leaf:
+            self.sinks.append(leaf)
 
    def write(self):
       content = ' '
+      self.parse()
       for leaf in self.sinks:
          content += leaf.write() + ' '
       result = AID.write_element(
@@ -396,10 +407,12 @@ class Cell(Stem):
          if (head >= len(self.source)):
             break
          leaf, head = self.snip_leaf(head)
-         if leaf: self.sinks.append(leaf)
+         if leaf:
+            self.sinks.append(leaf)
 
    def write(self):
       content = ' '
+      self.parse()
       for leaf in self.sinks:
          content += leaf.write() + ' '
       result = AID.write_element(

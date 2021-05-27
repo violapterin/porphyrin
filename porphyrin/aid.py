@@ -2,24 +2,24 @@ import os
 from pdb import set_trace
 
 def get_mark_right(mark_left):
-   label = get_label(mark_left[0])
-   considered = {"DEFINITION_LEFT", "COMMENT_LEFT"}
-   if (label not in considered):
+   assert (len(list(set(mark_left))) == 1)
+   tip_left = mark_left[0]
+   label_left = get_label(mark_left[0])
+   if not be_start_asymmetry(label_left):
+      mark_right = mark_left
       return mark_left
 
    mark_right = mark_left
-   if (label == "DEFINITION_LEFT"):
-      tip_left = get_tip("DEFINITION_LEFT")
+   if (label_left == "DEFINITION_LEFT"):
       tip_right = get_tip("DEFINITION_RIGHT")
-   if (label == "COMMENT_LEFT"):
-      tip_left = get_tip("COMMENT_LEFT")
+   elif (label_left == "COMMENT_LEFT"):
       tip_right = get_tip("COMMENT_RIGHT")
-   mark_right = mark_right.replace(tip_left, tip_right)
+   mark_right = mark_left.replace(tip_left, tip_right)
    return mark_right
 
 def write_element(**data):
-   assert("content" in data)
-   assert("tag" in data)
+   assert ("content" in data)
+   assert ("tag" in data)
    enter = ''
    if ('\n' in data["content"]): enter = '\n'
 
@@ -27,7 +27,7 @@ def write_element(**data):
    if ("attributes" in data):
       attributes = data["attributes"]
       values = data["values"]
-      assert(len(values) == len(attributes))
+      assert (len(values) == len(attributes))
       size = len(attributes)
       for index in range(size):
          sink += ' '
@@ -48,16 +48,16 @@ def give_labels():
       '\"': "ROWS",
       '|': "IMAGE",
       '`': "IDENITFIER",
+      '~': "BREAK",
       '<': "COMMENT_LEFT",
       '>': "COMMENT_RIGHT",
       '{': "DEFINITION_LEFT",
       '}': "DEFINITION_RIGHT",
-      '~': "BREAK",
       #
-      '@': "SERIF_NORMAL",
+      '@': "SERIF_ROMAN",
       '%': "SERIF_ITALIC",
       '#': "SERIF_BOLD",
-      '$': "SANS_NORMAL",
+      '$': "SANS_ROMAN",
       '&': "SANS_BOLD",
       '+': "mono",
       '*': "PSEUDO",
@@ -68,9 +68,9 @@ def give_labels():
    }
    return labels
 
-def give_tips(tip):
+def give_tips():
    labels = give_labels()
-   tips = {label: tip for tip, label in labels}
+   tips = {label: tip for tip, label in labels.items()}
    return tips
 
 def get_label(tip):
@@ -81,7 +81,7 @@ def get_label(tip):
 def get_tip(label):
    tips = give_tips()
    tip = tips.get(label)
-   return label
+   return tip
 
 def be_start_bough(label):
    labels = {
@@ -90,15 +90,16 @@ def be_start_bough(label):
       "ROWS",
       "IMAGE",
       "BREAK",
+      "COMMENT_LEFT",
    }
    return (label in labels)
 
 def be_start_leaf(label):
    labels = {
-      "SERIF_NORMAL",
+      "SERIF_ROMAN",
       "SERIF_ITALIC",
       "SERIF_BOLD",
-      "SANS_NORMAL",
+      "SANS_ROMAN",
       "SANS_BOLD",
       "MONO",
       "PSEUDO",
@@ -107,6 +108,13 @@ def be_start_leaf(label):
       "COMMENT_LEFT",
       "DEFINITION_LEFT",
       "IDENITFIER",
+   }
+   return (label in labels)
+
+def be_start_asymmetry(label):
+   labels = {
+      "DEFINITION_LEFT",
+      "COMMENT_LEFT",
    }
    return (label in labels)
 
@@ -125,14 +133,16 @@ def be_hollow_leaf(label):
    return (label in labels)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def tune_text(source):
    glyphs_space = set([' ', '\t', '\n'])
    glyphs_mark = set([])
-   glyphs_mark.add(get_tip("SERIF_NORMAL"))
+   glyphs_mark.add(get_tip("SERIF_ROMAN"))
    glyphs_mark.add(get_tip("SERIF_ITALIC"))
    glyphs_mark.add(get_tip("SERIF_BOLD"))
-   glyphs_mark.add(get_tip("SANS_NORMAL"))
+   glyphs_mark.add(get_tip("SANS_ROMAN"))
    glyphs_mark.add(get_tip("SANS_BOLD"))
    glyphs_mark.add(get_tip("COMMENT_LEFT"))
    glyphs_mark.add(get_tip("COMMENT_RIGHT"))
@@ -185,6 +195,8 @@ def replace_token(tokens_out, source):
       sink = sink.replace(token_in, tokens_out[token_in])
    return sink
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def write_latex(command, *items):
@@ -273,9 +285,9 @@ def give_labels_math():
    }
    return labels
 
-def give_tips_math(tip):
+def give_tips_math():
    labels = give_labels_math()
-   tips = {label: tip for tip, label in labels}
+   tips = {label: tip for tip, label in labels.items()}
    return tips
 
 def get_label_math(tip):
@@ -286,7 +298,7 @@ def get_label_math(tip):
 def get_tip_math(label):
    tips = give_tips_math()
    tip = tips.get(label)
-   return label
+   return tip
 
 def be_start_letter_math(label):
    labels = {
@@ -318,13 +330,14 @@ def be_start_box_math(label):
       "START_PAIR",
       "START_TRIPLET",
       "START_TUPLE",
-      "START_SERIF",
-      "START_SANS",
-      "START_MONO",
+      "SERIF",
+      "SANS",
+      "MONO",
+      "CHECK",
    }
    return (label in labels)
 
-def be_start_bracket_math(label):
+def be_start_asymmetry_math(label):
    labels = {
       "START_PAIR",
       "START_TRIPLET",
@@ -333,7 +346,6 @@ def be_start_bracket_math(label):
       "ORDER_LEFT",
    }
    return (label in labels)
-
 
 def be_start_accent_math(label):
    labels = {
@@ -350,38 +362,41 @@ def be_start_math(label):
    being = (be_start_symbol_math(label) or be_start_box_math(label))
    return being
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 def get_tip_right_math(tip_left):
-   assert(len(tip_left) == 1)
+   assert (len(tip_left) == 1)
    tip_right = ''
-   label = get_label_math(tip_left)
-   if (label == "START_ROUND"):
-      tip_right = get_tip_math("STOP_ROUND")
-   if (label == "START_SQUARE"):
-      tip_right = get_tip_math("STOP_SQUARE")
-   if (label == "START_CURLY"):
-      tip_right = get_tip_math("STOP_CURLY")
-   if (label == "ARROW_LEFT"):
-      tip_right = get_tip_math("ARROW_RIGHT")
-   if (label == "ORDER_LEFT"):
-      tip_right = get_tip_math("ORDER_RIGHT")
-   if (label in {"SERIF", "SANS", "MONO", "CHECK"}):
+   label_left = get_label_math(tip_left)
+   if not be_start_asymmetry(label_left):
       tip_right = tip_left
+      return tip_right
+   if (label_left == "START_PAIR"):
+      tip_right = get_tip_math("STOP_PAIR")
+   elif (label_left == "START_TRIPLET"):
+      tip_right = get_tip_math("STOP_TRIPLET")
+   elif (label_left == "START_TUPLE"):
+      tip_right = get_tip_math("STOP_TUPLE")
+   elif (label_left == "ARROW_LEFT"):
+      tip_right = get_tip_math("ARROW_RIGHT")
+   elif (label_left == "ORDER_LEFT"):
+      tip_right = get_tip_math("ORDER_RIGHT")
    return tip_right
 
 def get_tip_middle_math(tip_left):
-   assert(len(tip_left) == 1)
+   assert (len(tip_left) == 1)
    tip_middle = ''
-   label = get_label_math(tip_left)
-   if (label == "START_ROUND"):
-      tip_middle = get_tip_math("MIDDLE_ROUND")
-   if (label == "START_SQUARE"):
-      tip_middle = get_tip_math("MIDDLE_SQUARE")
-   if (label == "START_CURLY"):
-      tip_middle = get_tip_math("MIDDLE_CURLY")
-   if (label == "START_ANGLE"):
-      tip_middle = get_tip_math("MIDDLE_ANGLE")
+   label_left = get_label_math(tip_left)
+   if (label_left == "START_PAIR"):
+      tip_middle = get_tip_math("CUT_PAIR")
+   if (label_left == "START_TRIPLET"):
+      tip_middle = get_tip_math("CUT_TRIPLET")
+   if (label_left == "START_TUPLE"):
+      tip_middle = get_tip_math("CUT_TUPLE")
    return tip_middle
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def give_labels_pseudo():
@@ -416,18 +431,18 @@ def give_labels_pseudo():
       "START_CURLY": '{',
       "CUT_CURLY": '|',
       "STOP_CURLY": '}',
-      "START_COMMENT": '<',
-      "STOP_COMMENT": '>',
+      "START_REMARK": '<',
+      "STOP_REMARK": '>',
       "SERIF": '\"',
-      "SERIF": '\'',
-      "SERIF": '`',
-      "SANS": '_',
+      "SANS": '\'',
+      "MONO": '`',
+      "CHECK": '_',
    }
    return labels
 
-def give_tips_pseudo(tip):
+def give_tips_pseudo():
    labels = give_labels_pseudo()
-   tips = {label: tip for tip, label in labels}
+   tips = {label: tip for tip, label in labels.items()}
    return tips
 
 def get_label_pseudo(tip):
@@ -438,7 +453,7 @@ def get_label_pseudo(tip):
 def get_tip_pseudo(label):
    tips = give_tips_pseudo()
    tip = tips.get(label)
-   return label
+   return tip
 
 def be_start_letter_pseudo(label):
    labels = {
@@ -491,20 +506,27 @@ def be_start_pseudo(label):
    being = (be_start_symbol_pseudo(label) or be_start_box_pseudo(label))
    return being
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 def get_tip_right_pseudo(tip_left):
-   assert(len(tip_left) == 1)
-   label = get_label_pseudo(tip_left)
-   if (label == "START_ROUND"):
-      tip_right = get_tip_pseudo("STOP_ROUND")
-   if (label == "START_SQUARE"):
-      tip_right = get_tip_pseudo("STOP_SQUARE")
-   if (label == "START_CURLY"):
-      tip_right = get_tip_pseudo("STOP_CURLY")
-   if (label == "START_ANGLE"):
-      tip_right = get_tip_pseudo("STOP_ANGLE")
-   if (label == "QUOTE_SINGLE"):
+   assert (len(tip_left) == 1)
+   label_left = get_label_pseudo(tip_left)
+   tip_right = ''
+   if not be_start_asymmetry(label_left):
       tip_right = tip_left
-   if (label == "QUOTE_DOUBLE"):
+      return tip_right
+
+   if (label_left == "START_ROUND"):
+      tip_right = get_tip_pseudo("STOP_ROUND")
+   elif (label_left == "START_SQUARE"):
+      tip_right = get_tip_pseudo("STOP_SQUARE")
+   elif (label_left == "START_CURLY"):
+      tip_right = get_tip_pseudo("STOP_CURLY")
+   elif (label_left == "START_ANGLE"):
+      tip_right = get_tip_pseudo("STOP_ANGLE")
+   elif (label_left == "QUOTE_SINGLE"):
+      tip_right = tip_left
+   elif (label_left == "QUOTE_DOUBLE"):
       tip_right = tip_left
    return tip_right
 

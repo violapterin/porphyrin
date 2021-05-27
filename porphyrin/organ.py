@@ -16,20 +16,22 @@ class Organ(object):
       self.fill_basic(**data)
    
    def fill_basic(self, **data):
-      self.source = data.pop("source", '')
+      self.source = data.pop("source", '').rstrip(" \n\t")
       self.leftmost = data.pop("leftmost", '')
       self.rightmost = data.pop("rightmost", '')
       self.count_line = data.pop("count_line", 0)
       self.count_glyph = data.pop("count_glyph", 0)
       if (hasattr(self, "KIND")):
-         print(f"Creating an organ with source:", flush = True)
+         print(f"Creating organ with source:", flush = True)
          fragments = self.source.split('\n')
          counts = []
          for count in range(len(fragments)):
             if (abs(count) < 3) or (abs(count - len(fragments)) < 3):
                counts.append(count)
+         color_default = "\033[0m"
+         color_yellow = "\033[93m"
          for count in counts:
-            print(">>", fragments[count])
+            print(">>", color_yellow, fragments[count], color_default)
 
    def give_data(self, head_left, head_right):
       data = {
@@ -183,20 +185,20 @@ class Stem(Organ):
    # `probe_left`, `content`, `probe_right`,
    # `mark_right`, `head_right`
    def snip_bough(self, head_left):
-      from .organ import Stem as STEM
+      from . import stem as STEM
       bough = None
-      head_left = 0
+      head_right = 0
       probe_left = 0
       probe_right = 0
-      mark_right = 0
-      mark_left = self.probe_mark(head_left).rstrip()
+      mark_left = self.probe_mark(head_left).rstrip(" \n\t")
       mark_right = AID.get_mark_right(mark_left)
       label = AID.get_label(mark_left[0])
 
       if (label == "BREAK"):
          head_right = self.move_right(len(mark_left), head_left)
          data = self.give_data(head_left, head_left)
-         bough = STEM.Break(**data)
+         from .stem import Break as creator
+         bough = creator(**data)
          return bough, head_right
 
       head_right = self.find_greedy(mark_left, mark_right, head_left)
@@ -207,13 +209,13 @@ class Stem(Organ):
       data = self.give_data(head_left, probe_left)
       if not AID.be_start_bough(label):
          from .caution import Allowing_only_bough as creator
-         creator(**data).panic
+         creator(**data).panic()
       elif (probe_right > len(self.source)):
          from .caution import Not_matching_mark_bough as creator
-         creator(**data).panic
+         creator(**data).panic()
       elif (AID.be_start_macro(label) and self.expanded):
          from .caution import Macro_not_gathered as creator
-         creator(**data).panic
+         creator(**data).panic()
 
       if (label == "INSTRUCTION"):
          self.instructions.append(content)
@@ -248,17 +250,16 @@ class Stem(Organ):
    # `probe_left`, `content`, `probe_right`,
    # `mark_right`, `head_right`
    def snip_leaf(self, head_left):
-      from .organ import Leaf as LEAF
+      from . import leaf as LEAF
       leaf = None
-      head_left = 0
+      head_right = 0
       probe_left = 0
       probe_right = 0
-      mark_right = 0
-      mark_left = probe_mark(head_left)
+      mark_left = self.probe_mark(head_left).rstrip(" \n\t")
       mark_right = AID.get_mark_right(mark_left)
       label = AID.get_label(mark_left[0])
 
-      if (label in AID.be_hollow_leaf(label)):
+      if AID.be_hollow_leaf(label):
          head_right = self.move_right(len(mark_left), head_left)
          data = self.give_data(head_left, head_right)
          if (label == "SPACE"):
@@ -276,10 +277,10 @@ class Stem(Organ):
       data = self.give_data(head_left, probe_left)
       if (probe_right > len(self.source)):
          from .caution import Not_matching_mark_leaf as creator
-         creator(**data).panic
-      if not self.be_start_leaf(label):
+         creator(**data).panic()
+      if not AID.be_start_leaf(label):
          from .caution import Allowing_only_leaf as creator
-         creator(**data).panic
+         creator(**data).panic()
 
       if (label == "LINK"):
          data = self.give_data(probe_left, probe_right)
@@ -291,17 +292,17 @@ class Stem(Organ):
             return None, head_right
          else:
             from .caution import Disallowing_link as creator
-            creator(**data).panic
+            creator(**data).panic()
 
       data = self.give_data(probe_left, probe_right)
-      if (label == "SERIF_NORMAL"):
-         leaf = LEAF.Serif_normal(**data)
+      if (label == "SERIF_ROMAN"):
+         leaf = LEAF.Serif_roman(**data)
       if (label == "SERIF_ITALIC"):
          leaf = LEAF.Serif_italic(**data)
       if (label == "SERIF_BOLD"):
          leaf = LEAF.Serif_bold(**data)
-      if (label == "SANS_NORMAL"):
-         leaf = LEAF.Sans_normal(**data)
+      if (label == "SANS_ROMAN"):
+         leaf = LEAF.Sans_roman(**data)
       if (label == "SANS_BOLD"):
          leaf = LEAF.Sans_bold(**data)
       if (label == "MONO"):
@@ -318,8 +319,11 @@ class Stem(Organ):
       branch = None
       head_right = head_left
       head_middle = head_left
-      while head_right < len(self.source):
+      while head_right <= len(self.source):
          head_middle = head_right
+         if (head_right >= len(self.source)):
+            break
+         head_right = self.move_right(0, head_right)
          leaf, head_right = self.snip_leaf(head_right)
          if (leaf.KIND == kind_stop):
             break
@@ -336,7 +340,7 @@ class Leaf(Organ):
 
    def write_text(self, content):
       sink = ''
-      sink += write_element(
+      sink += AID.write_element(
          content = content,
          tag = self.give_tag_text(),
          attributes = self.give_attributes_text(),
@@ -345,23 +349,24 @@ class Leaf(Organ):
       return sink
 
    def give_tag_text(self):
-      assert(hasattr(self, "address"))
-      assert(hasattr(self, "TAG_PLAIN"))
+      assert (hasattr(self, "address"))
+      assert (hasattr(self, "TAG_PLAIN"))
       if self.address:
          tag = self.TAG_PLAIN
       else:
          tag = 'a'
+      return tag
 
    def give_attributes_text(self):
-      assert(hasattr(self, "address"))
+      assert (hasattr(self, "address"))
       attributes = ["class"]
       if self.address:
          attributes.append("href")
       return attributes
 
    def give_values_text(self):
-      assert(hasattr(self, "KIND"))
-      assert(hasattr(self, "address"))
+      assert (hasattr(self, "KIND"))
+      assert (hasattr(self, "address"))
       values = [self.KIND]
       if self.address:
          values.append(self.address)
@@ -380,13 +385,13 @@ class Leaf(Organ):
       return sink
 
    def write_math_outside(self, content):
-      assert(hasattr(self, "OUTSIDE"))
+      assert (hasattr(self, "OUTSIDE"))
       kind = "math"
       tag = "span"
       sink = ''
       if (self.OUTSIDE):
          content = "\\( " + content + " \\)"
-         sink = write_element(
+         sink = AID.write_element(
             content = content,
             tag = tag,
             attributes = ["class"],
@@ -399,7 +404,7 @@ class Leaf(Organ):
    # # # # # # # # # # # # # # # #
 
    def snip_tissue_math(self, head_left):
-      from .organ import Tissue as TISSUE
+      from . import tissue as TISSUE
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
@@ -407,13 +412,13 @@ class Leaf(Organ):
       if not AID.be_start_math(label_left):
          data = self.give_data(head_left, head_right)
          from .caution import Not_being_valid_symbol as creator
-         creator(**data).panic
+         creator(**data).panic()
 
       if (label_left == "PLAIN"):
          probe_left = self.move_right(1, head_left)
          tip_left = self.source[probe_left]
          label_left = AID.get_label_math(tip_left)
-         if not AID.be_bracket_math(label_left):
+         if not AID.be_start_asymmetry_math(label_left):
             head_right = self.move_right(1, probe_left)
             data = self.give_data(head_left, head_right)
             tissue = TISSUE.Math_plain(**data)
@@ -445,7 +450,7 @@ class Leaf(Organ):
          if (head_right > len(self.source)):
             data = self.give_data(head_left, len(self.source))
             from .caution import Not_being_valid_symbol as creator
-            creator(**data).panic
+            creator(**data).panic()
          data = self.give_data(head_left, head_right)
          if (AID.be_letter_math(label_left)):
             tissue = TISSUE.Math_letter(**data)
@@ -454,7 +459,7 @@ class Leaf(Organ):
          return tissue, head_right
       return tissue, head_right
 
-      assert(AID.be_start_box_math(label_left))
+      assert (AID.be_start_box_math(label_left))
       data = give_data(probe_left, probe_right)
       if (label_left == "PAIR_LEFT"):
          tissue = TISSUE.Math_pair(**data)
@@ -475,7 +480,7 @@ class Leaf(Organ):
    # # # # # # # # # # # # # # # #
 
    def snip_tissue_pseudo(self, head_left):
-      from .organ import Tissue as TISSUE
+      from . import tissue as TISSUE
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
@@ -483,14 +488,14 @@ class Leaf(Organ):
       if not AID.be_start_pseudo(label_left):
          data = self.give_data(head_left, head_right)
          from .caution import Not_being_valid_symbol as creator
-         creator(**data).panic
+         creator(**data).panic()
 
       if (AID.be_start_symbol_pseudo(label_left)):
          head_right = self.move_right(2, head_left)
          if (head_right > len(self.source)):
             data = self.give_data(head_left, len(self.source))
             from .caution import Not_being_valid_symbol as creator
-            creator(**data).panic
+            creator(**data).panic()
          data = self.give_data(head_left, head_right)
          if (AID.be_letter_pseudo(label_left)):
             from .tissue import Pseudo_letter as creator
@@ -508,13 +513,13 @@ class Leaf(Organ):
          probe_right = self.move_left(-1, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left == "START_ROUND"):
-            tissue = TISSUE.Pseudo_round(**data)
+            tissue = TISSUE.Pseudo_bracket_round(**data)
          if (label_left == "START_SQUARE"):
-            tissue = TISSUE.Pseudo_square(**data)
+            tissue = TISSUE.Pseudo_bracket_square(**data)
          if (label_left == "START_CURLY"):
-            tissue = TISSUE.Pseudo_curly(**data)
-         if (label_left == "START_COMMENT"):
-            tissue = TISSUE.Pseudo_curly(**data)
+            tissue = TISSUE.Pseudo_bracket_curly(**data)
+         if (label_left == "START_REMARK"):
+            tissue = TISSUE.Pseudo_remark(**data)
          if (label_left == "SERIF"):
             tissue = TISSUE.Pseudo_serif(**data)
          if (label_left == "SANS"):
@@ -541,19 +546,20 @@ class Caution(Organ):
       raise SystemExit()
 
    def warn(self):
-      color_stress = "\033[93m"
-      color_normal = "\033[0m"
+      color_default = "\033[0m"
+      color_yellow = "\033[93m"
+      color_red = "\033[91m"
       print(
          f"At line {self.count_line},",
          f"character {self.count_glyph}:"
       )
       print(
-         ">> \t", self.leftmost,
-         color_stress, self.source,
-         color_normal, self.rightmost, '\n'
+         ">> \t", color_yellow, self.leftmost, color_default,
+         color_red, self.source, color_default,
+         color_yellow, self.rightmost, color_default,
       )
       print(
-         self.message_left,
-         color_stress, self.source,
-         color_normal, self.message_right
+         color_yellow, self.message_left, color_default,
+         color_red, self.source, color_default,
+         color_yellow, self.message_right, color_default,
       )

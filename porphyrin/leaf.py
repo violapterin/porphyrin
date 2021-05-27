@@ -269,7 +269,7 @@ class Math_plain(Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      assert(len(self.source) == 2)
+      assert (len(self.source) == 2)
       content = ''
       sign = ''
       tip = self.source[0]
@@ -315,7 +315,7 @@ class Math_plain(Leaf):
       if not sign:
          data = self.give_data(0, len(self.source))
          from .caution import Not_being_valid_symbol as creator
-         creator(**data).panic
+         creator(**data).panic()
       sink = write_math_outside(self, sign)
 
       labels_not_lateral = {
@@ -409,7 +409,7 @@ class Math_letter(Leaf):
       if not letter:
          data = self.give_data(0, len(self.source))
          from .caution import Not_being_valid_symbol as creator
-         creator(**data).panic
+         creator(**data).panic()
       if self.accent:
          letter_accent = AID.write_latex(self.accent, letter)
       else:
@@ -430,7 +430,7 @@ class Math_sign(Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      assert(len(self.source) == 2)
+      assert (len(self.source) == 2)
       content = ''
       sign = ''
       signs = ()
@@ -534,7 +534,7 @@ class Math_sign(Leaf):
       if not sign:
          data = self.give_data(0, len(self.source))
          from .caution import Not_being_valid_symbol as creator
-         creator(**data).panic
+         creator(**data).panic()
       sink = write_math_outside(self, sign)
       return sink
 
@@ -566,7 +566,7 @@ class Math_pair(Leaf):
             box = Math_box(self.source[head_left: head_right])
             boxes.append(box)
             head_left = head_right
-      assert(len(boxes) == 2)
+      assert (len(boxes) == 2)
       top, bottom = boxes
 
       sink_top = top.write()
@@ -599,7 +599,7 @@ class Math_triplet(Leaf):
             box = Math_box(self.source[head_left: head_right])
             boxes.append(box)
             head_left = head_right
-      assert(len(boxes) == 3)
+      assert (len(boxes) == 3)
       box_top, box_main, box_bottom = boxes
       top = top.write()
       main = main.write()
@@ -668,7 +668,7 @@ class Math_serif(Leaf):
       if not isalnum(self.source):
          data = self.give_data()
          from .caution import Allowing_only_alphabets as creator
-         creator(**data).panic
+         creator(**data).panic()
       sink = AID.write_latex(command, self.source)
       return sink
 
@@ -688,7 +688,7 @@ class Math_sans(Leaf):
       if not isalnum(self.source):
          data = self.give_data()
          from .caution import Allowing_only_alphabets as creator
-         creator(**data).panic
+         creator(**data).panic()
       sink = AID.write_latex(command, self.source)
       return sink
 
@@ -708,7 +708,7 @@ class Math_mono(Leaf):
       if not isalnum(self.source):
          data = self.give_data()
          from .caution import Allowing_only_alphabets as creator
-         creator(**data).panic
+         creator(**data).panic()
       sink = AID.write_latex(command, self.source)
       return sink
 
@@ -775,14 +775,14 @@ class Pseudo_sign(Leaf):
       # # み し ゑ ひ も
       # # ... ...
 
-      assert(len(self.source) == 2)
+      assert (len(self.source) == 2)
       tip = self.source[0]
       tail = self.source[1]
       sink = symbols.get(tip).get(tail)
       if not sink:
          data = self.give_data()
          from .caution import Not_being_valid_symbol as creator
-         creator(**data).panic
+         creator(**data).panic()
 
       result = write_element(
             content = sink,
