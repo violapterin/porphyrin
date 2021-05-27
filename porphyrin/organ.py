@@ -41,34 +41,68 @@ class Organ(object):
       }
       return data
 
-   def move(self, size, head_left):
-      head_right = head_left
-      if (size == 0):
-         interval = range(len(self.source) + 1)
-         while (head_right in interval):
-            whitespaces = {' ', '\t', '\n'}
-            if (self.source[head_right] in whitespaces):
-               head_right += 1
-            else:
-               break
-         return head_right
+   def confine_head(self, head):
+      probe = head
+      size = len(self.source)
+      if (probe > size):
+         probe = size
+      if (probe < 0):
+         probe = 0
+      return probe
 
-      positive = False
-      if (size > 0):
-         positive = True
-      for _ in range(abs(size)):
-         interval = range(len(self.source) + 1)
-         while (head_right in interval):
-            whitespaces = {' ', '\t', '\n'}
-            if (positive):
-               head_right += 1
+   def move_left(self, step, head):
+      assert (step >= 0)
+      probe = head
+      whitespaces = {' ', '\t', '\n'}
+      size = len(self.source)
+      interval = range(len(self.source) + 1)
+      probe = self.confine_head(probe)
+      if (probe == 0):
+         return 0
+
+      if (step == 0):
+         while (probe in interval):
+            if (self.source[probe] in whitespaces):
+               probe -= 1
             else:
-               head_right -= 1
-            if (self.source[head_right] not in whitespaces):
                break
-      if (head_right >= len(self.source)):
-         head_right = len(self.source)
-      return head_right
+         return probe
+      else:
+         for _ in range(step):
+            while (probe in interval):
+               probe -= 1
+               tip = self.source[probe]
+               if (tip not in whitespaces):
+                  break
+      probe = self.confine_head(probe)
+      return probe
+
+   def move_right(self, step, head):
+      assert (step >= 0)
+      probe = head
+      whitespaces = {' ', '\t', '\n'}
+      size = len(self.source)
+      interval = range(len(self.source) + 1)
+      probe = self.confine_head(probe)
+      if (probe == size):
+         return size
+
+      if (step == 0):
+         while (probe in interval):
+            if (self.source[probe] in whitespaces):
+               probe += 1
+            else:
+               break
+         return probe
+      else:
+         for _ in range(step):
+            while (probe in interval):
+               probe += 1
+               tip = self.source[probe]
+               if (tip not in whitespaces):
+                  break
+      probe = self.confine_head(probe)
+      return probe
 
    def find_greedy(self, mark_left, mark_right, head_left):
       fragment = self.source[head_left:]
@@ -79,7 +113,7 @@ class Organ(object):
       return head_right
 
    def find_balanced(self, mark_left, mark_right, head_left):
-      probe_left = self.move(len(mark_left), head_left)
+      probe_left = self.move_right(len(mark_left), head_left)
       probe_right = probe_left
       token = self.source[head_left: head_left + len(mark_left)]
       if not (token == mark_left):
@@ -93,7 +127,7 @@ class Organ(object):
             count += 1
          if (mark_probe == mark_right):
             count -= 1
-         head_right = self.move(1, head_right)
+         head_right = self.move_right(1, head_right)
          if (count == 0):
             break
       return head_right
@@ -106,7 +140,7 @@ class Organ(object):
       while (head_right in interval):
          if not (self.source[head_right] == tip):
             break
-         head_right = self.move(1, head_right)
+         head_right = self.move_right(1, head_right)
       mark_left = self.source[head_left: head_right]
       return mark_left
 
@@ -160,33 +194,26 @@ class Stem(Organ):
       label = AID.get_label(mark_left[0])
 
       if (label == "BREAK"):
-         head_right = self.move(len(mark_left), head_left)
+         head_right = self.move_right(len(mark_left), head_left)
          data = self.give_data(head_left, head_left)
          bough = STEM.Break(**data)
          return bough, head_right
 
       head_right = self.find_greedy(mark_left, mark_right, head_left)
-      probe_left = self.move(len(mark_left), head_left)
-      probe_right = self.move(- len(mark_right) - 1, head_right) + 1
+      probe_left = self.move_right(len(mark_left), head_left)
+      probe_right = self.move_left(len(mark_right) + 1, head_right) + 1
       content = self.source[probe_left: probe_right]
-      print("head_left:", head_left)
-      print("head_right:", head_right)
-      print("probe_left:", probe_left)
-      print("probe_right:", probe_right)
 
       data = self.give_data(head_left, probe_left)
       if not AID.be_start_bough(label):
-         from .caution import Allowing_only_bough
-         caution = Allowing_only_bough(**data)
-         caution.panic()
+         from .caution import Allowing_only_bough as creator
+         creator(**data).panic
       elif (probe_right > len(self.source)):
-         from .caution import Not_matching_mark_bough
-         caution = Not_matching_mark_bough(**data)
-         caution.panic()
+         from .caution import Not_matching_mark_bough as creator
+         creator(**data).panic
       elif (AID.be_start_macro(label) and self.expanded):
-         from .caution import Macro_not_gathered
-         caution = Macro_not_gathered(**data)
-         caution.panic()
+         from .caution import Macro_not_gathered as creator
+         creator(**data).panic
 
       if (label == "INSTRUCTION"):
          self.instructions.append(content)
@@ -200,11 +227,11 @@ class Stem(Organ):
          return None, 0
 
       data = self.give_data(probe_left, probe_right)
-      if (label == "SECTION"):
+      if (label == "PARAGRAPHS"):
          bough = STEM.Paragraphs(**data)
-      if (label == "STANZA"):
+      if (label == "LINES"):
          bough = STEM.Lines(**data)
-      if (label == "TABLE"):
+      if (label == "ROWS"):
          bough = STEM.Rows(**data)
       if (label == "IMAGE"):
          bough = STEM.Image(**data)
@@ -232,7 +259,7 @@ class Stem(Organ):
       label = AID.get_label(mark_left[0])
 
       if (label in AID.be_hollow_leaf(label)):
-         head_right = self.move(len(mark_left), head_left)
+         head_right = self.move_right(len(mark_left), head_left)
          data = self.give_data(head_left, head_right)
          if (label == "SPACE"):
             leaf = LEAF.Space(**data)
@@ -242,23 +269,17 @@ class Stem(Organ):
             return leaf, head_right
 
       head_right = self.find_greedy(mark_left, mark_right, head_left)
-      probe_left = self.move(len(mark_left), head_left)
-      probe_right = self.move(- len(mark_right) - 1, head_right) + 1
+      probe_left = self.move_right(len(mark_left), head_left)
+      probe_right = self.move_left(len(mark_right) + 1, head_right) + 1
       content = self.source[probe_left: probe_right]
-      # print("head_left:", head_left)
-      # print("head_right:", head_right)
-      # print("probe_left:", probe_left)
-      # print("probe_right:", probe_right)
 
       data = self.give_data(head_left, probe_left)
       if (probe_right > len(self.source)):
-         from .caution import Not_matching_mark_leaf
-         caution = Not_matching_mark_leaf(**data)
-         caution.panic()
+         from .caution import Not_matching_mark_leaf as creator
+         creator(**data).panic
       if not self.be_start_leaf(label):
-         from .caution import Allowing_only_leaf
-         caution = Allowing_only_leaf(**data)
-         caution.panic()
+         from .caution import Allowing_only_leaf as creator
+         creator(**data).panic
 
       if (label == "LINK"):
          data = self.give_data(probe_left, probe_right)
@@ -269,9 +290,8 @@ class Stem(Organ):
             self.sinks[-1].address = self.tune_hypertext(content)
             return None, head_right
          else:
-            from .caution import Disallowing_link
-            caution = Disallowing_link(**data)
-            caution.panic()
+            from .caution import Disallowing_link as creator
+            creator(**data).panic
 
       data = self.give_data(probe_left, probe_right)
       if (label == "SERIF_NORMAL"):
@@ -294,7 +314,7 @@ class Stem(Organ):
          leaf = None
       return leaf, head_right
 
-   def shatter_stem(self, kind_stop, constructor, head_left):
+   def shatter_stem(self, kind_stop, creator, head_left):
       branch = None
       head_right = head_left
       head_middle = head_left
@@ -305,7 +325,7 @@ class Stem(Organ):
             break
          head_middle = head_right
       data = self.give_data(head_left, head_middle)
-      branch = constructor(**data)
+      branch = creator(**data)
       return branch, head_right
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -350,7 +370,7 @@ class Leaf(Organ):
    def write_math_bracket(self, mark_left, mark_right):
       sink = ''
       content = ''
-      head = self.move_beginning()
+      head = self.move_right(0)
       content += mark_left
       while (head < len(self.source)):
          tissue, head = self.snip_tissue_math(head)
@@ -383,27 +403,26 @@ class Leaf(Organ):
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
-      head_right = self.move(1, head_left)
+      head_right = self.move_right(1, head_left)
       if not AID.be_start_math(label_left):
          data = self.give_data(head_left, head_right)
-         from .caution import Not_being_valid_symbol
-         caution = Not_being_valid_symbol(**data)
-         caution.panic()
+         from .caution import Not_being_valid_symbol as creator
+         creator(**data).panic
 
       if (label_left == "PLAIN"):
-         probe_left = self.move(1, head_left)
+         probe_left = self.move_right(1, head_left)
          tip_left = self.source[probe_left]
          label_left = AID.get_label_math(tip_left)
          if not AID.be_bracket_math(label_left):
-            head_right = self.move(1, probe_left)
+            head_right = self.move_right(1, probe_left)
             data = self.give_data(head_left, head_right)
             tissue = TISSUE.Math_plain(**data)
             return tissue, head_right
 
          tip_right = AID.get_tip_right_math(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, probe_left)
-         probe_left = self.move(1, probe_left)
-         probe_right = self.move(-2, head_right)
+         probe_left = self.move_right(1, probe_left)
+         probe_right = self.move_left(2, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left == "START_PAIR"):
             tissue = TISSUE.Math_bracket_round(**data)
@@ -418,16 +437,15 @@ class Leaf(Organ):
          return tissue, head_right
 
       if (AID.be_start_symbol_math(label_left)):
-         head_right = self.move(2, head_left)
+         head_right = self.move_right(2, head_left)
          tip_right = self.source[head_right]
          label_right = AID.get_label_math(tip_right)
          if (AID.be_accent_math(label_right)):
-            head_right = self.move(2, head_right)
+            head_right = self.move_right(2, head_right)
          if (head_right > len(self.source)):
             data = self.give_data(head_left, len(self.source))
-            from .caution import Not_being_valid_symbol
-            caution = Not_being_valid_symbol(**data)
-            caution.panic()
+            from .caution import Not_being_valid_symbol as creator
+            creator(**data).panic
          data = self.give_data(head_left, head_right)
          if (AID.be_letter_math(label_left)):
             tissue = TISSUE.Math_letter(**data)
@@ -461,33 +479,33 @@ class Leaf(Organ):
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
-      head_right = self.move(1, head_left)
+      head_right = self.move_right(1, head_left)
       if not AID.be_start_pseudo(label_left):
          data = self.give_data(head_left, head_right)
-         from .caution import Not_being_valid_symbol
-         caution = Not_being_valid_symbol(**data)
-         caution.panic()
+         from .caution import Not_being_valid_symbol as creator
+         creator(**data).panic
 
       if (AID.be_start_symbol_pseudo(label_left)):
-         head_right = self.move(2, head_left)
+         head_right = self.move_right(2, head_left)
          if (head_right > len(self.source)):
             data = self.give_data(head_left, len(self.source))
-            from .caution import Not_being_valid_symbol
-            caution = Not_being_valid_symbol(**data)
-            caution.panic()
+            from .caution import Not_being_valid_symbol as creator
+            creator(**data).panic
          data = self.give_data(head_left, head_right)
          if (AID.be_letter_pseudo(label_left)):
-            tissue = TISSUE.Pseudo_letter(**data)
+            from .tissue import Pseudo_letter as creator
+            tissue = creator(**data)
          elif (AID.be_sign_pseudo(label_left)):
-            tissue = TISSUE.Pseudo_letter(**data)
+            from .tissue import Pseudo_sign as creator
+            tissue = creator(**data)
          return tissue, head_right
 
       if (AID.be_start_bracket_pseudo(label_left)):
          tip_left = self.source[head_left]
          tip_right = AID.get_tip_right_pseudo(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, head_left)
-         probe_left = self.move(1, head_left)
-         probe_right = self.move(-1, head_right)
+         probe_left = self.move_right(1, head_left)
+         probe_right = self.move_left(-1, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left == "START_ROUND"):
             tissue = TISSUE.Pseudo_round(**data)

@@ -154,7 +154,7 @@ class Math_box(Leaf):
       sink = ''
       tissue = None
       count = 0
-      head = self.move_beginning()
+      head = self.move_right(0)
       interval = range(len(self.source))
       for head in interval:
          tissue, head = self.snip_tissue_math(head)
@@ -181,7 +181,7 @@ class Math_bracket_round(Leaf):
       content = ''
       mark_left = "\\left("
       mark_right = "\\right("
-      head = self.move_beginning()
+      head = self.move_right(0)
       content += mark_left
       interval = range(len(self.source))
       for head in interval:
@@ -314,9 +314,8 @@ class Math_plain(Leaf):
 
       if not sign:
          data = self.give_data(0, len(self.source))
-         from .caution import Not_being_valid_symbol
-         caution = Not_being_valid_symbol(**data)
-         caution.panic()
+         from .caution import Not_being_valid_symbol as creator
+         creator(**data).panic
       sink = write_math_outside(self, sign)
 
       labels_not_lateral = {
@@ -409,9 +408,8 @@ class Math_letter(Leaf):
 
       if not letter:
          data = self.give_data(0, len(self.source))
-         from .caution import Not_being_valid_symbol
-         caution = Not_being_valid_symbol(**data)
-         caution.panic()
+         from .caution import Not_being_valid_symbol as creator
+         creator(**data).panic
       if self.accent:
          letter_accent = AID.write_latex(self.accent, letter)
       else:
@@ -535,8 +533,8 @@ class Math_sign(Leaf):
          sign = table_sign.get(tail)
       if not sign:
          data = self.give_data(0, len(self.source))
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
+         from .caution import Not_being_valid_symbol as creator
+         creator(**data).panic
       sink = write_math_outside(self, sign)
       return sink
 
@@ -669,8 +667,8 @@ class Math_serif(Leaf):
       command = "\\mathrm"
       if not isalnum(self.source):
          data = self.give_data()
-         caution = CAUTION.Allowing_only_alphabets(**data)
-         caution.panic()
+         from .caution import Allowing_only_alphabets as creator
+         creator(**data).panic
       sink = AID.write_latex(command, self.source)
       return sink
 
@@ -689,8 +687,8 @@ class Math_sans(Leaf):
       command = "\\mathsf"
       if not isalnum(self.source):
          data = self.give_data()
-         caution = CAUTION.Allowing_only_alphabets(**data)
-         caution.panic()
+         from .caution import Allowing_only_alphabets as creator
+         creator(**data).panic
       sink = AID.write_latex(command, self.source)
       return sink
 
@@ -709,8 +707,8 @@ class Math_mono(Leaf):
       command = "\\mathtt"
       if not isalnum(self.source):
          data = self.give_data()
-         caution = CAUTION.Allowing_only_alphabets(**data)
-         caution.panic()
+         from .caution import Allowing_only_alphabets as creator
+         creator(**data).panic
       sink = AID.write_latex(command, self.source)
       return sink
 
@@ -783,8 +781,8 @@ class Pseudo_sign(Leaf):
       sink = symbols.get(tip).get(tail)
       if not sink:
          data = self.give_data()
-         caution = CAUTION.Not_being_valid_symbol(**data)
-         caution.panic()
+         from .caution import Not_being_valid_symbol as creator
+         creator(**data).panic
 
       result = write_element(
             content = sink,

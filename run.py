@@ -6,26 +6,29 @@ import porphyrin.stem as STEM
 import porphyrin.aid as AID
 
 def make(folder_in, folder_out):
-   extension = ".ppr"
+   extension_in = ".ppr"
+   extension_out = ".txt"
    things_in = os.scandir(folder_in)
    for thing_in in things_in:
       name_in = thing_in.name
       path_in = os.path.join(folder_in, name_in)
       if not thing_in.is_file():
-         print("Warning: ", name_in, " is not a file.")
+         print(f"Warning: {name_in} is not a file.")
          continue
-      if not path_in.endswith(extension):
+      if not path_in.endswith(extension_in):
          print(
-            "Warning: file ", name_in,
-            " does not end in \"", extension, "\".",
+            f"Warning: file {name_in}",
+            f"does not end in \"{extension_in}\".",
          )
          continue
-      path_out = os.path.join(folder_out, path_in)
+      name_out = name_in.replace(extension_in, extension_out)
+      path_out = os.path.join(folder_out, name_out)
       if os.path.isfile(path_out):
          time_in = thing_in.stat().st_ctime
          time_out = os.path.getmtime(path_out)
          if time_in < time_out:
             continue
+      print(f"Trying to convert {path_in} to {path_out}:")
       convert(path_in, path_out) 
 
 def convert(path_in, path_out):

@@ -1,4 +1,5 @@
 import os
+from pdb import set_trace
 
 def get_mark_right(mark_left):
    label = get_label(mark_left[0])
@@ -42,16 +43,6 @@ def write_element(**data):
 
 def give_labels():
    labels = {
-      '@': "SERIF_NORMAL",
-      '%': "SERIF_ITALIC",
-      '#': "SERIF_BOLD",
-      '$': "SANS_NORMAL",
-      '&': "SANS_BOLD",
-      '+': "mono",
-      '*': "PSEUDO",
-      '^': "MATH",
-      '\\': "LINK",
-      #
       '=': "PARAGRAPHS",
       '/': "LINES",
       '\"': "ROWS",
@@ -61,8 +52,17 @@ def give_labels():
       '>': "COMMENT_RIGHT",
       '{': "DEFINITION_LEFT",
       '}': "DEFINITION_RIGHT",
-      #
       '~': "BREAK",
+      #
+      '@': "SERIF_NORMAL",
+      '%': "SERIF_ITALIC",
+      '#': "SERIF_BOLD",
+      '$': "SANS_NORMAL",
+      '&': "SANS_BOLD",
+      '+': "mono",
+      '*': "PSEUDO",
+      '^': "MATH",
+      '\\': "LINK",
       '_': "SPACE",
       '\'': "NEWLINE",
    }

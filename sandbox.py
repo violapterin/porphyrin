@@ -5,20 +5,13 @@ import porphyrin.stem as STEM
 import porphyrin.leaf as LEAF
 import porphyrin.aid as AID
 
-class Flower(object):
-   def __init__(self, color):
-      self.color = color
-   
-   class Leaf(object):
-   
-
-''
 class Cat():
    KIND = "cat"
    def __init__(self, color):
       self.color = color
    def call(self):
       print("meow")
+      print(f"I am a {self.color} cat.")
    def copy(self):
       return Cat(self.color)
 
@@ -28,10 +21,6 @@ class Dog():
       self.color = color
    def call(self):
       print("bark")
+      print(f"I am a {self.color} dog.")
 
-class Bird():
-   def __init__(self, **args):
-      self.a = args.pop("a", 0)
-      self.b = args.pop("b", 0)
-'''
-
+Cat("white").call()

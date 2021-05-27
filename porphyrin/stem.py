@@ -21,7 +21,7 @@ class Document(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          bough, head = self.snip_bough(head)
          if bough:
             sinks.append(bough)
@@ -114,7 +114,7 @@ class Paragraphs(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          twig, head = self.shatter_stem("newline", Paragraph, head)
          if twig:
             self.sinks.append(twig)
@@ -145,7 +145,7 @@ class Lines(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          twig, head = self.shatter_stem("newline", Line, head)
          if twig:
             self.sinks.append(twig)
@@ -178,7 +178,7 @@ class Rows(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          twig, head = self.shatter_stem("newline", Row, head)
          if twig:
             sinks.append(twig)
@@ -230,7 +230,7 @@ class Paragraph(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          frond, head = self.shatter_stem("space", Phrase, head)
          if frond:
             self.sinks.append(frond)
@@ -261,7 +261,7 @@ class Line(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          frond, head = self.shatter_stem("space", Verse, head)
          if frond:
             self.sinks.append(frond)
@@ -292,7 +292,7 @@ class Row(Stem):
       while (True):
          if (head >= len(self.source)):
             break
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          frond, head = self.shatter_stem("space", Cell, head)
          if frond:
             self.sinks.append(frond)
@@ -331,7 +331,7 @@ class Phrase(Stem):
    def parse(self):
       head = 0
       while (True):
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          if (head >= len(self.source)):
             break
          leaf, head = self.snip_leaf(head)
@@ -362,7 +362,7 @@ class Verse(Stem):
    def parse(self):
       head = 0
       while (True):
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          if (head >= len(self.source)):
             break
          leaf, head = self.snip_leaf(head)
@@ -392,7 +392,7 @@ class Cell(Stem):
    def parse(self):
       head = 0
       while (True):
-         head = self.move(0, head)
+         head = self.move_right(0, head)
          if (head >= len(self.source)):
             break
          leaf, head = self.snip_leaf(head)
