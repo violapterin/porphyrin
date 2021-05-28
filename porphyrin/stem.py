@@ -26,11 +26,12 @@ class Document(Stem):
             self.sinks.append(bough)
 
    def write(self):
-      content = ''
+      contents = []
       self.explain()
       self.parse()
       for bough in self.sinks:
-         content += bough.write()
+         contents.append(bough.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
          content = content,
          tag = self.TAG,
@@ -89,11 +90,12 @@ class Break(Stem):
       self.sinks = dingbat * repeat
 
    def write(self):
-      content = ''
+      contents = []
       self.explain()
       self.parse()
       for sink in self.sinks:
-         content += sink + ' '
+         contents.append(sink)
+      content = AID.join(contents)
       result = AID.write_element_stem(
          content = content,
          tag = self.TAG,
@@ -124,11 +126,12 @@ class Paragraphs(Stem):
             self.sinks.append(twig)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for twig in self.sinks:
-         content += twig.write() + ' '
+         contents.append(twig.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -157,11 +160,12 @@ class Lines(Stem):
             self.sinks.append(twig)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for twig in self.sinks:
-         content += twig.write() + ' '
+         contents.append(twig.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -192,22 +196,24 @@ class Rows(Stem):
             self.sinks.append(twig)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       twig_prefix = self.sinks.pop(0)
-      content += AID.write_element_stem(
+      element = AID.write_element_stem(
          content = twig_prefix.write(),
          tag = self.TAG_PREFIX,
          attributes = ["class"],
          values = [self.KIND],
       )
+      contents.append(element)
       for twig_body in self.sinks:
-         content += AID.write_element_stem(
+         element = AID.write_element_stem(
             content = twig_body.write(),
             tag = self.TAG_BODY,
          )
-         content += ' '
+         contents.append(element)
+      content = AID.join(contents)
       result = AID.write_element_stem(
          content = content,
          tag = self.TAG_ALL,
@@ -246,11 +252,12 @@ class Paragraph(Stem):
             self.sinks.append(frond)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for frond in self.sinks:
-         content += frond.write() + ' '
+         contents.append(frond.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -279,11 +286,12 @@ class Line(Stem):
             self.sinks.append(frond)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for frond in self.sinks:
-         content += frond.write() + ' '
+         contents.append(frond.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -312,11 +320,12 @@ class Row(Stem):
             self.sinks.append(frond)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for frond in self.sinks:
-         content += frond.write() + ' '
+         contents.append(frond.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -338,7 +347,7 @@ class Space(Stem):
 class Phrase(Stem):
 
    KIND = "phrase"
-   TAG = "span"
+   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -355,11 +364,12 @@ class Phrase(Stem):
             self.sinks.append(leaf)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for leaf in self.sinks:
-         content += leaf.write() + ' '
+         contents.append(leaf.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -371,7 +381,7 @@ class Phrase(Stem):
 class Verse(Stem):
 
    KIND = "verse"
-   TAG = "span"
+   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -388,11 +398,12 @@ class Verse(Stem):
             self.sinks.append(leaf)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for leaf in self.sinks:
-         content += leaf.write() + ' '
+         contents.append(leaf.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,
@@ -421,11 +432,12 @@ class Cell(Stem):
             self.sinks.append(leaf)
 
    def write(self):
-      content = ' '
+      contents = []
       self.explain()
       self.parse()
       for leaf in self.sinks:
-         content += leaf.write() + ' '
+         contents.append(leaf.write())
+      content = AID.join(contents)
       result = AID.write_element_stem(
             content = content,
             tag = self.TAG,

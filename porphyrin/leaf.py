@@ -16,7 +16,7 @@ class Serif_roman(Leaf):
       self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
-      return content
+      return sink
 
 class Serif_italic(Leaf):
 
@@ -31,7 +31,7 @@ class Serif_italic(Leaf):
       self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
-      return content
+      return sink
 
 class Serif_bold(Leaf):
 
@@ -46,7 +46,7 @@ class Serif_bold(Leaf):
       self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
-      return content
+      return sink
 
 class Sans_roman(Leaf):
 
@@ -61,7 +61,7 @@ class Sans_roman(Leaf):
       self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
-      return content
+      return sink
 
 class Sans_bold(Leaf):
 
@@ -76,7 +76,7 @@ class Sans_bold(Leaf):
       self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
-      return content
+      return sink
 
 class Mono(Leaf):
 
@@ -91,7 +91,7 @@ class Mono(Leaf):
       self.explain()
       content = AID.tune_code(self.source)
       sink = self.write_text(content)
-      return content
+      return sink
 
 class Comment(Leaf):
 
@@ -101,8 +101,12 @@ class Comment(Leaf):
    def write(self):
       token_left = "<!--"
       token_right = "-->"
-      sink = AID.tune_comment(self.source)
-      sink = token_left + ' ' + sink + ' ' + token_right
+      sinks = [
+         token_left,
+         AID.tune_comment(self.source),
+         token_right,
+      ]
+      sink = AID.join(sinks)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -110,12 +114,13 @@ class Comment(Leaf):
 class Math(Leaf):
 
    KIND = "math"
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
+      content = ''
       head_left = 0
       head_right = 0
       interval = range(len(self.source))
@@ -123,7 +128,13 @@ class Math(Leaf):
       for head in interval:
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
-         sink += tissue.write()
+         content += tissue.write()
+      sink = AID.write_element_stem(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -131,19 +142,26 @@ class Math(Leaf):
 class Pseudo(Leaf):
 
    KIND = "pseudo"
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
+      content = ''
       head_left = 0
       head_right = 0
       self.explain()
       interval = range(len(self.source))
       for head in interval:
          tissue, head_right = self.snip_tissue_pseudo(head_left)
-         sink += tissue.write()
+         content += tissue.write()
+      sink = AID.write_element_stem(
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND],
+      )
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -159,17 +177,18 @@ class Math_box(Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
       tissue = None
+      sinks = []
       count = 0
       head = self.move_right(0)
       interval = range(len(self.source))
       for head in interval:
          tissue, head = self.snip_tissue_math(head)
-         sink = self.write_math_outside(tissue.write()) + ' '
+         sink.append(self.write_math_outside(tissue.write()))
          count += 1
       if (count == 1) and not tissue.LATERAL:
          self.LATERAL == False
+      sink = AID.join(sinks)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -185,18 +204,9 @@ class Math_bracket_round(Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      sink = ''
-      content = ''
       mark_left = "\\left("
-      mark_right = "\\right("
-      head = self.move_right(0)
-      content += mark_left
-      interval = range(len(self.source))
-      for head in interval:
-         tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      content += mark_right
-      sink = self.write_math_outside(content)
+      mark_right = "\\right)"
+      sink = self.write_math_bracket(mark_left, mark_right)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -212,7 +222,8 @@ class Math_bracket_square(Leaf):
    def write(self):
       mark_left = "\\left["
       mark_right = "\\right]"
-      return self.write_math_bracket(mark_left, mark_right)
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -227,7 +238,8 @@ class Math_bracket_curly(Leaf):
    def write(self):
       mark_left = "\\left\\{"
       mark_right = "\\right\\}"
-      return self.write_math_bracket(mark_left, mark_right)
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -242,7 +254,8 @@ class Math_bracket_angle(Leaf):
    def write(self):
       mark_left = "\\left\\langle"
       mark_right = "\\right\\rangle"
-      return self.write_math_bracket(mark_left, mark_right)
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -257,7 +270,8 @@ class Math_bracket_line(Leaf):
    def write(self):
       mark_left = "\\left|"
       mark_right = "\\right|"
-      return self.write_math_bracket(mark_left, mark_right)
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -285,9 +299,7 @@ class Math_plain(Leaf):
       label_tip = AID.get_label_math(tip)
       label_tail = AID.get_label_math(tail)
 
-      if (tail.islower() or tail.isupper()):
-         sign = tail
-      elif (tail.isdigit()):
+      if (tail.isalnum()):
          sign = tail
       else:
          table_symbol = {
@@ -330,7 +342,7 @@ class Math_plain(Leaf):
          "BOLD", "BLACK", "CURSIVE", "GREEK",
          "EQUIVALENCE_ONE", "EQUIVALENCE_TWO",
       }
-      if (label_tail in labels_not_lateral):
+      if be_not_lateral_math(label_tail):
          self.LATERAL = False
       return sink
 
@@ -614,13 +626,15 @@ class Math_triplet(Leaf):
       bottom = bottom.write()
 
       sink = ''
+      contents = []
       if (main.LATERAL):
-         sink += AID.write_latex('', main) + ' '
-         sink += AID.write_latex('^', top) + ' '
-         sink += AID.write_latex('_', bottom) + ' '
+         contents.append(AID.write_latex('', main))
+         contents.append(AID.write_latex('^', top))
+         contents.append(AID.write_latex('_', bottom))
       else:
          underset = AID.write_latex("\\underset", bottom, main)
-         sink += AID.write_latex("\\overset", top, underset)
+         contents.append(AID.write_latex("\\overset", top, underset))
+      sink = AID.join(contents)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -648,12 +662,11 @@ class Math_tuple(Leaf):
             boxes.append(box)
             head_left = head_right
 
-      newline = "\\\\"
       sink = ''
-      sink += AID.write_command("\\begin", "matrix") + ' '
+      sink += AID.write_command("\\begin", "matrix") + '\n'
       for box in boxes:
-         sink += box.write() + newline + ' '
-      sink += AID.write_command("\\end", "matrix") + ' '
+         sink += box.write() + "\\\\\n"
+      sink += AID.write_command("\\end", "matrix") + '\n'
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

@@ -17,6 +17,7 @@ def get_mark_right(mark_left):
    mark_right = mark_left.replace(tip_left, tip_right)
    return mark_right
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def write_element_leaf(**data):
    cut = ' '
@@ -31,22 +32,34 @@ def write_element_stem(**data):
 def write_element(cut, data):
    assert ("content" in data)
    assert ("tag" in data)
-
-   sink = '<' + data["tag"]
+   sink = ''
+   sinks_left = []
+   sinks_middle = []
+   sinks_right = []
+   sinks_left.append('<' + data["tag"])
    if ("attributes" in data):
-      sink += ' '
       attributes = data["attributes"]
       values = data["values"]
       assert (len(values) == len(attributes))
-      size = len(attributes)
-      for index in range(size):
-         sink += ' '
-         sink += data["attributes"][index]
-         sink += "=\"" + data["values"][index] + "\""
-   sink += "> "
-   sink += cut + data["content"] + ' ' + cut
-   sink += "</" + data["tag"] + '>'
+      for index in range(len(attributes)):
+         sinks_left.append(attributes[index])
+         sinks_left.append("=\"" + values[index] + '\"')
+   sinks_left[-1] += '>'
+   sinks_middle.append(data["content"])
+   sinks_right.append("</" + data["tag"] + '>')
+   sink += join(sinks_left) + cut
+   sink += join(sinks_middle) + cut
+   sink += join(sinks_right)
    return sink
+
+def join(sources):
+   for index in range(len(sources)):
+      sources[index] = sources[index].strip()
+   sink = ' '.join(sources)
+   return sink
+   
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def be_bough(kind):
    kinds = {
@@ -232,11 +245,46 @@ def replace_token(tokens_out, source):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+def get_tip_right_math(tip_left):
+   assert (len(tip_left) == 1)
+   tip_right = ''
+   label_left = get_label_math(tip_left)
+   if not be_start_asymmetry(label_left):
+      tip_right = tip_left
+      return tip_right
+   if (label_left == "START_PAIR"):
+      tip_right = get_tip_math("STOP_PAIR")
+   elif (label_left == "START_TRIPLET"):
+      tip_right = get_tip_math("STOP_TRIPLET")
+   elif (label_left == "START_TUPLE"):
+      tip_right = get_tip_math("STOP_TUPLE")
+   elif (label_left == "ARROW_LEFT"):
+      tip_right = get_tip_math("ARROW_RIGHT")
+   elif (label_left == "ORDER_LEFT"):
+      tip_right = get_tip_math("ORDER_RIGHT")
+   return tip_right
+
+def get_tip_middle_math(tip_left):
+   assert (len(tip_left) == 1)
+   tip_middle = ''
+   label_left = get_label_math(tip_left)
+   if (label_left == "START_PAIR"):
+      tip_middle = get_tip_math("CUT_PAIR")
+   if (label_left == "START_TRIPLET"):
+      tip_middle = get_tip_math("CUT_TRIPLET")
+   if (label_left == "START_TUPLE"):
+      tip_middle = get_tip_math("CUT_TUPLE")
+   return tip_middle
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 def write_latex(command, *items):
    sink = ''
-   sink += command + ' '
+   sinks = []
+   sinks.append(command)
    for item in items:
-      sink += '{' + item + '}' + ' '
+      sinks.append('{' + item + '}')
+   sink = join(sinks)
    return sink
 
 def give_alphabets_upper():
@@ -387,6 +435,17 @@ def be_start_accent_math(label):
    }
    return (label in labels)
 
+def be_not_lateral_math(label):
+   labels = {
+      "BOLD",
+      "BLACK",
+      "CURSIVE",
+      "GREEK",
+      "EQUIVALENCE_ONE",
+      "EQUIVALENCE_TWO",
+   }
+   return (label in labels)
+
 def be_start_symbol_math(label):
    being = (be_start_letter_math(label) or be_start_sign_math(label))
    return being
@@ -396,40 +455,30 @@ def be_start_math(label):
    return being
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def get_tip_right_math(tip_left):
+def get_tip_right_pseudo(tip_left):
    assert (len(tip_left) == 1)
+   label_left = get_label_pseudo(tip_left)
    tip_right = ''
-   label_left = get_label_math(tip_left)
    if not be_start_asymmetry(label_left):
       tip_right = tip_left
       return tip_right
-   if (label_left == "START_PAIR"):
-      tip_right = get_tip_math("STOP_PAIR")
-   elif (label_left == "START_TRIPLET"):
-      tip_right = get_tip_math("STOP_TRIPLET")
-   elif (label_left == "START_TUPLE"):
-      tip_right = get_tip_math("STOP_TUPLE")
-   elif (label_left == "ARROW_LEFT"):
-      tip_right = get_tip_math("ARROW_RIGHT")
-   elif (label_left == "ORDER_LEFT"):
-      tip_right = get_tip_math("ORDER_RIGHT")
+   if (label_left == "START_ROUND"):
+      tip_right = get_tip_pseudo("STOP_ROUND")
+   elif (label_left == "START_SQUARE"):
+      tip_right = get_tip_pseudo("STOP_SQUARE")
+   elif (label_left == "START_CURLY"):
+      tip_right = get_tip_pseudo("STOP_CURLY")
+   elif (label_left == "START_ANGLE"):
+      tip_right = get_tip_pseudo("STOP_ANGLE")
+   elif (label_left == "QUOTE_SINGLE"):
+      tip_right = tip_left
+   elif (label_left == "QUOTE_DOUBLE"):
+      tip_right = tip_left
    return tip_right
 
-def get_tip_middle_math(tip_left):
-   assert (len(tip_left) == 1)
-   tip_middle = ''
-   label_left = get_label_math(tip_left)
-   if (label_left == "START_PAIR"):
-      tip_middle = get_tip_math("CUT_PAIR")
-   if (label_left == "START_TRIPLET"):
-      tip_middle = get_tip_math("CUT_TRIPLET")
-   if (label_left == "START_TUPLE"):
-      tip_middle = get_tip_math("CUT_TUPLE")
-   return tip_middle
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def give_labels_pseudo():
@@ -538,28 +587,3 @@ def be_start_symbol_pseudo(label):
 def be_start_pseudo(label):
    being = (be_start_symbol_pseudo(label) or be_start_box_pseudo(label))
    return being
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-def get_tip_right_pseudo(tip_left):
-   assert (len(tip_left) == 1)
-   label_left = get_label_pseudo(tip_left)
-   tip_right = ''
-   if not be_start_asymmetry(label_left):
-      tip_right = tip_left
-      return tip_right
-
-   if (label_left == "START_ROUND"):
-      tip_right = get_tip_pseudo("STOP_ROUND")
-   elif (label_left == "START_SQUARE"):
-      tip_right = get_tip_pseudo("STOP_SQUARE")
-   elif (label_left == "START_CURLY"):
-      tip_right = get_tip_pseudo("STOP_CURLY")
-   elif (label_left == "START_ANGLE"):
-      tip_right = get_tip_pseudo("STOP_ANGLE")
-   elif (label_left == "QUOTE_SINGLE"):
-      tip_right = tip_left
-   elif (label_left == "QUOTE_DOUBLE"):
-      tip_right = tip_left
-   return tip_right
-

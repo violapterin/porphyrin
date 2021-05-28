@@ -23,4 +23,9 @@ class Dog():
       print("bark")
       print(f"I am a {self.color} dog.")
 
-Cat("white").call()
+#Cat("white").call()
+
+sinks = ["  apple", "banana ", " cake", "  dog "]
+sink = AID.join(sinks)
+print(sink[0])
+print(sink[-1])

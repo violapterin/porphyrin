@@ -341,8 +341,7 @@ class Stem(Organ):
 class Leaf(Organ):
 
    def write_text(self, content):
-      sink = ''
-      sink += AID.write_element_leaf(
+      sink = AID.write_element_leaf(
          content = content,
          tag = self.give_tag_text(),
          attributes = self.give_attributes_text(),
@@ -353,9 +352,8 @@ class Leaf(Organ):
    def give_tag_text(self):
       assert (hasattr(self, "address"))
       assert (hasattr(self, "TAG_PLAIN"))
+      tag = self.TAG_PLAIN
       if self.address:
-         tag = self.TAG_PLAIN
-      else:
          tag = 'a'
       return tag
 
@@ -375,32 +373,36 @@ class Leaf(Organ):
       return values
 
    def write_math_bracket(self, mark_left, mark_right):
-      sink = ''
-      content = ''
       head = self.move_right(0)
-      content += mark_left
-      while (head < len(self.source)):
+      contents = []
+      contents.append(mark_left)
+      interval = range(len(self.source))
+      for head in interval:
          tissue, head = self.snip_tissue_math(head)
-         content = tissue.write() + ' '
-      content += mark_right
+         contents.append(tissue.write())
+      contents.append(mark_right)
+      content = AID.join(contents)
       sink = self.write_math_outside(content)
       return sink
 
-   def write_math_outside(self, content):
+   def write_math_outside(self, source):
       assert (hasattr(self, "OUTSIDE"))
+      sink = ''
       kind = "math"
       tag = "span"
-      sink = ''
+      mark_left = "\\left|"
+      mark_right = "\\right|"
       if (self.OUTSIDE):
-         content = "\\( " + content + " \\)"
+         contents = [mark_left, source, mark_right]
+         content = AID.join(contents)
          sink = AID.write_element_leaf(
-            content = content,
+            source = content,
             tag = tag,
             attributes = ["class"],
             values = [kind],
          )
       else:
-         sink = content
+         sink = source
       return sink
 
    # # # # # # # # # # # # # # # #
