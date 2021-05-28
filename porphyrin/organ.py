@@ -22,6 +22,43 @@ class Organ(object):
       self.count_line = data.pop("count_line", 0)
       self.count_glyph = data.pop("count_glyph", 0)
 
+   def give_data(self, head_left, head_right):
+      data = {
+         "source" : self.source[head_left: head_right],
+         "leftmost" : self.get_leftmost_new(head_left),
+         "rightmost" : self.get_rightmost_new(head_right),
+         "count_line" : self.get_count_line_new(head_left),
+         "count_glyph" : self.get_count_glyph_new(head_left),
+      }
+      return data
+
+   def get_leftmost_new(self, head):
+      left = self.source[: head]
+      sink = left.split('\n')[-1]
+      return sink
+
+   def get_rightmost_new(self, head):
+      right = self.source[head :]
+      sink = right.split('\n')[0]
+      return sink
+
+   def get_count_glyph_new(self, head):
+      count_glyph = self.count_glyph
+      left = self.source[: head]
+      fragments = left.split('\n')
+      if (len(fragments) == 1):
+         count_glyph += len(fragments[0])
+         return count_glyph
+      count_glyph = len(fragments[-1])
+      return count_glyph
+
+   def get_count_line_new(self, head):
+      count = self.count_line
+      left = self.source[: head]
+      fragments = left.split('\n')
+      count += len(fragments) - 1
+      return count
+
    def explain(self):
       if (hasattr(self, "KIND")):
          print(f"Writing {self.KIND} with source:", flush = True)
@@ -35,24 +72,7 @@ class Organ(object):
          for count in counts:
             print(">>", color_yellow, fragments[count], color_default)
 
-   def give_data(self, head_left, head_right):
-      data = {
-         "source" : self.source[head_left: head_right],
-         "leftmost" : self.get_fragment_left(head_left),
-         "rightmost" : self.get_fragment_right(head_right),
-         "count_line" : self.count_next_line(head_left),
-         "count_glyph" : self.count_next_glyph(head_left),
-      }
-      return data
-
-   def confine_head(self, head):
-      probe = head
-      size = len(self.source)
-      if (probe > size):
-         probe = size
-      if (probe < 0):
-         probe = 0
-      return probe
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
    def move_left(self, step, head):
       assert (step >= 0)
@@ -112,6 +132,17 @@ class Organ(object):
       probe = self.confine_head(probe)
       return probe
 
+   def confine_head(self, head):
+      probe = head
+      size = len(self.source)
+      if (probe > size):
+         probe = size
+      if (probe < 0):
+         probe = 0
+      return probe
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
    def find_greedy(self, mark_left, mark_right, head_left):
       fragment = self.source[head_left:]
       fragment = fragment.split(mark_left, 1)[1]
@@ -151,32 +182,6 @@ class Organ(object):
          head_right = self.move_right(1, head_right)
       mark_left = self.source[head_left: head_right]
       return mark_left
-
-   def get_fragment_left(self, head):
-      left = self.source[: head]
-      sink = self.leftmost.split('\n')[-1]
-      return sink
-
-   def get_fragment_right(self, head):
-      right = self.source[head :]
-      sink = self.rightmost.split('\n')[0]
-      return sink
-
-   def count_next_glyph(self, head):
-      left = self.source[: head]
-      fragments = left.split('\n')
-      if (len(fragments) == 1):
-         self.count_glyph += len(fragments[0])
-         return self.count_glyph
-      self.count_glyph = len(fragments[-1])
-      return self.count_glyph
-
-   def count_next_line(self, head):
-      count = self.count_line
-      left = self.source[: head]
-      fragments = left.split('\n')
-      count += len(fragments) - 1
-      return count
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -406,7 +411,7 @@ class Leaf(Organ):
          content = AID.unite(contents)
          sink = AID.write_element(
             cut = '',
-            source = content,
+            content = content,
             tag = tag,
             attributes = ["class"],
             values = [kind],
@@ -418,11 +423,12 @@ class Leaf(Organ):
    # # # # # # # # # # # # # # # #
 
    def snip_tissue_math(self, head_left):
-      from . import tissue as TISSUE
+      from . import leaf as LEAF
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
       head_right = self.move_right(1, head_left)
+      print("label_left:", label_left)
       if not AID.be_start_math(label_left):
          data = self.give_data(head_left, head_right)
          from .caution import Not_being_valid_symbol as creator
@@ -435,7 +441,7 @@ class Leaf(Organ):
          if not AID.be_start_asymmetry_math(label_left):
             head_right = self.move_right(1, probe_left)
             data = self.give_data(head_left, head_right)
-            tissue = TISSUE.Math_plain(**data)
+            tissue = LEAF.Math_plain(**data)
             return tissue, head_right
 
          tip_right = AID.get_tip_right_math(tip_left)
@@ -444,15 +450,15 @@ class Leaf(Organ):
          probe_right = self.move_left(2, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left == "START_PAIR"):
-            tissue = TISSUE.Math_bracket_round(**data)
+            tissue = LEAF.Math_bracket_round(**data)
          if (label_left == "START_TRIPLET"):
-            tissue = TISSUE.Math_bracket_square(**data)
+            tissue = LEAF.Math_bracket_square(**data)
          if (label_left == "START_TUPLE"):
-            tissue = TISSUE.Math_bracket_curly(**data)
+            tissue = LEAF.Math_bracket_curly(**data)
          if (label_left == "ORDER_LEFT"):
-            tissue = TISSUE.Math_bracket_angle(**data)
+            tissue = LEAF.Math_bracket_angle(**data)
          if (label_left == "ARROW_LEFT"):
-            tissue = TISSUE.Math_bracket_line(**data)
+            tissue = LEAF.Math_bracket_line(**data)
          return tissue, head_right
 
       if (AID.be_start_symbol_math(label_left)):
@@ -467,26 +473,26 @@ class Leaf(Organ):
             creator(**data).panic()
          data = self.give_data(head_left, head_right)
          if (AID.be_letter_math(label_left)):
-            tissue = TISSUE.Math_letter(**data)
+            tissue = LEAF.Math_letter(**data)
          elif (AID.be_sign_math(label_left)):
-            tissue = TISSUE.Math_sign(**data)
+            tissue = LEAF.Math_sign(**data)
          return tissue, head_right
       return tissue, head_right
 
       assert (AID.be_start_box_math(label_left))
       data = give_data(probe_left, probe_right)
       if (label_left == "PAIR_LEFT"):
-         tissue = TISSUE.Math_pair(**data)
+         tissue = LEAF.Math_pair(**data)
       if (label_left == "TRIPLET_LEFT"):
-         tissue = TISSUE.Math_triplet(**data)
+         tissue = LEAF.Math_triplet(**data)
       if (label_left == "TUPLE_LEFT"):
-         tissue = TISSUE.Math_tuple(**data)
+         tissue = LEAF.Math_tuple(**data)
       if (label_left == "SERIF"):
-         tissue = TISSUE.Math_serif(**data)
+         tissue = LEAF.Math_serif(**data)
       if (label_left == "SANS"):
-         tissue = TISSUE.Math_sans(**data)
+         tissue = LEAF.Math_sans(**data)
       if (label_left == "MONO"):
-         tissue = TISSUE.Math_mono(**data)
+         tissue = LEAF.Math_mono(**data)
       if (label_left == "CHECK"):
          tissue = None
       return tissue, head_right
@@ -494,7 +500,7 @@ class Leaf(Organ):
    # # # # # # # # # # # # # # # #
 
    def snip_tissue_pseudo(self, head_left):
-      from . import tissue as TISSUE
+      from . import leaf as LEAF
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
@@ -527,19 +533,19 @@ class Leaf(Organ):
          probe_right = self.move_left(-1, head_right)
          data = give_data(probe_left, probe_right)
          if (label_left == "START_ROUND"):
-            tissue = TISSUE.Pseudo_bracket_round(**data)
+            tissue = LEAF.Pseudo_bracket_round(**data)
          if (label_left == "START_SQUARE"):
-            tissue = TISSUE.Pseudo_bracket_square(**data)
+            tissue = LEAF.Pseudo_bracket_square(**data)
          if (label_left == "START_CURLY"):
-            tissue = TISSUE.Pseudo_bracket_curly(**data)
+            tissue = LEAF.Pseudo_bracket_curly(**data)
          if (label_left == "START_REMARK"):
-            tissue = TISSUE.Pseudo_remark(**data)
+            tissue = LEAF.Pseudo_remark(**data)
          if (label_left == "SERIF"):
-            tissue = TISSUE.Pseudo_serif(**data)
+            tissue = LEAF.Pseudo_serif(**data)
          if (label_left == "SANS"):
-            tissue = TISSUE.Pseudo_sans(**data)
+            tissue = LEAF.Pseudo_sans(**data)
          if (label_left == "MONO"):
-            tissue = TISSUE.Pseudo_mono(**data)
+            tissue = LEAF.Pseudo_mono(**data)
          if (label_left == "CHECK"):
             tissue = None
       return tissue, head_right
@@ -568,12 +574,15 @@ class Caution(Organ):
          f"character {self.count_glyph}:"
       )
       print(
-         ">> \t", color_yellow, self.leftmost, color_default,
-         color_red, self.source, color_default,
-         color_yellow, self.rightmost, color_default,
+         ">> \t", color_yellow, self.leftmost,
+         color_red, self.source,
+         color_yellow, self.rightmost,
+         color_default,
+         sep = '',
       )
       print(
-         color_yellow, self.message_left, color_default,
-         color_red, self.source, color_default,
-         color_yellow, self.message_right, color_default,
+         color_yellow, self.message_left,
+         color_red, self.source,
+         color_yellow, self.message_right,
+         color_default,
       )

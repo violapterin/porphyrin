@@ -37,7 +37,6 @@ class Document(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for bough in self.sinks:
          contents.append(bough.write())
@@ -64,7 +63,6 @@ class Image(Stem):
       address = AID.tune_hypertext(self.address)
 
    def write(self):
-      self.explain()
       self.parse()
       result = AID.write_element(
          content = '',
@@ -92,7 +90,6 @@ class Break(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for sink in self.sinks:
          contents.append(sink)
@@ -128,7 +125,6 @@ class Paragraphs(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for twig in self.sinks:
          contents.append(twig.write())
@@ -162,7 +158,6 @@ class Lines(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for twig in self.sinks:
          contents.append(twig.write())
@@ -198,7 +193,6 @@ class Rows(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       twig_prefix = self.sinks.pop(0)
       element = AID.write_element(
@@ -246,7 +240,6 @@ class Paragraph(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for frond in self.sinks:
          contents.append(frond.write())
@@ -280,7 +273,6 @@ class Line(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for frond in self.sinks:
          contents.append(frond.write())
@@ -314,7 +306,6 @@ class Row(Stem):
 
    def write(self):
       contents = []
-      self.explain()
       self.parse()
       for frond in self.sinks:
          contents.append(frond.write())

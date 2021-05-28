@@ -13,7 +13,6 @@ class Serif_roman(Leaf):
       self.address = ''
 
    def write(self):
-      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return sink
@@ -28,7 +27,6 @@ class Serif_italic(Leaf):
       self.address = ''
 
    def write(self):
-      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return sink
@@ -43,7 +41,6 @@ class Serif_bold(Leaf):
       self.address = ''
 
    def write(self):
-      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return sink
@@ -58,7 +55,6 @@ class Sans_roman(Leaf):
       self.address = ''
 
    def write(self):
-      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return sink
@@ -73,7 +69,6 @@ class Sans_bold(Leaf):
       self.address = ''
 
    def write(self):
-      self.explain()
       content = AID.tune_text(self.source)
       sink = self.write_text(content)
       return sink
@@ -88,7 +83,6 @@ class Mono(Leaf):
       self.address = ''
 
    def write(self):
-      self.explain()
       content = AID.tune_code(self.source)
       sink = self.write_text(content)
       return sink
@@ -140,7 +134,6 @@ class Math(Leaf):
       head_left = 0
       head_right = 0
       interval = range(len(self.source))
-      self.explain()
       for head in interval:
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
@@ -167,7 +160,6 @@ class Pseudo(Leaf):
       content = ''
       head_left = 0
       head_right = 0
-      self.explain()
       interval = range(len(self.source))
       for head in interval:
          tissue, head_right = self.snip_tissue_pseudo(head_left)
@@ -352,13 +344,8 @@ class Math_plain(Leaf):
          data = self.give_data(0, len(self.source))
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
-      sink = write_math_outside(self, sign)
-
-      labels_not_lateral = {
-         "BOLD", "BLACK", "CURSIVE", "GREEK",
-         "EQUIVALENCE_ONE", "EQUIVALENCE_TWO",
-      }
-      if be_not_lateral_math(label_tail):
+      sink = self.write_math_outside(sign)
+      if AID.be_not_lateral_math(label_tail):
          self.LATERAL = False
       return sink
 
@@ -376,6 +363,7 @@ class Math_letter(Leaf):
       self.accent = ''
 
    def write(self):
+      print("writing: ", self.source)
       letter_accent = ''
       letter = ''
       tip = self.source[0]
@@ -450,7 +438,7 @@ class Math_letter(Leaf):
          letter_accent = AID.write_latex(self.accent, letter)
       else:
          letter_accent = letter
-      sink = write_math_outside(self, letter_accent)
+      sink = self.write_math_outside(letter_accent)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -571,7 +559,7 @@ class Math_sign(Leaf):
          data = self.give_data(0, len(self.source))
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
-      sink = write_math_outside(self, sign)
+      sink = self.write_math_outside(sign)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

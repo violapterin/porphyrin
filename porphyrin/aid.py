@@ -485,11 +485,18 @@ def be_not_lateral_math(label):
    return (label in labels)
 
 def be_start_symbol_math(label):
-   being = (be_start_letter_math(label) or be_start_sign_math(label))
+   being = (
+      (label == "PLAIN")
+      or be_start_letter_math(label)
+      or be_start_sign_math(label)
+   )
    return being
 
 def be_start_math(label):
-   being = (be_start_symbol_math(label) or be_start_box_math(label))
+   being = (
+      be_start_symbol_math(label)
+      or be_start_box_math(label)
+   )
    return being
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -619,9 +626,15 @@ def be_start_bracket_pseudo(label):
    return (label in labels)
 
 def be_start_symbol_pseudo(label):
-   being = (be_start_letter_pseudo(label) or be_start_sign_pseudo(label))
+   being = (
+      be_start_letter_pseudo(label)
+      or be_start_sign_pseudo(label)
+   )
    return being
 
 def be_start_pseudo(label):
-   being = (be_start_symbol_pseudo(label) or be_start_box_pseudo(label))
+   being = (
+      be_start_symbol_pseudo(label)
+      or be_start_box_pseudo(label)
+   )
    return being
