@@ -65,42 +65,32 @@ def get_mark_right(mark_left):
    return mark_right
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-'''
-def write_element_narrow(**data):
-   cut = ''
-   element = write_element(cut, data)
-   return element
 
-def write_element_wide(**data):
-   cut = '\n'
-   element = write_element(cut, data)
-   return element
-'''
-
-def write_element(cut = '\n', data):
+def write_element(cut = '\n', **data):
    assert ("content" in data)
    assert ("tag" in data)
    sink = ''
-   sinks_left = []
-   sinks_middle = []
-   sinks_right = []
-   sinks_left.append('<' + data["tag"])
+   sinks_left = ['<' + data["tag"]]
    if ("attributes" in data):
       attributes = data["attributes"]
       values = data["values"]
       assert (len(values) == len(attributes))
       for index in range(len(attributes)):
-         sinks_left.append(attributes[index])
-         sinks_left.append("=\"" + values[index] + '\"')
+         sinks_left.append(
+            attributes[index] +
+            "=\"" + values[index] + '\"'
+         )
    sinks_left[-1] += '>'
-   sinks_middle.append(data["content"])
-   sinks_right.append("</" + data["tag"] + '>')
-   sink += join(sinks_left) + cut
-   sink += join(sinks_middle) + cut
-   sink += join(sinks_right)
+   sink_left = unite(sinks_left)
+   sink_middle = cut + data["content"] + cut
+   sink_right = "</" + data["tag"] + '>'
+   sink += sink_left
+   if (sink_middle.strip(" \n\t")):
+      sink += sink_middle
+   sink += sink_right
    return sink
 
-def join(sources, cut = ' '):
+def unite(sources, cut = ' '):
    for index in range(len(sources)):
       sources[index] = sources[index].strip()
    sink = cut.join(sources)
@@ -332,7 +322,7 @@ def write_latex(command, *items):
    sinks.append(command)
    for item in items:
       sinks.append('{' + item + '}')
-   sink = join(sinks)
+   sink = unite(sinks)
    return sink
 
 def give_alphabets_upper():

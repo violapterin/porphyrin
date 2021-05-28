@@ -349,7 +349,7 @@ class Stem(Organ):
 class Leaf(Organ):
 
    def write_text(self, content):
-      sink = AID.write_element_narrow(
+      sink = AID.write_element(
          cut = '',
          content = content,
          tag = self.give_tag_text(),
@@ -390,7 +390,7 @@ class Leaf(Organ):
          tissue, head = self.snip_tissue_math(head)
          contents.append(tissue.write())
       contents.append(mark_right)
-      content = AID.join(contents)
+      content = AID.unite(contents)
       sink = self.write_math_outside(content)
       return sink
 
@@ -403,8 +403,8 @@ class Leaf(Organ):
       mark_right = "\\right|"
       if (self.OUTSIDE):
          contents = [mark_left, source, mark_right]
-         content = AID.join(contents)
-         sink = AID.write_element_narrow(
+         content = AID.unite(contents)
+         sink = AID.write_element(
             cut = '',
             source = content,
             tag = tag,

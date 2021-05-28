@@ -106,7 +106,7 @@ class Comment(Leaf):
          AID.tune_comment(self.source),
          token_right,
       ]
-      sink = AID.join(sinks)
+      sink = AID.unite(sinks)
       return sink
 
 class Newline(Leaf):
@@ -145,7 +145,7 @@ class Math(Leaf):
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
          content += tissue.write()
-      sink = AID.write_element_wide(
+      sink = AID.write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -172,7 +172,7 @@ class Pseudo(Leaf):
       for head in interval:
          tissue, head_right = self.snip_tissue_pseudo(head_left)
          content += tissue.write()
-      sink = AID.write_element_wide(
+      sink = AID.write_element(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -204,7 +204,7 @@ class Math_box(Leaf):
          count += 1
       if (count == 1) and not tissue.LATERAL:
          self.LATERAL == False
-      sink = AID.join(sinks)
+      sink = AID.unite(sinks)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -650,7 +650,7 @@ class Math_triplet(Leaf):
       else:
          underset = AID.write_latex("\\underset", bottom, main)
          contents.append(AID.write_latex("\\overset", top, underset))
-      sink = AID.join(contents)
+      sink = AID.unite(contents)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -821,7 +821,7 @@ class Pseudo_sign(Leaf):
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
 
-      result = write_element_narrow(
+      result = write_element(
             cut = '',
             content = sink,
             tag = self.TAG,
@@ -843,14 +843,14 @@ class Pseudo_round(Leaf):
 
    def write(self):
       sink += '('
-      sink += write_element_narrow(
+      sink += write_element(
          cut = '',
          content = self.level,
          tag = "sub",
       )
 
       sink += ')'
-      sink += write_element_narrow(
+      sink += write_element(
          cut = '',
          content = self.level,
          tag = "sub",
