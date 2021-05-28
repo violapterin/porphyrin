@@ -109,6 +109,22 @@ class Comment(Leaf):
       sink = AID.join(sinks)
       return sink
 
+class Newline(Leaf):
+
+   KIND = "newline"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = None
+
+class Space(Leaf):
+
+   KIND = "space"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+      self.sink = None
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Math(Leaf):
@@ -129,7 +145,7 @@ class Math(Leaf):
          tissue, head_right = self.snip_tissue_math(head_left)
          tissue.OUTSIDE = True
          content += tissue.write()
-      sink = AID.write_element_stem(
+      sink = AID.write_element_wide(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -156,7 +172,7 @@ class Pseudo(Leaf):
       for head in interval:
          tissue, head_right = self.snip_tissue_pseudo(head_left)
          content += tissue.write()
-      sink = AID.write_element_stem(
+      sink = AID.write_element_wide(
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -805,7 +821,8 @@ class Pseudo_sign(Leaf):
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
 
-      result = write_element_leaf(
+      result = write_element_narrow(
+            cut = '',
             content = sink,
             tag = self.TAG,
             attributes = ["class"],
@@ -826,13 +843,15 @@ class Pseudo_round(Leaf):
 
    def write(self):
       sink += '('
-      sink += write_element_leaf(
+      sink += write_element_narrow(
+         cut = '',
          content = self.level,
          tag = "sub",
       )
 
       sink += ')'
-      sink += write_element_leaf(
+      sink += write_element_narrow(
+         cut = '',
          content = self.level,
          tag = "sub",
       )

@@ -1,6 +1,53 @@
 import os
 from pdb import set_trace
 
+def convert(path_in, path_out):
+   from .stem import Document
+   handle_in = open(path_in, mode = 'r')
+   source = handle_in.read()
+   handle_in.close()
+   document = Document(source = source)
+   sink = document.write()
+   handle_out = open(path_out, mode = 'w')
+   handle_out.write(sink)
+   handle_out.close()
+
+def make_all(folder_in, folder_out):
+   make("ALL", folder_in, folder_out)
+
+def make_new(folder_in, folder_out):
+   make("NEW", folder_in, folder_out)
+
+def make(flag, folder_in, folder_out):
+   extension_in = ".ppr"
+   extension_out = ".txt"
+   things_in = os.scandir(folder_in)
+   for thing_in in things_in:
+      name_in = thing_in.name
+      path_in = os.path.join(folder_in, name_in)
+      if not thing_in.is_file():
+         print(f"Warning: {name_in} is not a file.")
+         continue
+      if not path_in.endswith(extension_in):
+         print(
+            f"Warning: file {name_in}",
+            f"does not end in \"{extension_in}\".",
+         )
+         continue
+      name_out = name_in.replace(extension_in, extension_out)
+      name_out = name_in.replace("in", "out")
+      path_out = os.path.join(folder_out, name_out)
+      if not (flag == "ALL"):
+         if os.path.isfile(path_out):
+            time_in = thing_in.stat().st_ctime
+            time_out = os.path.getmtime(path_out)
+            if time_in < time_out:
+               continue
+      print(f"Trying to convert {path_in} to {path_out}:")
+      convert(path_in, path_out) 
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
 def get_mark_right(mark_left):
    assert (len(list(set(mark_left))) == 1)
    tip_left = mark_left[0]
@@ -18,18 +65,19 @@ def get_mark_right(mark_left):
    return mark_right
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-def write_element_leaf(**data):
-   cut = ' '
+'''
+def write_element_narrow(**data):
+   cut = ''
    element = write_element(cut, data)
    return element
 
-def write_element_stem(**data):
+def write_element_wide(**data):
    cut = '\n'
    element = write_element(cut, data)
    return element
+'''
 
-def write_element(cut, data):
+def write_element(cut = '\n', data):
    assert ("content" in data)
    assert ("tag" in data)
    sink = ''
@@ -52,10 +100,10 @@ def write_element(cut, data):
    sink += join(sinks_right)
    return sink
 
-def join(sources):
+def join(sources, cut = ' '):
    for index in range(len(sources)):
       sources[index] = sources[index].strip()
-   sink = ' '.join(sources)
+   sink = cut.join(sources)
    return sink
    
 

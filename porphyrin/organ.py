@@ -75,6 +75,8 @@ class Organ(object):
          for _ in range(step):
             while (probe in interval):
                probe -= 1
+               if (probe < 0):
+                  break
                tip = self.source[probe]
                if (tip not in whitespaces):
                   break
@@ -102,6 +104,8 @@ class Organ(object):
          for _ in range(step):
             while (probe in interval):
                probe += 1
+               if (probe >= len(self.source)):
+                  break
                tip = self.source[probe]
                if (tip not in whitespaces):
                   break
@@ -140,7 +144,7 @@ class Organ(object):
       mark = ''
       tip = self.source[head_left]
       head_right = head_left
-      interval = range(len(self.source) + 1)
+      interval = range(len(self.source))
       while (head_right in interval):
          if not (self.source[head_right] == tip):
             break
@@ -189,9 +193,11 @@ class Stem(Organ):
    def snip_bough(self, head_left):
       from . import stem as STEM
       bough = None
-      head_right = 0
       probe_left = 0
       probe_right = 0
+      head_right = self.move_right(0, head_left)
+      if (head_right >= len(self.source)):
+         return leaf, head_right
       mark_left = self.probe_mark(head_left).rstrip(" \n\t")
       mark_right = AID.get_mark_right(mark_left)
       label = AID.get_label(mark_left[0])
@@ -254,9 +260,11 @@ class Stem(Organ):
    def snip_leaf(self, head_left):
       from . import leaf as LEAF
       leaf = None
-      head_right = 0
       probe_left = 0
       probe_right = 0
+      head_right = self.move_right(0, head_left)
+      if (head_right >= len(self.source)):
+         return leaf, head_right
       mark_left = self.probe_mark(head_left).rstrip(" \n\t")
       mark_right = AID.get_mark_right(mark_left)
       label = AID.get_label(mark_left[0])
@@ -321,15 +329,15 @@ class Stem(Organ):
       branch = None
       head_right = head_left
       head_middle = head_left
-      while head_right <= len(self.source):
+      while (head_right <= len(self.source)):
+         head_right = self.move_right(0, head_right)
          head_middle = head_right
          if (head_right >= len(self.source)):
             break
-         head_right = self.move_right(0, head_right)
-         leaf, head_right = self.snip_leaf(head_right)
-         if (leaf.KIND == kind_stop):
-            break
-         head_middle = head_right
+         leaf, head_right = self.snip_leaf(head_middle)
+         if leaf:
+            if (leaf.KIND == kind_stop):
+               break
       data = self.give_data(head_left, head_middle)
       branch = creator(**data)
       return branch, head_right
@@ -341,7 +349,8 @@ class Stem(Organ):
 class Leaf(Organ):
 
    def write_text(self, content):
-      sink = AID.write_element_leaf(
+      sink = AID.write_element_narrow(
+         cut = '',
          content = content,
          tag = self.give_tag_text(),
          attributes = self.give_attributes_text(),
@@ -395,7 +404,8 @@ class Leaf(Organ):
       if (self.OUTSIDE):
          contents = [mark_left, source, mark_right]
          content = AID.join(contents)
-         sink = AID.write_element_leaf(
+         sink = AID.write_element_narrow(
+            cut = '',
             source = content,
             tag = tag,
             attributes = ["class"],
