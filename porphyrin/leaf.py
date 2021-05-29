@@ -76,7 +76,7 @@ class Sans_bold(Leaf):
 class Mono(Leaf):
 
    KIND = "mono"
-   TAG = "pre"
+   TAG_PLAIN = "pre"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -123,22 +123,24 @@ class Space(Leaf):
 
 class Math(Leaf):
 
-   KIND = "math"
-   TAG = "span"
+   KIND = "math-leaf"
+   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      content = ''
-      head_left = 0
-      head_right = 0
-      interval = range(len(self.source))
-      for head in interval:
-         tissue, head_right = self.snip_tissue_math(head_left)
-         tissue.OUTSIDE = True
-         content += tissue.write()
+      contents = []
+      head = self.move_right(0, 0)
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_math(head)
+         if tissue:
+            tissue.OUTSIDE = True
+            contents.append(tissue.write())
+         head = self.move_right(0, head)
+      content = AID.unite(contents)
       sink = AID.write_element(
+            cut = ' ',
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -150,20 +152,22 @@ class Math(Leaf):
 
 class Pseudo(Leaf):
 
-   KIND = "pseudo"
-   TAG = "span"
+   KIND = "pseudo-leaf"
+   TAG = "div"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      content = ''
-      head_left = 0
-      head_right = 0
-      interval = range(len(self.source))
-      for head in interval:
-         tissue, head_right = self.snip_tissue_pseudo(head_left)
-         content += tissue.write()
+      contents = []
+      head = self.move_right(0, 0)
+      while (head < len(self.source)):
+         tissue, head = self.snip_tissue_pseudo(head)
+         if tissue:
+            tissue.OUTSIDE = True
+            contents.append(tissue.write())
+         head = self.move_right(0, head)
+      content = AID.unite(contents)
       sink = AID.write_element(
             content = content,
             tag = self.TAG,
@@ -185,15 +189,17 @@ class Math_box(Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      tissue = None
       sinks = []
       count = 0
-      head = self.move_right(0)
-      interval = range(len(self.source))
-      for head in interval:
+      head = self.move_right(0, 0)
+      while (head < len(self.source)):
          tissue, head = self.snip_tissue_math(head)
-         sink.append(self.write_math_outside(tissue.write()))
+         if (tissue.OUTSIDE):
+            sink.append(self.write_math_outside(tissue.write()))
+         else:
+            sink.append(tissue.write())
          count += 1
+         head = self.move_right(0, head)
       if (count == 1) and not tissue.LATERAL:
          self.LATERAL == False
       sink = AID.unite(sinks)
@@ -301,14 +307,14 @@ class Math_plain(Leaf):
    def write(self):
       assert (len(self.source) == 2)
       content = ''
-      sign = ''
+      symbol = ''
       tip = self.source[0]
       tail = self.source[1]
       label_tip = AID.get_label_math(tip)
       label_tail = AID.get_label_math(tail)
 
       if (tail.isalnum()):
-         sign = tail
+         symbol = tail
       else:
          table_symbol = {
             "PLAIN": '.',
@@ -338,13 +344,13 @@ class Math_plain(Leaf):
             "ACCENT_ONE": '!',
             "ACCENT_TWO": '?',
          }
-         sign = table_symbol.get(label_tail)
+         symbol = table_symbol.get(label_tail)
 
-      if not sign:
+      if not symbol:
          data = self.give_data(0, len(self.source))
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
-      sink = self.write_math_outside(sign)
+      sink = self.write_math_outside(symbol)
       if AID.be_not_lateral_math(label_tail):
          self.LATERAL = False
       return sink
@@ -583,8 +589,7 @@ class Math_pair(Leaf):
       head_left = 0
       head_right = 0
       boxes = []
-      interval = range(len(self.source))
-      for head in interval:
+      for head in range(len(self.source)):
          _, head_right = self.snip_tissue_math(head_left)
          if (self.source[head_right] == cut):
             box = Math_box(self.source[head_left: head_right])
@@ -616,8 +621,7 @@ class Math_triplet(Leaf):
       head_left = 0
       head_right = 0
       boxes = []
-      interval = range(len(self.source))
-      for head in interval:
+      for head in range(len(self.source)):
          _, head_right = self.snip_tissue_math(head_left)
          if (self.source[head_right] == cut):
             box = Math_box(self.source[head_left: head_right])
@@ -658,8 +662,7 @@ class Math_tuple(Leaf):
       head_left = 0
       head_right = 0
       boxes = []
-      interval = range(len(self.source))
-      for head in interval:
+      for head in range(len(self.source)):
          _, head_right = self.snip_tissue_math(head_left)
          if (self.source[head_right] == cut):
             box = Math_box(self.source[head_left: head_right])

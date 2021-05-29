@@ -303,7 +303,9 @@ class Stem(Organ):
             self.address = self.tune_hypertext(content)
             return None, head_right
          elif (len(sinks) > 0):
-            self.sinks[-1].address = self.tune_hypertext(content)
+            leaf_link = self.sinks[-1]
+            if (hasattr(leaf_link, "address")):
+               leaf_link.address = self.tune_hypertext(content)
             return None, head_right
          else:
             from .caution import Disallowing_link as creator
@@ -332,17 +334,14 @@ class Stem(Organ):
 
    def shatter_stem(self, kind_stop, creator, head_left):
       branch = None
-      head_right = head_left
-      head_middle = head_left
-      while (head_right <= len(self.source)):
-         head_right = self.move_right(0, head_right)
-         head_middle = head_right
-         if (head_right >= len(self.source)):
-            break
+      head_right = self.move_right(0, head_left)
+      head_middle = head_right
+      while (head_right < len(self.source)):
          leaf, head_right = self.snip_leaf(head_middle)
-         if leaf:
-            if (leaf.KIND == kind_stop):
-               break
+         head_middle = head_right
+         head_right = self.move_right(0, head_right)
+         if leaf and (leaf.KIND == kind_stop):
+            break
       data = self.give_data(head_left, head_middle)
       branch = creator(**data)
       return branch, head_right
@@ -387,13 +386,13 @@ class Leaf(Organ):
       return values
 
    def write_math_bracket(self, mark_left, mark_right):
-      head = self.move_right(0)
-      contents = []
-      contents.append(mark_left)
-      interval = range(len(self.source))
-      for head in interval:
+      contents = [mark_left]
+      head = self.move_right(0, 0)
+      while (head < len(self.source)):
          tissue, head = self.snip_tissue_math(head)
-         contents.append(tissue.write())
+         if tissue:
+            contents.append(tissue.write())
+         head = self.move_right(0, head)
       contents.append(mark_right)
       content = AID.unite(contents)
       sink = self.write_math_outside(content)
@@ -404,11 +403,10 @@ class Leaf(Organ):
       sink = ''
       kind = "math"
       tag = "span"
-      mark_left = "\\left|"
-      mark_right = "\\right|"
+      mark_left = "\\("
+      mark_right = "\\)"
       if (self.OUTSIDE):
-         contents = [mark_left, source, mark_right]
-         content = AID.unite(contents)
+         content = mark_left + source + mark_right
          sink = AID.write_element(
             cut = '',
             content = content,
@@ -427,9 +425,8 @@ class Leaf(Organ):
       tissue = None
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
-      head_right = self.move_right(1, head_left)
-      print("label_left:", label_left)
       if not AID.be_start_math(label_left):
+         head_right = self.move_right(1, head_left)
          data = self.give_data(head_left, head_right)
          from .caution import Not_being_valid_symbol as creator
          creator(**data).panic()
@@ -461,14 +458,14 @@ class Leaf(Organ):
             tissue = LEAF.Math_bracket_line(**data)
          return tissue, head_right
 
-      if (AID.be_start_symbol_math(label_left)):
+      elif (AID.be_start_symbol_math(label_left)):
          head_right = self.move_right(2, head_left)
          tip_right = self.source[head_right]
          label_right = AID.get_label_math(tip_right)
          if (AID.be_accent_math(label_right)):
             head_right = self.move_right(2, head_right)
-         if (head_right > len(self.source)):
-            data = self.give_data(head_left, len(self.source))
+         if (head_right >= len(self.source)):
+            data = self.give_data(head_left, head_right)
             from .caution import Not_being_valid_symbol as creator
             creator(**data).panic()
          data = self.give_data(head_left, head_right)
@@ -477,7 +474,7 @@ class Leaf(Organ):
          elif (AID.be_sign_math(label_left)):
             tissue = LEAF.Math_sign(**data)
          return tissue, head_right
-      return tissue, head_right
+      return None, head_right
 
       assert (AID.be_start_box_math(label_left))
       data = give_data(probe_left, probe_right)

@@ -92,7 +92,7 @@ def write_element(cut = '\n', **data):
 
 def unite(sources, cut = ' '):
    for index in range(len(sources)):
-      sources[index] = sources[index].strip()
+      sources[index] = (sources[index]).strip()
    sink = cut.join(sources)
    return sink
    
