@@ -121,6 +121,7 @@ class Paragraphs(Stem):
 
    def write(self):
       contents = []
+      self.explain()
       self.parse()
       for twig in self.sinks:
          contents.append(twig.write())

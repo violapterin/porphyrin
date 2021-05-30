@@ -461,6 +461,16 @@ def be_start_asymmetry_math(label):
    }
    return (label in labels)
 
+def be_stop_asymmetry_math(label):
+   labels = {
+      "STOP_PAIR",
+      "STOP_TRIPLET",
+      "STOP_TUPLE",
+      "ARROW_LEFT",
+      "ORDER_LEFT",
+   }
+   return (label in labels)
+
 def be_start_box_math(label):
    labels = {
       "START_PAIR",
@@ -631,7 +641,7 @@ def be_start_bracket_pseudo(label):
       "START_ROUND",
       "START_SQUARE",
       "START_CURLY",
-      "START_COMMENT",
+      "START_REMARK",
       "SERIF",
       "SANS",
       "MONO",
@@ -650,5 +660,6 @@ def be_start_pseudo(label):
    being = (
       be_start_symbol_pseudo(label)
       or be_start_box_pseudo(label)
+      or (label == "PLAIN")
    )
    return being

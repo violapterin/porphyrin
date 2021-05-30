@@ -6,7 +6,7 @@
 </div>
 <div class="lines">
 <div class="line">
-<div class="verse"> <div class="math"> <span class="math">\(1\)</span> <span class="math">\(+\)</span> <span class="math">\(2\)</span> <span class="math">\(+\)</span> <span class="math">\(3\)</span> <span class="math">\(+\)</span> <span class="math">\(\dotsb\)</span> <span class="math">\(+\)</span> <span class="math">\(1\)</span> <span class="math">\(0\)</span> <span class="math">\(0\)</span> <span class="math">\(=\)</span> <span class="math">\(1\)</span> <span class="math">\(0\)</span> <span class="math">\(0\)</span> <span class="math">\(\cdot\)</span> <span class="math">\(\left( 1 0 0 + 1 \right)\)</span> <span class="math">\(/\)</span> <span class="math">\(2\)</span> <span class="math">\(=\)</span> <span class="math">\(5\)</span> <span class="math">\(0\)</span> <span class="math">\(5\)</span> <span class="math">\(0\)</span> <span class="math">\(.\)</span> </div> </div>
+<div class="verse"> <div class="math"> 1 + 2 + 3 + \dotsb + 1 0 0 = 1 0 0 \cdot \left( 1 0 0 + 1 \right) / 2 = 5 0 5 0 . </div> </div>
 </div>
 </div>
 </body>
