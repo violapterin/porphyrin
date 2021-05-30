@@ -444,15 +444,10 @@ def be_start_sign_math(label):
    }
    return (label in labels)
 
-def be_start_box_math(label):
+def be_start_accent_math(label):
    labels = {
-      "START_PAIR",
-      "START_TRIPLET",
-      "START_TUPLE",
-      "SERIF",
-      "SANS",
-      "MONO",
-      "CHECK",
+      "ACCENT_ONE",
+      "ACCENT_TWO",
    }
    return (label in labels)
 
@@ -466,10 +461,23 @@ def be_start_asymmetry_math(label):
    }
    return (label in labels)
 
+def be_start_box_math(label):
+   labels = {
+      "START_PAIR",
+      "START_TRIPLET",
+      "START_TUPLE",
+      "SERIF",
+      "SANS",
+      "MONO",
+      "CHECK",
+   }
+   return (label in labels)
+
 def be_start_accent_math(label):
    labels = {
-      "ACCENT_ONE",
-      "ACCENT_TWO",
+      "CUT_PAIR",
+      "CUT_TRIPLET",
+      "CUT_TUPLE",
    }
    return (label in labels)
 

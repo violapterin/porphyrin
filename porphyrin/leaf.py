@@ -89,6 +89,8 @@ class Mono(Leaf):
 
 class Comment(Leaf):
 
+   KIND = "comment"
+
    def __init__(self, **data):
       self.fill_basic(**data)
 
@@ -109,7 +111,9 @@ class Newline(Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = None
+
+   def write(self):
+      return ''
 
 class Space(Leaf):
 
@@ -117,13 +121,15 @@ class Space(Leaf):
 
    def __init__(self, **data):
       self.fill_basic(**data)
-      self.sink = None
+
+   def write(self):
+      return ''
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 class Math(Leaf):
 
-   KIND = "math-leaf"
+   KIND = "math"
    TAG = "div"
 
    def __init__(self, **data):
@@ -152,7 +158,7 @@ class Math(Leaf):
 
 class Pseudo(Leaf):
 
-   KIND = "pseudo-leaf"
+   KIND = "pseudo"
    TAG = "div"
 
    def __init__(self, **data):
@@ -180,37 +186,9 @@ class Pseudo(Leaf):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-class Math_box(Leaf):
-
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      sinks = []
-      count = 0
-      head = self.move_right(0, 0)
-      while (head < len(self.source)):
-         tissue, head = self.snip_tissue_math(head)
-         if (tissue.OUTSIDE):
-            sink.append(self.write_math_outside(tissue.write()))
-         else:
-            sink.append(tissue.write())
-         count += 1
-         head = self.move_right(0, head)
-      if (count == 1) and not tissue.LATERAL:
-         self.LATERAL == False
-      sink = AID.unite(sinks)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 class Math_bracket_round(Leaf):
 
+   KIND = "math-bracket-round"
    OUTSIDE = False
    LATERAL = True
 
@@ -227,6 +205,7 @@ class Math_bracket_round(Leaf):
 
 class Math_bracket_square(Leaf):
 
+   KIND = "math-bracket-square"
    OUTSIDE = False
    LATERAL = True
 
@@ -243,6 +222,7 @@ class Math_bracket_square(Leaf):
 
 class Math_bracket_curly(Leaf):
 
+   KIND = "math-bracket-curly"
    OUTSIDE = False
    LATERAL = True
 
@@ -259,6 +239,7 @@ class Math_bracket_curly(Leaf):
 
 class Math_bracket_angle(Leaf):
 
+   KIND = "math-bracket-angle"
    OUTSIDE = False
    LATERAL = True
 
@@ -275,6 +256,7 @@ class Math_bracket_angle(Leaf):
 
 class Math_bracket_line(Leaf):
 
+   KIND = "math-bracket-line"
    OUTSIDE = False
    LATERAL = True
 
@@ -296,7 +278,7 @@ class Math_bracket_line(Leaf):
 # #     .a  .A  .b  .B  .0  .1  ..  .&  .*
 class Math_plain(Leaf):
 
-   KIND = "math"
+   KIND = "math-plain"
    TAG = "span"
    OUTSIDE = False
    LATERAL = True
@@ -348,7 +330,7 @@ class Math_plain(Leaf):
 
       if not symbol:
          data = self.give_data(0, len(self.source))
-         from .caution import Not_being_valid_symbol as creator
+         from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
       sink = self.write_math_outside(symbol)
       if AID.be_not_lateral_math(label_tail):
@@ -359,7 +341,7 @@ class Math_plain(Leaf):
 
 class Math_letter(Leaf):
 
-   KIND = "math"
+   KIND = "math-letter"
    TAG = "span"
    OUTSIDE = False
    LATERAL = True
@@ -438,7 +420,7 @@ class Math_letter(Leaf):
 
       if not letter:
          data = self.give_data(0, len(self.source))
-         from .caution import Not_being_valid_symbol as creator
+         from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
       if self.accent:
          letter_accent = AID.write_latex(self.accent, letter)
@@ -451,7 +433,7 @@ class Math_letter(Leaf):
 
 class Math_sign(Leaf):
 
-   KIND = "math"
+   KIND = "math-sign"
    TAG = "span"
    OUTSIDE = False
    LATERAL = True
@@ -469,39 +451,39 @@ class Math_sign(Leaf):
       label_tip = AID.get_label_math(tip)
       label_tail = AID.get_label_math(tail)
 
-      if (label == "ABSTRACTION"):
+      if (label_tip == "ABSTRACTION"):
          signs = (
             "\\sum", "\\prod", "\\int", "\\oint",
             "\\bigoplus", "\\bigodot", "\\bigotimes",
             "\\bigcup", "\\bigcap", "\\bigsqcup",
          )
-      elif (label == "OPERATION_ONE"):
+      elif (label_tip == "OPERATION_ONE"):
          signs = (
             "\\pm", "\\oplus", "\\cup",
             "\\sqcup", "\\vee", "\\curlyvee",
             "\\spadesuit", "\\heartsuit",
             "\\diamondsuit", "\\clubsuit", 
          )
-      elif (label == "OPERATION_TWO"):
+      elif (label_tip == "OPERATION_TWO"):
          signs = (
             "\\mp", "\\ominus", "\\cap",
             "\\sqcap", "\\wedge", "\\curlywedge",
             "\\neg", "\\angle",
             "\\square", "\\blacksquare",
          )
-      elif (label == "OPERATION_THREE"):
+      elif (label_tip == "OPERATION_THREE"):
          signs = (
             "\\times", "\\odot", "\\otimes",
             "\\bullet", "\\circ", "\\star",
             "\\ltimes", "\\rtimes", "\\div", "\\oslash", 
          )
-      elif (label == "LINE"):
+      elif (label_tip == "LINE"):
          signs = (
             "\\mid", "\\nmid", "\\backslash",
             "\\parallel", "\\nparallel", "\\between",
             "\\dotsc", "\\dotsb", "\\vdots", "\\ddots",
          )
-      elif (label == "ARROW_LEFT"):
+      elif (label_tip == "ARROW_LEFT"):
          self.LATERAL = False
          signs = (
             "\\Leftarrow", "\\Lleftarrow",
@@ -510,7 +492,7 @@ class Math_sign(Leaf):
             "\\hookleftarrow", "\\curvearrowleft",
             "\\triangleleft", "\\blacktriangleleft", 
          )
-      elif (label == "ARROW_RIGHT"):
+      elif (label_tip == "ARROW_RIGHT"):
          self.LATERAL = False
          signs = (
             "\\Rightarrow", "\\Rrightarrow",
@@ -519,7 +501,7 @@ class Math_sign(Leaf):
             "\\hookrightarrow", "\\curvearrowright",
             "\\triangleright", "\\blacktriangleright", 
          )
-      elif (label == "ARROW_MIDDLE"):
+      elif (label_tip == "ARROW_MIDDLE"):
          self.LATERAL = False
          signs = (
             "\\downarrow", "\\Uparrow", "\\Downarrow",
@@ -527,7 +509,7 @@ class Math_sign(Leaf):
             "\\blacktriangle", "\\blacktriangledown",
             "\\dagger", "\\ddagger", "\\wr",
          )
-      elif (label == "EQUIVALENCE_ONE"):
+      elif (label_tip == "EQUIVALENCE_ONE"):
          self.LATERAL = False
          signs = (
             "\\neq", "\\equiv", "\\not\\equiv", "\\doteq",
@@ -535,21 +517,21 @@ class Math_sign(Leaf):
             "\\Leftrightarrow", "\\not\\Leftrightarrow",
             "\\leftrightsquigarrow", "\\not\\leftrightsquigarrow",
          )
-      elif (label == "EQUIVALENCE_TWO"):
+      elif (label_tip == "EQUIVALENCE_TWO"):
          self.LATERAL = False
          signs = (
             "\\approx", "\\simeq", "\\approxeq", "\\cong",
             "\\propto", "\\asymp", "\\gtreqless", "\\lesseqgtr"
             "\\leftrightarrows", "\\rightleftarrows",
          )
-      elif (label == "ORDER_LEFT"):
+      elif (label_tip == "ORDER_LEFT"):
          self.LATERAL = False
          signs = (
             "\\leq", "<", "\\ll", "\\lesssim",
             "\\subseteq", "\\subsetneq", "\\in",
             "\\preceq", "\\precneqq", "\\dashv",
          )
-      elif (label == "ORDER_RIGHT"):
+      elif (label_tip == "ORDER_RIGHT"):
          self.LATERAL = False
          signs = (
             "\\geq", ">", "\\gtrsim", "\\gg",
@@ -558,12 +540,12 @@ class Math_sign(Leaf):
          )
 
       if signs:
-         table_sign = get_table_sign(signs)
+         table_sign = AID.get_table_sign(signs)
       if tail.isdigit():
          sign = table_sign.get(tail)
       if not sign:
          data = self.give_data(0, len(self.source))
-         from .caution import Not_being_valid_symbol as creator
+         from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
       sink = self.write_math_outside(sign)
       return sink
@@ -576,7 +558,7 @@ class Math_sign(Leaf):
 
 class Math_pair(Leaf):
 
-   KIND = "math"
+   KIND = "math-pair"
    TAG = "span"
    OUTSIDE = False
    LATERAL = True
@@ -586,29 +568,35 @@ class Math_pair(Leaf):
 
    def write(self):
       cut = AID.get_tip_math("CUT_PAIR")
-      head_left = 0
-      head_right = 0
-      boxes = []
-      for head in range(len(self.source)):
-         _, head_right = self.snip_tissue_math(head_left)
-         if (self.source[head_right] == cut):
-            box = Math_box(self.source[head_left: head_right])
-            boxes.append(box)
-            head_left = head_right
-      assert (len(boxes) == 2)
-      top, bottom = boxes
+      head_left = self.move_right(0, 0)
+      head_right = head_left
+      boxes = [[]]
+      while (head_right < len(self.source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         head_left = head_right
+         head_right = self.move_right(0, head_right)
+         label = AID.get_label_math(tissue.source)
+         if tissue and (label == label_cut):
+            boxes.append([])
+         else:
+            boxes[-1].append(box)
+      if not (len(boxes) == 3):
+         data = self.give_data(0, len(self.source))
+         from .caution import Containing_wrong_number_boxes as creator
+         creator(**data).panic()
 
-      sink_top = top.write()
-      sink_bottom = bottom.write()
+      box_top, box_main, box_bottom = boxes
+      top = AID.unite([tissue.write() for tissue in box_top])
+      bottom = AID.unite([tissue.write() for tissue in box_bottom])
       command = "\\frac"
-      sink = AID.write_command(command, sink_top, sink_bottom)
+      sink = AID.write_command(command, top, bottom)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Math_triplet(Leaf):
 
-   KIND = "math"
+   KIND = "math-triplet"
    TAG = "span"
    OUTSIDE = False
    LATERAL = True
@@ -618,24 +606,30 @@ class Math_triplet(Leaf):
 
    def write(self):
       cut = AID.get_tip_math("CUT_TRIPLET")
-      head_left = 0
-      head_right = 0
-      boxes = []
-      for head in range(len(self.source)):
-         _, head_right = self.snip_tissue_math(head_left)
-         if (self.source[head_right] == cut):
-            box = Math_box(self.source[head_left: head_right])
-            boxes.append(box)
-            head_left = head_right
-      assert (len(boxes) == 3)
-      box_top, box_main, box_bottom = boxes
-      top = top.write()
-      main = main.write()
-      bottom = bottom.write()
+      head_left = self.move_right(0, 0)
+      head_right = head_left
+      boxes = [[]]
+      while (head_right < len(self.source)):
+         tissue, head_right = self.snip_tissue_math(head_left)
+         head_left = head_right
+         head_right = self.move_right(0, head_right)
+         label = AID.get_label_math(tissue.source)
+         if tissue and (label == label_cut):
+            boxes.append([])
+         else:
+            boxes[-1].append(box)
+      if not (len(boxes) == 3):
+         data = self.give_data(0, len(self.source))
+         from .caution import Containing_wrong_number_boxes as creator
+         creator(**data).panic()
 
-      sink = ''
+      be_lateral = ((len(box_main) == 1) and box_main[0].LATERAL)
+      box_top, box_main, box_bottom = boxes
+      top = AID.unite([tissue.write() for tissue in box_top])
+      main = AID.unite([tissue.write() for tissue in box_main])
+      bottom = AID.unite([tissue.write() for tissue in box_bottom])
       contents = []
-      if (main.LATERAL):
+      if (be_lateral):
          contents.append(AID.write_latex('', main))
          contents.append(AID.write_latex('^', top))
          contents.append(AID.write_latex('_', bottom))
@@ -649,7 +643,7 @@ class Math_triplet(Leaf):
 
 class Math_tuple(Leaf):
 
-   KIND = "math"
+   KIND = "math-tuple"
    TAG = "span"
    OUTSIDE = False
    LATERAL = True
@@ -669,12 +663,36 @@ class Math_tuple(Leaf):
             boxes.append(box)
             head_left = head_right
 
-      sink = ''
-      sink += AID.write_command("\\begin", "matrix") + '\n'
+      sinks = []
+      sinks.append(AID.write_command("\\begin", "matrix"))
       for box in boxes:
-         sink += box.write() + "\\\\\n"
-      sink += AID.write_command("\\end", "matrix") + '\n'
+         content = AID.unite([tissue.write() for tissue in box]) 
+         sinks.append(content + "\\\\")
+      sinks.append(AID.write_command("\\end", "matrix"))
+      sink = AID.unite(sinks, cut = '\n')
       return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_cut(Leaf):
+
+   KIND = "math-cut"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      pass
+
+class Math_check(Leaf):
+
+   KIND = "math-check"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      pass
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -809,7 +827,7 @@ class Pseudo_sign(Leaf):
       sink = symbols.get(tip).get(tail)
       if not sink:
          data = self.give_data()
-         from .caution import Not_being_valid_symbol as creator
+         from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
 
       result = write_element(

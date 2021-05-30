@@ -60,17 +60,17 @@ class Organ(object):
       return count
 
    def explain(self):
-      if (hasattr(self, "KIND")):
-         print(f"Writing {self.KIND} with source:", flush = True)
-         fragments = self.source.split('\n')
-         counts = []
-         for count in range(len(fragments)):
-            if (abs(count) < 3) or (abs(count - len(fragments)) < 3):
-               counts.append(count)
-         color_default = "\033[0m"
-         color_yellow = "\033[93m"
-         for count in counts:
-            print(">>", color_yellow, fragments[count], color_default)
+      assert (hasattr(self, "KIND"))
+      print(f"Writing {self.KIND} with source:", flush = True)
+      fragments = self.source.split('\n')
+      counts = []
+      for count in range(len(fragments)):
+         if (abs(count) < 3) or (abs(count - len(fragments)) < 3):
+            counts.append(count)
+      color_default = "\033[0m"
+      color_yellow = "\033[93m"
+      for count in counts:
+         print(">>", color_yellow, fragments[count], color_default)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -428,24 +428,24 @@ class Leaf(Organ):
       if not AID.be_start_math(label_left):
          head_right = self.move_right(1, head_left)
          data = self.give_data(head_left, head_right)
-         from .caution import Not_being_valid_symbol as creator
+         from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
 
-      if (label_left == "PLAIN"):
+      elif (label_left == "PLAIN"):
          probe_left = self.move_right(1, head_left)
          tip_left = self.source[probe_left]
          label_left = AID.get_label_math(tip_left)
          if not AID.be_start_asymmetry_math(label_left):
+            print("label_left", label_left)
             head_right = self.move_right(1, probe_left)
             data = self.give_data(head_left, head_right)
             tissue = LEAF.Math_plain(**data)
             return tissue, head_right
-
          tip_right = AID.get_tip_right_math(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, probe_left)
          probe_left = self.move_right(1, probe_left)
          probe_right = self.move_left(2, head_right)
-         data = give_data(probe_left, probe_right)
+         data = self.give_data(probe_left, probe_right)
          if (label_left == "START_PAIR"):
             tissue = LEAF.Math_bracket_round(**data)
          if (label_left == "START_TRIPLET"):
@@ -462,19 +462,24 @@ class Leaf(Organ):
          head_right = self.move_right(2, head_left)
          tip_right = self.source[head_right]
          label_right = AID.get_label_math(tip_right)
-         if (AID.be_accent_math(label_right)):
+         if (AID.be_start_accent_math(label_right)):
             head_right = self.move_right(2, head_right)
          if (head_right >= len(self.source)):
             data = self.give_data(head_left, head_right)
-            from .caution import Not_being_valid_symbol as creator
+            from .caution import Token_invalid_as_symbol as creator
             creator(**data).panic()
          data = self.give_data(head_left, head_right)
-         if (AID.be_letter_math(label_left)):
+         if (AID.be_start_letter_math(label_left)):
             tissue = LEAF.Math_letter(**data)
-         elif (AID.be_sign_math(label_left)):
+         elif (AID.be_start_sign_math(label_left)):
             tissue = LEAF.Math_sign(**data)
          return tissue, head_right
-      return None, head_right
+
+      elif (AID.be_cut_math(label_left)):
+         head_right = self.move_right(1, head_left)
+         data = self.give_data(head_left, head_right)
+         tissue = LEAF.Math_cut(**data)
+         return None, head_right
 
       assert (AID.be_start_box_math(label_left))
       data = give_data(probe_left, probe_right)
@@ -504,14 +509,14 @@ class Leaf(Organ):
       head_right = self.move_right(1, head_left)
       if not AID.be_start_pseudo(label_left):
          data = self.give_data(head_left, head_right)
-         from .caution import Not_being_valid_symbol as creator
+         from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
 
       if (AID.be_start_symbol_pseudo(label_left)):
          head_right = self.move_right(2, head_left)
          if (head_right > len(self.source)):
             data = self.give_data(head_left, len(self.source))
-            from .caution import Not_being_valid_symbol as creator
+            from .caution import Token_invalid_as_symbol as creator
             creator(**data).panic()
          data = self.give_data(head_left, head_right)
          if (AID.be_letter_pseudo(label_left)):

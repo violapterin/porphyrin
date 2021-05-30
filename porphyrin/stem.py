@@ -5,6 +5,7 @@ from . import aid as AID
 
 class Document(Stem):
 
+   KIND = "document"
    TAG = "body"
 
    def __init__(self, **data):
