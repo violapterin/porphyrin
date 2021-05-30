@@ -351,7 +351,6 @@ class Math_letter(Leaf):
       self.accent = ''
 
    def write(self):
-      print("writing: ", self.source)
       letter_accent = ''
       letter = ''
       tip = self.source[0]
@@ -567,7 +566,7 @@ class Math_pair(Leaf):
       self.fill_basic(**data)
 
    def write(self):
-      cut = AID.get_tip_math("CUT_PAIR")
+      label_cut = "CUT_PAIR"
       head_left = self.move_right(0, 0)
       head_right = head_left
       boxes = [[]]
@@ -575,21 +574,23 @@ class Math_pair(Leaf):
          tissue, head_right = self.snip_tissue_math(head_left)
          head_left = head_right
          head_right = self.move_right(0, head_right)
-         label = AID.get_label_math(tissue.source)
-         if tissue and (label == label_cut):
-            boxes.append([])
-         else:
-            boxes[-1].append(box)
-      if not (len(boxes) == 3):
+         if tissue:
+            label = AID.get_label_math(tissue.source)
+            if (label == label_cut):
+               boxes.append([])
+            else:
+               boxes[-1].append(tissue)
+      if not (len(boxes) == 2):
          data = self.give_data(0, len(self.source))
          from .caution import Containing_wrong_number_boxes as creator
          creator(**data).panic()
 
-      box_top, box_main, box_bottom = boxes
+      box_top, box_bottom = boxes
       top = AID.unite([tissue.write() for tissue in box_top])
       bottom = AID.unite([tissue.write() for tissue in box_bottom])
       command = "\\frac"
-      sink = AID.write_command(command, top, bottom)
+      content = AID.write_latex(command, top, bottom)
+      sink = self.write_math_outside(content)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -636,7 +637,8 @@ class Math_triplet(Leaf):
       else:
          underset = AID.write_latex("\\underset", bottom, main)
          contents.append(AID.write_latex("\\overset", top, underset))
-      sink = AID.unite(contents)
+      content = AID.unite(contents)
+      sink = self.write_math_outside(content)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -663,13 +665,14 @@ class Math_tuple(Leaf):
             boxes.append(box)
             head_left = head_right
 
-      sinks = []
-      sinks.append(AID.write_command("\\begin", "matrix"))
+      contents = []
+      contents.append(AID.write_latex("\\begin", "matrix"))
       for box in boxes:
          content = AID.unite([tissue.write() for tissue in box]) 
-         sinks.append(content + "\\\\")
-      sinks.append(AID.write_command("\\end", "matrix"))
-      sink = AID.unite(sinks, cut = '\n')
+         contents.append(content + "\\\\")
+      contents.append(AID.write_latex("\\end", "matrix"))
+      content = AID.unite(contents, cut = '\n')
+      sink = self.write_math_outside(content)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

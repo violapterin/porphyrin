@@ -287,7 +287,7 @@ def get_tip_right_math(tip_left):
    assert (len(tip_left) == 1)
    tip_right = ''
    label_left = get_label_math(tip_left)
-   if not be_start_asymmetry(label_left):
+   if not be_start_asymmetry_math(label_left):
       tip_right = tip_left
       return tip_right
    if (label_left == "START_PAIR"):
@@ -473,7 +473,7 @@ def be_start_box_math(label):
    }
    return (label in labels)
 
-def be_start_accent_math(label):
+def be_cut_math(label):
    labels = {
       "CUT_PAIR",
       "CUT_TRIPLET",
@@ -494,16 +494,22 @@ def be_not_lateral_math(label):
 
 def be_start_symbol_math(label):
    being = (
-      (label == "PLAIN")
-      or be_start_letter_math(label)
+      be_start_letter_math(label)
       or be_start_sign_math(label)
    )
    return being
 
 def be_start_math(label):
+   miscellaneous = {
+      "PLAIN",
+      "CUT_PAIR",
+      "CUT_TRIPLET",
+      "CUT_TUPLE",
+   }
    being = (
       be_start_symbol_math(label)
       or be_start_box_math(label)
+      or (label in miscellaneous)
    )
    return being
 
@@ -515,7 +521,7 @@ def get_tip_right_pseudo(tip_left):
    assert (len(tip_left) == 1)
    label_left = get_label_pseudo(tip_left)
    tip_right = ''
-   if not be_start_asymmetry(label_left):
+   if not be_start_asymmetry_pseudo(label_left):
       tip_right = tip_left
       return tip_right
    if (label_left == "START_ROUND"):

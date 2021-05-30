@@ -1,2 +1,6 @@
-== @It is said that the 10 year old Gauss found himself@ ==
-// ^^ .1 .+ .2 .+ .3 .+ /7 .+ .1.0.0 .= .5.0.5.0.. ^^ //
+== @It is said that Gauss, at ten, found himself that@
+==
+// ^^ .1 .+ .2 .+ .3 .+ /7 .+ .1.0.0
+.= .1.0.0 .* .(.1.0.0 .+ .1.) ./ .2
+.= .5.0.5.0.. ^^
+//
