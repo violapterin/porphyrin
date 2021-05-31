@@ -25,7 +25,6 @@ class Dog():
 
 #Cat("white").call()
 
-sinks = ["  apple", "banana ", " cake", "  dog "]
-sink = AID.join(sinks)
-print(sink[0])
-print(sink[-1])
+l = (1,2,3)
+m = (*l, *l)
+print(m)

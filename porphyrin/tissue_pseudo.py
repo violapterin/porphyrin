@@ -8,75 +8,218 @@ from . import aid as AID
 # #     .a  .A  .b  .B  .0  .1  ..  &.  *.
 class Pseudo_letter(Leaf):
 
-   KIND = "pseudo-sign"
+   KIND = "pseudo-letter"
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      symbols = {}
-      
-      symbols['!'] = {
-         'A': '零', 'B': '壹', 'C': '貳', 'D': '參', 'E': '肆',
-      }
-      symbols['?'] = {
-         # # ... ...
-      }
+      assert (len(self.source) == 2)
+      content = ''
+      letter = ''
+      letters = ()
+      tip = self.source[0]
+      tail = self.source[1]
+      label_tip = AID.get_label_math(tip)
+      label_tail = AID.get_label_math(tail)
+      alphabets_latin = (
+         *(AID.give_alphabets_upper()),
+         *(AID.give_alphabets_lower()),
+      )
+      alphabets_greek = ( # XXX
+      )
+      kanji_first = (
+         '零', '壹', '貳', '參', '肆',
+         '伍', '陸', '柒', '捌', '玖',
+         '甲', '乙', '丙', '丁', '戊',
+         '己', '庚', '辛', '壬', '癸', 
+         '子', '丑', '寅', '卯', '辰', '巳',
+         '午', '未', '申', '酉', '戌', '亥', 
+         '乾', '兌', '離', '震',
+         '巽', '坎', '艮', '坤', 
+         '鼠', '牛', '虎', '兔', '龍', '蛇',
+         '馬', '羊', '猴', '雞', '狗', '豬', 
+      )
+      kanji_second = (
+         '幫', '滂', '並', '明',
+         '非', '敷', '奉', '微', 
+         '端', '透', '定', '泥',
+         '知', '澈', '澄', '娘', 
+         '精', '清', '從', '心', '邪',
+         '照', '穿', '床', '審', '禪', 
+         '見', '溪', '群', '疑',
+         '影', '曉', '匣', '喻', '來', '日', 
+         '通', '江', '止', '遇',
+         '蟹', '臻', '山', '效', 
+         '果', '假', '宕', '梗',
+         '曾', '流', '深', '咸', 
+      )
+
+      suffix_kind = "italic"
+      if (label_tip == "BOLD"):
+         letters = alphabets_latin
+         suffix_kind = "bold"
+      elif (label_tip == "SERIF_BLACK"):
+         letters = alphabets_latin
+         suffix_kind = "serif-black"
+      elif (label_tip == "SANS_BLACK"):
+         letters = alphabets_latin
+         suffix_kind = "sans-black"
+      elif (label_tip == "GREEK"):
+         letters = alphabets_greek
+         suffix_kind = "italic"
+      elif (label_tip == "GREEK_BOLD"):
+         letters = alphabets_greek
+         suffix_kind = "bold"
+      elif (label_tip == "KANJI_FIRST"):
+         letters = kanji_first
+         suffix_kind = "serif-black"
+      elif (label_tip == "KANJI_SECOND"):
+         letters = kanji_second
+         suffix_kind = "sans-black"
+
+      assert (len(self.source) == 2)
+      tip = self.source[0]
+      tail = self.source[1]
+      content = letters.get(tail)
+      if not content:
+         data = self.give_data()
+         from .caution import Token_invalid_as_symbol as creator
+         creator(**data).panic()
+      if letters:
+         table_letter = AID.get_table_sign(signs)
+         letter = table_letter.get(tail)
+      sink = write_element(
+            cut = '',
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND + '-' + suffix_kind],
+      )
+      return sink
 
       # # ... ...
-      # # 零壹貳參肆伍陸柒捌玖
-      # # 甲乙丙丁戊己庚辛壬癸
-      # # 子丑寅卯辰巳午未申酉戌亥
-      # # 乾兌離震巽坎艮坤
-      # # 鼠牛虎兔龍蛇馬羊猴雞狗豬
+      # # '零', '壹', '貳', '參', '肆', '伍', '陸', '柒', '捌', '玖',
+      # # '甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸', 
+      # # '子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', 
+      # # '乾', '兌', '離', '震', '巽', '坎', '艮', '坤', 
+      # # '鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬', 
       # # 
-      # # 幫滂並明非敷奉微
-      # # 端透定泥知澈澄娘
-      # # 精清從心邪照穿床審禪
-      # # 見溪群疑影曉匣喻來日
-      # # 通江止遇蟹臻山效
-      # # 果假宕梗曾流深咸
+      # # '幫', '滂', '並', '明', '非', '敷', '奉', '微', 
+      # # '端', '透', '定', '泥', '知', '澈', '澄', '娘', 
+      # # '精', '清', '從', '心', '邪', '照', '穿', '床', '審', '禪', 
+      # # '見', '溪', '群', '疑', '影', '曉', '匣', '喻', '來', '日', 
+      # # '通', '江', '止', '遇', '蟹', '臻', '山', '效', 
+      # # '果', '假', '宕', '梗', '曾', '流', '深', '咸', 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 class Pseudo_sign(Leaf):
 
    KIND = "pseudo-sign"
+   TAG = "span"
 
    def __init__(self, **data):
       self.fill_basic(**data)
 
    def write(self):
-      symbols = {}
+      assert (len(self.source) == 2)
+      content = ''
+      sign = ''
+      signs = ()
+      tip = self.source[0]
+      tail = self.source[1]
+      label_tip = AID.get_label_math(tip)
+      label_tail = AID.get_label_math(tail)
 
-      symbols['~'] = {
-         '0': 'い', '1': 'ろ', '2': 'は', '3': 'に', '4': 'ほ',
-         '5': 'へ', '6': 'と', '7': 'ち', '8': 'り', '9': 'ぬ',
-      }
-      # # い ろ は に ほ へ と ち り ぬ 
-      # # る を わ か よ た れ そ つ ね
-      # # な ら む う ゐ の お く や ま
-      # # け ふ こ え て あ さ き ゆ め
-      # # み し ゑ ひ も
-      # # ... ...
+      if (label_tip == "KANA_FIRST"):
+         signs = ('い', 'ろ', 'は', 'に', 'ほ',
+               'イ', 'ロ', 'ハ', 'ニ', 'ホ')
+      elif (label_tip == "KANA_SECOND"):
+         signs = ('へ', 'と', 'ち', 'り', 'ぬ',
+               'ヘ', 'ト', 'チ', 'リ', 'ヌ')
+      elif (label_tip == "KANA_THIRD"):
+         signs = ('る', 'を', 'わ', 'か', 'よ',
+               'ル', 'ヲ', 'ワ', 'カ', 'ヨ')
+      elif (label_tip == "KANA_FOURTH"):
+         signs = ('た', 'れ', 'そ', 'つ', 'ね',
+               'タ', 'レ', 'ソ', 'ツ', 'ネ')
+      elif (label_tip == "KANA_FIFTH"):
+         signs = ('な', 'ら', 'む', 'う', 'の',
+               'ナ', 'ラ', 'ム', 'ウ', 'ノ')
+      elif (label_tip == "KANA_SIXTH"):
+         signs = ('お', 'く', 'や', 'ま', 'け',
+               'オ', 'ク', 'ヤ', 'マ', 'ケ')
+      elif (label_tip == "KANA_SEVENTH"):
+         signs = ('ふ', 'こ', 'え', 'て', 'あ',
+               'フ', 'コ', 'エ', 'テ', 'ア')
+      elif (label_tip == "KANA_EIGHTH"):
+         signs = ('さ', 'き', 'ゆ', 'め', 'み',
+               'サ', 'キ', 'ユ', 'メ', 'ミ')
+      elif (label_tip == "KANA_NINTH"):
+         signs = ('し', 'ひ', 'も', 'せ', 'す',
+               'シ', 'ヒ', 'モ', 'セ', 'ス')
+      suffix_kind = ''
+      if (tail in {'0', '1', '2', '3', '4'}):
+         suffix_kind = "serif-bold"
+      elif (tail in {'5', '6', '7', '8', '9'}):
+         suffix_kind = "sans-bold"
 
       assert (len(self.source) == 2)
       tip = self.source[0]
       tail = self.source[1]
-      sink = symbols.get(tip).get(tail)
-      if not sink:
+      if signs:
+         table_sign = AID.get_table_sign(signs)
+         sign = table_sign.get(tail)
+      if not content:
          data = self.give_data()
          from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
+      sink = write_element(
+            cut = '',
+            content = content,
+            tag = self.TAG,
+            attributes = ["class"],
+            values = [self.KIND + '-' + suffix_kind],
+      )
+      return sink
 
-      result = write_element(
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Pseudo_plain(Leaf):
+
+   KIND = "pseudo-plain"
+   TAG = "span"
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      tip = self.source[0]
+      tail = self.source[1]
+      invalid = False
+      if (len(self.source) == 2):
+         invalid = True
+      if (tip == AID.get_tip_pseudo("PLAIN")):
+         invalid = True
+      if not isascii(tail):
+         invalid = True
+      if invalid:
+         data = self.give_data(0, len(self.source))
+         from .caution import Token_invalid_as_symbol as creator
+         creator(**data).panic()
+      kind = "pseudo-mono"
+      if (isalpha(tail)):
+         kind = "pseudo-italic"
+      sink = write_element(
             cut = '',
             content = sink,
             tag = self.TAG,
             attributes = ["class"],
-            values = [self.KIND],
+            values = [self.KIND + suffix_kind],
       )
-      return result
+      return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #

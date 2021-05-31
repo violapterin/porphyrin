@@ -221,16 +221,22 @@ def be_hollow_leaf(label):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def tune_text(source):
-   glyphs_space = set([' ', '\t', '\n'])
-   glyphs_mark = set([])
-   glyphs_mark.add(get_tip("SERIF_ROMAN"))
-   glyphs_mark.add(get_tip("SERIF_ITALIC"))
-   glyphs_mark.add(get_tip("SERIF_BOLD"))
-   glyphs_mark.add(get_tip("SANS_ROMAN"))
-   glyphs_mark.add(get_tip("SANS_BOLD"))
-   glyphs_mark.add(get_tip("COMMENT_LEFT"))
-   glyphs_mark.add(get_tip("COMMENT_RIGHT"))
-
+   glyphs_space = {' ', '\t', '\n'}
+   glyphs_mark = set()
+   labels_mark = {
+      "SERIF_ROMAN",
+      "SERIF_ITALIC",
+      "SERIF_BOLD",
+      "SANS_ROMAN",
+      "SANS_BOLD",
+      "COMMENT_LEFT",
+      "COMMENT_RIGHT",
+      "DEFINITION_LEFT",
+      "DEFINITION_RIGHT",
+      "IDENITFIER",
+   }
+   for label in labels_mark:
+      glyphs_mark.add(get_tip(label))
    sink = remove_token(glyphs_mark, source)
    sink = erase_token(glyphs_space, sink)
    return sink
@@ -554,9 +560,7 @@ def give_labels_pseudo():
    labels = {
       "PLAIN": '.',
       "BOLD": ',',
-      "ROMAN": '\"',
-      "ROMAN_BLACK": ';',
-      "SANS": '\'',
+      "SERIF_BLACK": ';',
       "SANS_BLACK": ':',
       "GREEK": '-',
       "GREEK_BOLD": '=',
@@ -584,6 +588,7 @@ def give_labels_pseudo():
       "STOP_CURLY": '}',
       "START_REMARK": '<',
       "STOP_REMARK": '>',
+      #
       "SERIF": '\"',
       "SANS": '\'',
       "MONO": '`',
@@ -608,11 +613,8 @@ def get_tip_pseudo(label):
 
 def be_start_letter_pseudo(label):
    labels = {
-      "PLAIN",
       "BOLD",
-      "SERIF",
       "SERIF_BLACK",
-      "SANS",
       "SANS_BLACK",
       "GREEK",
       "GREEK_BOLD",
@@ -623,7 +625,6 @@ def be_start_letter_pseudo(label):
 
 def be_start_sign_pseudo(label):
    labels = {
-      "KANA_ZEROTH",
       "KANA_FIRST",
       "KANA_SECOND",
       "KANA_THIRD",

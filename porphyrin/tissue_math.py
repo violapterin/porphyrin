@@ -3,159 +3,9 @@ from pdb import set_trace
 from .organ import Leaf
 from . import aid as AID
 
-class Math_bracket_round(Leaf):
-
-   KIND = "math-bracket-round"
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      mark_left = "\\left("
-      mark_right = "\\right)"
-      sink = self.write_math_bracket(mark_left, mark_right)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-class Math_bracket_square(Leaf):
-
-   KIND = "math-bracket-square"
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      mark_left = "\\left["
-      mark_right = "\\right]"
-      sink = self.write_math_bracket(mark_left, mark_right)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-class Math_bracket_curly(Leaf):
-
-   KIND = "math-bracket-curly"
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      mark_left = "\\left\\{"
-      mark_right = "\\right\\}"
-      sink = self.write_math_bracket(mark_left, mark_right)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-class Math_bracket_angle(Leaf):
-
-   KIND = "math-bracket-angle"
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      mark_left = "\\left\\langle"
-      mark_right = "\\right\\rangle"
-      sink = self.write_math_bracket(mark_left, mark_right)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
-class Math_bracket_line(Leaf):
-
-   KIND = "math-bracket-line"
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      mark_left = "\\left|"
-      mark_right = "\\right|"
-      sink = self.write_math_bracket(mark_left, mark_right)
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 # #  &  &a  &A  &b  &B
 # #  *                  *0  *1
 # #     .a  .A  .b  .B  .0  .1  ..  .&  .*
-class Math_plain(Leaf):
-
-   KIND = "math-plain"
-   TAG = "span"
-   OUTSIDE = False
-   LATERAL = True
-
-   def __init__(self, **data):
-      self.fill_basic(**data)
-
-   def write(self):
-      assert (len(self.source) == 2)
-      content = ''
-      symbol = ''
-      tip = self.source[0]
-      tail = self.source[1]
-      label_tip = AID.get_label_math(tip)
-      label_tail = AID.get_label_math(tail)
-
-      if (tail.isalnum()):
-         symbol = tail
-      else:
-         table_symbol = {
-            "PLAIN": '.',
-            "BOLD": "\\aleph",
-            "BLACK": "\\forall",
-            "CURSIVE": "\\leftthreetimes",
-            "GREEK": "\\exists",
-            #
-            "ABSTRACTION": "\\wp",
-            "LINE": '/',
-            "OPERATION_ONE": '+',
-            "OPERATION_TWO": '-',
-            "OPERATION_THREE": "\\cdot",
-            "EQUIVALENCE_ONE": '=',
-            "EQUIVALENCE_TWO": "\\sim",
-            "ARROW_MIDDLE": "\\uparrow",
-            "ARROW_LEFT": "\\leftarrow",
-            "ARROW_RIGHT": "\\rightarrow",
-            #
-            "SERIF": "\\prime",
-            "SANS": "\\prime\\prime",
-            "MONO": "\\prime\\prime\\prime",
-            "CUT_PAIR": ',',
-            "CUT_TRIPLET": ':',
-            "CUT_TUPLE": ';',
-            "CHECK": "\\quad",
-            "ACCENT_ONE": '!',
-            "ACCENT_TWO": '?',
-         }
-         symbol = table_symbol.get(label_tail)
-
-      if not symbol:
-         data = self.give_data(0, len(self.source))
-         from .caution import Token_invalid_as_symbol as creator
-         creator(**data).panic()
-      sink = self.write_math_outside(symbol)
-      if AID.be_not_lateral_math(label_tail):
-         self.LATERAL = False
-      return sink
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 class Math_letter(Leaf):
 
    KIND = "math-letter"
@@ -364,6 +214,156 @@ class Math_sign(Leaf):
          from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
       sink = self.write_math_outside(sign)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_plain(Leaf):
+
+   KIND = "math-plain"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      assert (len(self.source) == 2)
+      content = ''
+      symbol = ''
+      tip = self.source[0]
+      tail = self.source[1]
+      label_tip = AID.get_label_math(tip)
+      label_tail = AID.get_label_math(tail)
+
+      if (tail.isalnum()):
+         symbol = tail
+      else:
+         table_symbol = {
+            "PLAIN": '.',
+            "BOLD": "\\aleph",
+            "BLACK": "\\forall",
+            "CURSIVE": "\\leftthreetimes",
+            "GREEK": "\\exists",
+            #
+            "ABSTRACTION": "\\wp",
+            "LINE": '/',
+            "OPERATION_ONE": '+',
+            "OPERATION_TWO": '-',
+            "OPERATION_THREE": "\\cdot",
+            "EQUIVALENCE_ONE": '=',
+            "EQUIVALENCE_TWO": "\\sim",
+            "ARROW_MIDDLE": "\\uparrow",
+            "ARROW_LEFT": "\\leftarrow",
+            "ARROW_RIGHT": "\\rightarrow",
+            #
+            "SERIF": "\\prime",
+            "SANS": "\\prime\\prime",
+            "MONO": "\\prime\\prime\\prime",
+            "CUT_PAIR": ',',
+            "CUT_TRIPLET": ':',
+            "CUT_TUPLE": ';',
+            "CHECK": "\\quad",
+            "ACCENT_ONE": '!',
+            "ACCENT_TWO": '?',
+         }
+         symbol = table_symbol.get(label_tail)
+
+      if not symbol:
+         data = self.give_data(0, len(self.source))
+         from .caution import Token_invalid_as_symbol as creator
+         creator(**data).panic()
+      sink = self.write_math_outside(symbol)
+      if AID.be_not_lateral_math(label_tail):
+         self.LATERAL = False
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_round(Leaf):
+
+   KIND = "math-bracket-round"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      mark_left = "\\left("
+      mark_right = "\\right)"
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_square(Leaf):
+
+   KIND = "math-bracket-square"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      mark_left = "\\left["
+      mark_right = "\\right]"
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_curly(Leaf):
+
+   KIND = "math-bracket-curly"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      mark_left = "\\left\\{"
+      mark_right = "\\right\\}"
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_angle(Leaf):
+
+   KIND = "math-bracket-angle"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      mark_left = "\\left\\langle"
+      mark_right = "\\right\\rangle"
+      sink = self.write_math_bracket(mark_left, mark_right)
+      return sink
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+class Math_bracket_line(Leaf):
+
+   KIND = "math-bracket-line"
+   OUTSIDE = False
+   LATERAL = True
+
+   def __init__(self, **data):
+      self.fill_basic(**data)
+
+   def write(self):
+      mark_left = "\\left|"
+      mark_right = "\\right|"
+      sink = self.write_math_bracket(mark_left, mark_right)
       return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

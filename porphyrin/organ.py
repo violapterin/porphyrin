@@ -60,7 +60,6 @@ class Organ(object):
       return count
 
    def explain(self):
-      assert (hasattr(self, "KIND"))
       print(f"Writing {self.KIND} with source:", flush = True)
       fragments = self.source.split('\n')
       counts = []
@@ -371,7 +370,6 @@ class Leaf(Organ):
       return attributes
 
    def give_values_text(self):
-      assert (hasattr(self, "KIND"))
       assert (hasattr(self, "address"))
       values = [self.KIND]
       if self.address:
@@ -394,7 +392,6 @@ class Leaf(Organ):
    def write_math_outside(self, source):
       assert (hasattr(self, "OUTSIDE"))
       sink = ''
-      kind = "math"
       tag = "span"
       mark_left = "\\("
       mark_right = "\\)"
@@ -405,14 +402,13 @@ class Leaf(Organ):
             content = content,
             tag = tag,
             attributes = ["class"],
-            values = [kind],
+            values = [self.KIND],
          )
       else:
          sink = source
       return sink
 
    def write_pseudo_outside(self, source):
-      assert (hasattr(self, "KIND"))
       tag = "span"
       sink = AID.write_element(
          cut = '',
