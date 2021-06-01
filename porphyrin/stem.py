@@ -6,7 +6,6 @@ from . import aid as AID
 class Document(Stem):
 
    KIND = "document"
-   TAG = "body"
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -29,11 +28,7 @@ class Document(Stem):
       self.parse()
       for bough in self.sinks:
          contents.append(bough.write())
-      content = AID.unite(contents, cut = '\n')
-      result = AID.write_element(
-         content = content,
-         tag = self.TAG,
-      )
+      result = AID.unite(contents, cut = '\n')
       return result
 
    def expand(self, head_left):

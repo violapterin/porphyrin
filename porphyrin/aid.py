@@ -3,14 +3,10 @@ from pdb import set_trace
 
 def convert(path_in, path_out):
    from .stem import Document
-   handle_in = open(path_in, mode = 'r')
-   source = handle_in.read()
-   handle_in.close()
+   source = input_file(path_in)
    document = Document(source = source)
    sink = document.write()
-   handle_out = open(path_out, mode = 'w')
-   handle_out.write(sink)
-   handle_out.close()
+   output_file(path_out, sink)
 
 def make_all(folder_in, folder_out):
    make("ALL", folder_in, folder_out)
@@ -45,6 +41,17 @@ def make(flag, folder_in, folder_out):
                continue
       print(f"Trying to convert {path_in} to {path_out}:")
       convert(path_in, path_out) 
+
+def input_file(path):
+   handle = open(path, mode = 'r')
+   source = handle.read()
+   handle.close()
+   return source
+
+def output_file(path, sink):
+   handle = open(path, mode = 'w')
+   handle.write(sink)
+   handle.close()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
@@ -93,7 +100,7 @@ def write_element(cut = '\n', **data):
 def unite(sources, cut = ' '):
    for index in range(len(sources)):
       sources[index] = (sources[index]).strip()
-   sink = cut.join(sources)
+   sink = (cut.join(sources)).strip()
    return sink
    
 
@@ -143,7 +150,7 @@ def give_labels():
       '#': "SERIF_BOLD",
       '$': "SANS_ROMAN",
       '&': "SANS_BOLD",
-      '+': "mono",
+      '+': "MONO",
       '*': "PSEUDO",
       '^': "MATH",
       '\\': "LINK",

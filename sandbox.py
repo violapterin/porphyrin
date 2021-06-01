@@ -1,30 +1,20 @@
 #! /usr/bin/env python3
 
+import json
+
 import porphyrin.organ as ORGAN
 import porphyrin.stem as STEM
 import porphyrin.leaf as LEAF
 import porphyrin.aid as AID
 
-class Cat():
-   KIND = "cat"
-   def __init__(self, color):
-      self.color = color
-   def call(self):
-      print("meow")
-      print(f"I am a {self.color} cat.")
-   def copy(self):
-      return Cat(self.color)
+source = ''
+source += "["
+source += "   {\"cat\": \"white\"},\n"
+source += "   {\"dog\": \"black\"},\n"
+source += "   {\"sheep\": \"gray\"}\n"
+source += "]"
 
-class Dog():
-   KIND = "dog"
-   def __init__(self, color):
-      self.color = color
-   def call(self):
-      print("bark")
-      print(f"I am a {self.color} dog.")
+sink = json.loads(source)
+print(sink[0]["cat"])
+print(sink[1]["dog"])
 
-#Cat("white").call()
-
-l = (1,2,3)
-m = (*l, *l)
-print(m)

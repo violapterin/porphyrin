@@ -286,6 +286,7 @@ class Stem(Organ):
          from .caution import Not_matching_mark_leaf as creator
          creator(**data).panic()
       if not AID.be_start_leaf(label):
+         print(label)
          from .caution import Allowing_only_leaf as creator
          creator(**data).panic()
 
@@ -411,7 +412,7 @@ class Leaf(Organ):
    def write_pseudo_outside(self, source):
       tag = "span"
       sink = AID.write_element(
-         cut = '',
+         cut = ' ',
          content = source,
          tag = tag,
          attributes = ["class"],

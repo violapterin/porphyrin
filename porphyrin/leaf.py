@@ -142,7 +142,7 @@ class Math(Leaf):
          tissue, head = self.snip_tissue_math(head)
          if tissue:
             # # XXX comment out this line when debugging:
-            # tissue.OUTSIDE = True
+            tissue.OUTSIDE = True
             contents.append(tissue.write())
          head = self.move_right(0, head)
       content = AID.unite(contents)
