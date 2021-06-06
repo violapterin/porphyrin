@@ -55,24 +55,6 @@ def output_file(path, sink):
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
-def get_mark_right(mark_left):
-   assert (len(list(set(mark_left))) == 1)
-   tip_left = mark_left[0]
-   label_left = get_label(mark_left[0])
-   if not be_start_asymmetry(label_left):
-      mark_right = mark_left
-      return mark_left
-
-   mark_right = mark_left
-   if (label_left == "DEFINITION_LEFT"):
-      tip_right = get_tip("DEFINITION_RIGHT")
-   elif (label_left == "COMMENT_LEFT"):
-      tip_right = get_tip("COMMENT_RIGHT")
-   mark_right = mark_left.replace(tip_left, tip_right)
-   return mark_right
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-
 def write_element(cut = '\n', **data):
    assert ("content" in data)
    assert ("tag" in data)
@@ -102,7 +84,25 @@ def unite(sources, cut = ' '):
       sources[index] = (sources[index]).strip()
    sink = (cut.join(sources)).strip()
    return sink
-   
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+def get_mark_right(mark_left):
+   assert (len(list(set(mark_left))) == 1)
+   tip_left = mark_left[0]
+   label_left = get_label(mark_left[0])
+   if not be_start_asymmetry(label_left):
+      mark_right = mark_left
+      return mark_left
+
+   mark_right = mark_left
+   if (label_left == "DEFINITION_LEFT"):
+      tip_right = get_tip("DEFINITION_RIGHT")
+   elif (label_left == "COMMENT_LEFT"):
+      tip_right = get_tip("COMMENT_RIGHT")
+   mark_right = mark_left.replace(tip_left, tip_right)
+   return mark_right
+
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
