@@ -1,10 +1,12 @@
-<div class="paragraphs">
+<article class="document">
+<section class="paragraphs">
 <p class="paragraph">
 <div class="phrase"> <span class="serif-roman">It is said that Gauss, at ten, found himself</span> </div>
 </p>
-</div>
-<div class="lines">
+</section>
+<section class="lines">
 <div class="line">
 <div class="verse"> <div class="math"> <span class="math-triplet"> \({\sum} ^ {1 0 0} _ {n = 1}\) </span> <span class="math-plain"> \(n\) </span> <span class="math-plain"> \(=\) </span> <span class="math-plain"> \(1\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(\cdot\) </span> <span class="math-pair"> \(\frac {1 0 0 + 1} {2}\) </span> <span class="math-plain"> \(=\) </span> <span class="math-plain"> \(5\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(5\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(.\) </span> </div> </div>
 </div>
-</div>
+</section>
+</article>
