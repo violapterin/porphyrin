@@ -1,12 +1,12 @@
 <article class="document">
 <section class="paragraphs">
-<div class="paragraph">
-<p class="phrase"> <span class="serif-roman">It is said that Gauss, at ten, found himself</span> </p>
-</div>
+<p class="paragraph">
+<span class="phrase"> <span class="serif-roman">It is said that Gauss, at ten, found himself</span> </span>
+</p>
 </section>
 <section class="lines">
-<div class="line">
-<p class="verse"> <div class="math"> <span class="math-triplet"> \({\sum} ^ {1 0 0} _ {n = 1}\) </span> <span class="math-plain"> \(n\) </span> <span class="math-plain"> \(=\) </span> <span class="math-plain"> \(1\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(\cdot\) </span> <span class="math-pair"> \(\frac {1 0 0 + 1} {2}\) </span> <span class="math-plain"> \(=\) </span> <span class="math-plain"> \(5\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(5\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(.\) </span> </div> </p>
-</div>
+<p class="line">
+<span class="verse"> <div class="math"> <span class="math-triplet"> \({\sum} ^ {1 0 0} _ {n = 1}\) </span> <span class="math-plain"> \(n\) </span> <span class="math-plain"> \(=\) </span> <span class="math-plain"> \(1\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(\cdot\) </span> <span class="math-pair"> \(\frac {1 0 0 + 1} {2}\) </span> <span class="math-plain"> \(=\) </span> <span class="math-plain"> \(5\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(5\) </span> <span class="math-plain"> \(0\) </span> <span class="math-plain"> \(.\) </span> </div> </span>
+</p>
 </section>
 </article>
