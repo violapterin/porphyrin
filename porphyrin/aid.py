@@ -252,6 +252,7 @@ def tune_text(source):
    sink = remove_token(glyphs_mark, sink)
    sink = erase_token(glyphs_space, sink)
    sink = prune_space(sink)
+   sink = sink.replace("- ", "-")
    return sink
 
 def tune_code(source):
@@ -360,6 +361,22 @@ def be_latin(glyph):
    if (u'\u0250' <= glyph <= u'\u02AF'):
       return True # IPA Extensions
    return False
+
+def normalize_percentage(weights):
+   percentages = []
+   grosses = weights
+   partition = 100
+   lowest = 5
+   while (True):
+      if not grosses:
+         break
+      gross = min(grosses)
+      percentage = round(partition * gross / sum(grosses))
+      grosses.pop(grosses.index(gross))
+      percentage = max(lowest, percentage)
+      partition -= percentage
+      percentages.append(percentage)
+   return percentages
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 

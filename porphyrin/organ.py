@@ -16,7 +16,7 @@ class Organ(object):
       self.fill_basic(**data)
    
    def fill_basic(self, **data):
-      self.source = data.pop("source", '').rstrip(" \n\t")
+      self.source = data.pop("source", '')
       self.leftmost = data.pop("leftmost", '')
       self.rightmost = data.pop("rightmost", '')
       self.count_line = data.pop("count_line", 0)
@@ -24,7 +24,7 @@ class Organ(object):
 
    def give_data(self, head_left, head_right):
       data = {
-         "source" : self.source[head_left: head_right],
+         "source" : (self.source[head_left: head_right]).rstrip(" \t\n"),
          "leftmost" : self.get_leftmost_new(head_left),
          "rightmost" : self.get_rightmost_new(head_right),
          "count_line" : self.get_count_line_new(head_left),
@@ -237,6 +237,8 @@ class Stem(Organ):
          return None, 0
 
       data = self.give_data(probe_left, probe_right)
+      if not data["source"]:
+         return None, head_right
       if (label == "PARAGRAPHS"):
          bough = STEM.Paragraphs(**data)
       if (label == "LINES"):
@@ -305,6 +307,8 @@ class Stem(Organ):
             creator(**data).panic()
 
       data = self.give_data(probe_left, probe_right)
+      if not data["source"]:
+         return None, head_right
       if (label == "SERIF_ROMAN"):
          leaf = LEAF.Serif_roman(**data)
       if (label == "SERIF_ITALIC"):
@@ -336,6 +340,8 @@ class Stem(Organ):
          if leaf and (leaf.KIND == kind_stop):
             break
       data = self.give_data(head_left, head_middle)
+      if not data["source"]:
+         return None, head_right
       branch = creator(**data)
       return branch, head_right
 
@@ -443,6 +449,8 @@ class Leaf(Organ):
       elif (AID.be_cut_math(label_left)):
          head_right = head_after
          data = self.give_data(head_left, head_right)
+         if not data["source"]:
+            return None, head_right
          tissue = TISSUE.Math_cut(**data)
          return tissue, head_right
 
@@ -457,6 +465,8 @@ class Leaf(Organ):
             from .caution import Token_invalid_as_symbol as creator
             creator(**data).panic()
          data = self.give_data(head_left, head_right)
+         if not data["source"]:
+            return None, head_right
          if (AID.be_start_letter_math(label_left)):
             tissue = TISSUE.Math_letter(**data)
          elif (AID.be_start_sign_math(label_left)):
@@ -467,6 +477,8 @@ class Leaf(Organ):
          head_right = self.find_balanced(tip_left, tip_right, head_left)
          probe_right = self.move_left(1, head_right)
          data = self.give_data(head_after, probe_right)
+         if not data["source"]:
+            return None, head_right
          if (label_left == "START_PAIR"):
             tissue = TISSUE.Math_pair(**data)
          if (label_left == "START_TRIPLET"):
@@ -486,6 +498,8 @@ class Leaf(Organ):
          if not AID.be_start_asymmetry_math(label_after):
             head_right = self.move_right(1, head_after)
             data = self.give_data(head_left, head_right)
+            if not data["source"]:
+               return None, head_right
             tissue = TISSUE.Math_plain(**data)
          else:
             tip_right = AID.get_tip_right_math(tip_after)
@@ -493,6 +507,8 @@ class Leaf(Organ):
             probe_middle = self.move_right(1, head_after)
             probe_right = self.move_left(2, head_right)
             data = self.give_data(probe_middle, probe_right)
+            if not data["source"]:
+               return None, head_right
 
             if (label_after == "START_PAIR"):
                tissue = TISSUE.Math_bracket_round(**data)
@@ -532,6 +548,8 @@ class Leaf(Organ):
             from .caution import Token_invalid_as_symbol as creator
             creator(**data).panic()
          data = self.give_data(head_left, head_right)
+         if not data["source"]:
+            return None, head_right
          if (AID.be_letter_pseudo(label_left)):
             tissue = TISSUE.Pseudo_letter(**data)
          elif (AID.be_sign_pseudo(label_left)):
@@ -541,6 +559,8 @@ class Leaf(Organ):
       elif (label_left == "PLAIN"):
          head_right = self.move_right(2, head_left)
          data = self.give_data(head_left, head_right)
+         if not data["source"]:
+            return None, head_right
          tissue = TISSUE.Pseudo_plain(**data)
          return tissue, head_right
 
@@ -551,6 +571,8 @@ class Leaf(Organ):
          probe_left = self.move_right(1, head_left)
          probe_right = self.move_left(1, head_right)
          data = give_data(probe_left, probe_right)
+         if not data["source"]:
+            return None, head_right
          if (label_left == "START_ROUND"):
             tissue = TISSUE.Pseudo_bracket_round(**data)
          if (label_left == "START_SQUARE"):

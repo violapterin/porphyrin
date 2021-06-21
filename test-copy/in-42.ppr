@@ -1,7 +1,7 @@
 ===
-@@It is &said {that Gauss, at ten, @found himself}@@
-=== ///
+@@It is &said {that Gauss, at ten, @found himself}@@ _
+=== ===
 ^^ .1 .+ .2 .+ .3 .+ /7 .+ .1.0.0
     .= .1.0.0 .* (.1.0.0 .+ .1, .2)
     .= .5.0.5.0.. ^^
-///
+===
