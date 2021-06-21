@@ -252,7 +252,6 @@ def tune_text(source):
    sink = remove_token(glyphs_mark, sink)
    sink = erase_token(glyphs_space, sink)
    sink = prune_space(sink)
-   sink = sink.replace("- ", "-")
    return sink
 
 def tune_code(source):

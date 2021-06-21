@@ -74,60 +74,54 @@ class Organ(object):
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
    def move_left(self, step, head):
-      assert (step >= 0)
       probe = head
       whitespaces = {' ', '\t', '\n'}
       size = len(self.source)
-      interval = range(len(self.source) + 1)
+      interval = range(size)
       probe = self.confine_head(probe)
       if (probe == 0):
          return 0
 
-      if (step == 0):
-         while (probe in interval):
-            if (self.source[probe] in whitespaces):
-               probe -= 1
-            else:
-               break
+      while (probe in interval):
+         if (self.source[probe] not in whitespaces):
+            break
+         else:
+            probe -= 1
+      if (probe == 0):
          return probe
-      else:
-         for _ in range(step):
-            while (probe in interval):
+      for _ in range(step):
+         probe -= 1
+         while (probe in interval):
+            if (self.source[probe] not in whitespaces):
+               break
+            else:
                probe -= 1
-               if (probe < 0):
-                  break
-               tip = self.source[probe]
-               if (tip not in whitespaces):
-                  break
       probe = self.confine_head(probe)
       return probe
 
    def move_right(self, step, head):
-      assert (step >= 0)
       probe = head
       whitespaces = {' ', '\t', '\n'}
       size = len(self.source)
-      interval = range(len(self.source) + 1)
+      interval = range(size)
       probe = self.confine_head(probe)
       if (probe == size):
          return size
 
-      if (step == 0):
-         while (probe in interval):
-            if (self.source[probe] in whitespaces):
-               probe += 1
-            else:
-               break
+      while (probe in interval):
+         if (self.source[probe] not in whitespaces):
+            break
+         else:
+            probe += 1
+      if (probe == size):
          return probe
-      else:
-         for _ in range(step):
-            while (probe in interval):
+      for _ in range(step):
+         probe += 1
+         while (probe in interval):
+            if (self.source[probe] not in whitespaces):
+               break
+            else:
                probe += 1
-               if (probe >= len(self.source)):
-                  break
-               tip = self.source[probe]
-               if (tip not in whitespaces):
-                  break
       probe = self.confine_head(probe)
       return probe
 
@@ -435,6 +429,8 @@ class Leaf(Organ):
       tip_left = self.source[head_left]
       label_left = AID.get_label_math(tip_left)
       head_after = self.move_right(1, head_left)
+      if (head_after >= len(self.source)):
+         return None, len(self.source)
       tip_after = self.source[head_after]
       label_after = AID.get_label_math(tip_after)
       if not AID.be_start_math(label_left):
@@ -532,6 +528,8 @@ class Leaf(Organ):
       tip_left = self.source[head_left]
       label_left = AID.get_label_pseudo(tip_left)
       head_right = self.move_right(1, head_left)
+      if (head_after >= len(self.source)):
+         return None, len(self.source)
       if not AID.be_start_pseudo(label_left):
          data = self.give_data(head_left, head_right)
          from .caution import Token_invalid_as_symbol as creator
