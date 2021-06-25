@@ -153,14 +153,11 @@ class Organ(object):
          mark_probe = self.source[probe_right: head_right]
          if (mark_probe == mark_left):
             count += 1
-            print("+1")
          elif (mark_probe == mark_right):
             count -= 1
-            print("-1")
          if (count == 0):
             break
          probe_right += 1
-      print("find_balanced:", self.source[probe_right])
       return head_right
 
    def probe_mark(self, head_left):
@@ -486,10 +483,8 @@ class Leaf(Organ):
       if (AID.be_start_box_math(label_left)):
          tip_right = AID.get_tip_right_math(tip_left)
          head_right = self.find_balanced(tip_left, tip_right, head_left)
-         probe_right = self.move_left(1, head_right - 1) + 1
-         print (self.source[probe_right])
+         probe_right = head_right - 1
          data = self.give_data(head_after, probe_right)
-         print("source", data["source"])
          if not data["source"]:
             tissue = TISSUE.Math_void()
             return tissue, head_right
@@ -521,9 +516,8 @@ class Leaf(Organ):
             tip_right = AID.get_tip_right_math(tip_after)
             head_right = self.find_balanced(tip_after, tip_right, head_after)
             probe_middle = self.move_right(1, head_after)
-            probe_right = self.move_left(1, head_right - 2) + 1
+            probe_right = head_right - 2
             data = self.give_data(probe_middle, probe_right)
-            print("source", data["source"])
             if not data["source"]:
                tissue = TISSUE.Math_void()
                return tissue, head_right

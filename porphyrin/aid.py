@@ -470,8 +470,12 @@ def give_alphabets_upper():
    return alphabets
 
 def give_alphabets_lower():
-   alphabets = give_alphabets_upper().lower()
-   return alphabets
+   alphabets_upper = give_alphabets_upper()
+   alphabets_lower = []
+   for alphabet in alphabets_upper:
+      alphabets_lower.append(alphabet.lower())
+   alphabets_lower = tuple(alphabets_lower)
+   return alphabets_lower
 
 def give_digits():
    digits = (

@@ -77,8 +77,8 @@ class Math_letter(Leaf):
             "\\upsilon", "\\digamma", "\\omega",
             "\\chi", "\\psi", "\\zeta",
          )
-         table_upper = get_table_upper(uppers)
-         table_lower = get_table_lower(lowers)
+         table_upper = AID.get_table_upper(uppers)
+         table_lower = AID.get_table_lower(lowers)
          if (tail.isupper()):
             letter = table_upper.get(tail)
          elif (tail.islower()):

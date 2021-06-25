@@ -1,12 +1,12 @@
 ===
-@@Consider@@ _ '
+@@Consider equation@@ _ '
 ^^
   .a [.2:.x:] .+ .b .x .+ .c
   .= .0
 ^^
-@@Then@@ ^^.x^^ @@has the solution@@ _ '
+@@Then@@ ^^.x^^ @@$has the solution@@ _ '
 ^^
   .x
-  .= (.-.b +0, .2.a)
+  .= (.-.b +0 $R.([.2:.b:] .- .4.a.c.), .2.a)
 ^^
 ===
