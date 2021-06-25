@@ -404,7 +404,7 @@ class Math_pair(Leaf):
       box_top, box_bottom = boxes
       top = AID.unite([tissue.write() for tissue in box_top])
       bottom = AID.unite([tissue.write() for tissue in box_bottom])
-      command = "\\frac"
+      command = "\\dfrac"
       content = AID.write_latex(command, top, bottom)
       sink = self.write_math_outside(content)
       return sink

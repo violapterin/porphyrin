@@ -386,7 +386,7 @@ class Leaf(Organ):
       if (self.OUTSIDE):
          content = mark_left + source + mark_right
          sink = AID.write_element(
-            cut = ' ',
+            cut = '',
             content = content,
             tag = tag,
             attributes = ["class"],
@@ -394,6 +394,7 @@ class Leaf(Organ):
          )
       else:
          sink = source
+      sink = sink.strip()
       return sink
 
    def write_pseudo_outside(self, source):
