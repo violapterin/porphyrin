@@ -1,12 +1,13 @@
 ===
-@@Consider equation@@ _ '
+@@consider equation@@ '
 ^^
   .a [.2:.x:] .+ .b .x .+ .c
   .= .0
 ^^
-@@Then@@ ^^.x^^ @@$has the solution@@ _ '
+@@Babylonians already knew that@@ ^^.x^^ @@$has the solution@@ '
 ^^
   .x
   .= (.-.b +0 $R.([.2:.b:] .- .4.a.c.), .2.a)
 ^^
+@@isn’t that amazing?@@ '
 ===

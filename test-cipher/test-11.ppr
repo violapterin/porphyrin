@@ -1,9 +1,9 @@
 ===
-@@this C program $prints itself.@@ _
-@@it is an example of a Gödel sentence:@@ '
-===
-///
+@@this C program $prints itself, and is a Gödel sentence:@@ _ '
 ++// Source: D C Kozen, Automata and Computability, lecture 39++ '
 ++char *s="char *s=%c%s%c;%cmain(){printf(s,34,s,34,10,10);}%c";++ '
-++main(){printf(s,34,s,34,10,10);}++ '
+++main()++ '
+++{++ '
+_ ++printf(s,34,s,34,10,10);++ '
+++}++ '
 ===

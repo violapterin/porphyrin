@@ -266,7 +266,7 @@ class Paragraph(Stem):
       head = self.move_right(0, 0)
       while (head < len(self.source)):
          frond, head = self.shatter_stem("space", Phrase, head)
-         if (not frond) or (not frond.source.strip(" \t\n")):
+         if not frond:
             continue
          self.sinks.append(frond)
          head = self.move_right(0, head)
@@ -300,7 +300,7 @@ class Line(Stem):
       head = self.move_right(0, 0)
       while (head < len(self.source)):
          frond, head = self.shatter_stem("space", Verse, head)
-         if (not frond) or (not frond.source.strip(" \t\n")):
+         if not frond:
             continue
          self.sinks.append(frond)
          head = self.move_right(0, head)
@@ -334,7 +334,7 @@ class Row(Stem):
       head = self.move_right(0, 0)
       while (head < len(self.source)):
          frond, head = self.shatter_stem("space", Cell, head)
-         if (not frond) or (not frond.source.strip(" \t\n")):
+         if not frond:
             continue
          self.sinks.append(frond)
          head = self.move_right(0, head)
