@@ -345,8 +345,8 @@ class Row(Stem):
       for frond in self.sinks:
          contents.append(frond.write())
       content = AID.unite(contents)
-      if not content:
-         return ''
+      if not content.strip(" \t\n"):
+         return "&nbsp;&nbsp;"
       result = AID.write_element(
             content = content,
             tag = self.TAG,
@@ -400,8 +400,10 @@ class Phrase(Stem):
                continue
          contents.append(leaf.write())
       content = AID.unite(contents)
+      if not content:
+         return AID.give_wide_space()
       result = AID.write_element(
-            cut = ' ',
+            cut = '',
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -441,8 +443,10 @@ class Verse(Stem):
       for leaf in self.sinks:
          contents.append(leaf.write())
       content = AID.unite(contents)
+      if not content:
+         return AID.give_wide_space()
       result = AID.write_element(
-            cut = ' ',
+            cut = '',
             content = content,
             tag = self.TAG,
             attributes = ["class"],
@@ -482,8 +486,10 @@ class Cell(Stem):
       for leaf in self.sinks:
          contents.append(leaf.write())
       content = AID.unite(contents)
+      if not content:
+         return AID.give_wide_space()
       result = AID.write_element(
-            cut = ' ',
+            cut = '',
             content = content,
             tag = self.TAG,
             attributes = ["class"],
