@@ -90,16 +90,18 @@ class Break(Stem):
       self.sinks = []
 
    def parse(self):
-      dingbat = "&#10086;"
+      space = "<span class=\"phrase\">&emsp;</span>"
+      dingbat = "<span class=\"phrase\">&#10086;</span>"
       repeat = 3
-      self.sinks = dingbat * repeat
+      for _ in range(repeat):
+         self.sinks.append(space)
+         self.sinks.append(dingbat)
 
    def write(self):
       contents = []
       self.parse()
       for sink in self.sinks:
-         if sink:
-            contents.append(sink)
+         contents.append(sink)
       content = AID.unite(contents)
       result = AID.write_element(
          content = content,
