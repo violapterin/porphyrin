@@ -143,7 +143,7 @@ def give_labels():
       '/': "LINES",
       '\"': "ROWS",
       '|': "graph",
-      '`': "IDENITFIER",
+      '`': "IDENTIFIER",
       '~': "BREAK",
       '<': "COMMENT_LEFT",
       '>': "COMMENT_RIGHT",
@@ -203,7 +203,7 @@ def be_start_leaf(label):
       "LINK",
       "COMMENT_LEFT",
       "DEFINITION_LEFT",
-      "IDENITFIER",
+      "IDENTIFIER",
    }
    return (label in labels)
 
@@ -216,7 +216,7 @@ def be_start_asymmetry(label):
 
 def be_start_macro(label):
    labels = {
-      "IDENITFIER",
+      "IDENTIFIER",
       "DEFINITION_LEFT",
    }
    return (label in labels)
@@ -245,7 +245,7 @@ def tune_text(source):
       "COMMENT_RIGHT",
       "DEFINITION_LEFT",
       "DEFINITION_RIGHT",
-      "IDENITFIER",
+      "IDENTIFIER",
    }
    for label in labels_mark:
       glyphs_mark.add(get_tip(label))
@@ -280,6 +280,40 @@ def tune_hypertext(source):
       '&': "&amp;",
       '\"': "&quot;",
       '\'': "&#39;",
+   }
+   sink = source
+   index = 0
+   while True:
+      if (index >= len(sink)):
+         break
+      step = 1
+      for glyph, escape in escapes.items():
+         if (index >= len(sink)):
+            break
+         if (sink[index] == glyph):
+            sink = sink[:index] + escape + sink[index + 1:]
+            step = len(escape)
+            break
+      index += step
+   return sink
+
+def tune_address(source):
+   escapes = {
+      '!': "%21",
+      '\"': "%22",
+      '#': "%23",
+      '$': "%24",
+      '%': "%25",
+      '&': "%26",
+      '\'': "%27",
+      '(': "%28",
+      ')': "%29",
+      '*': "%2A",
+      '+': "%2B",
+      ',': "%2C",
+      '-': "%2D",
+      '.': "%2E",
+      '/': "%2F",
    }
    sink = source
    index = 0
