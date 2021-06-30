@@ -137,7 +137,7 @@ def give_many_label():
       '=': "SECTION",
       '/': "STANZA",
       '\"': "ARRAY",
-      '|': "graph",
+      '|': "GRAPH",
       '`': "IDENTIFIER",
       '~': "BREAK",
       '<': "COMMENT_LEFT",
@@ -690,14 +690,6 @@ def be_start_math(label):
       or (label in miscellaneous)
    )
    return being
-
-def kind_be_cut_math(kind):
-   many_kind = {
-      "math-cut-pair",
-      "math-cut-triplet",
-      "math-cut-tuple",
-   }
-   return (kind in many_kind)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
