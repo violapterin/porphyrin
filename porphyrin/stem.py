@@ -347,8 +347,6 @@ class Row(Stem):
       for frond in self.many_sink:
          many_content.append(frond.write())
       content = AID.unite(many_content)
-      if not content.strip(" \t\n"):
-         return "&nbsp;"
       result = AID.write_element(
             content = content,
             tag = self.TAG,
