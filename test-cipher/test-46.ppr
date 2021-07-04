@@ -1,0 +1,11 @@
+===
+@@consider equation@@ '
+^^.a [.2:.x:] .+ .b .x .+ .c
+  .= .0
+  `FOR` .x^^
+@@Babylonians already knew that@@ ^^.x^^ @@$has the solution@@ '
+^^.x
+  .= (.-.b +0 $R.([.2:.b:] .- .4.a.c.), .2.a)
+  `FOR` .x^^
+@@isn’t that amazing?@@ '
+===
