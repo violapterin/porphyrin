@@ -268,9 +268,9 @@ class Math_plain(Leaf):
             "SERIF": "\\prime",
             "SANS": "\\prime\\prime",
             "MONO": "\\prime\\prime\\prime",
-            "CUT_PAIR": ',',
-            "CUT_TRIPLET": ':',
-            "CUT_TUPLE": ';',
+            "CUT_PAIR": ',\\,',
+            "CUT_TRIPLET": ':\\,',
+            "CUT_TUPLE": ';\\,',
             "CHECK": "\\quad",
             "ACCENT_ONE": '!',
             "ACCENT_TWO": '?',
@@ -282,7 +282,15 @@ class Math_plain(Leaf):
          from .caution import Token_invalid_as_symbol as creator
          creator(**data).panic()
       sink = self.write_math_outside(symbol)
-      if AID.be_not_lateral_math(label_tail):
+      label_tail_not_lateral = {
+         "BOLD",
+         "BLACK",
+         "CURSIVE",
+         "GREEK",
+         "EQUIVALENCE_ONE",
+         "EQUIVALENCE_TWO",
+      }
+      if (label_tail in label_tail_not_lateral):
          self.LATERAL = False
       return sink
 
@@ -293,6 +301,7 @@ class Math_plain(Leaf):
 class Math_bracket_round(Leaf):
 
    KIND = "math-bracket-round"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
 
@@ -310,6 +319,7 @@ class Math_bracket_round(Leaf):
 class Math_bracket_square(Leaf):
 
    KIND = "math-bracket-square"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
 
@@ -327,6 +337,7 @@ class Math_bracket_square(Leaf):
 class Math_bracket_curly(Leaf):
 
    KIND = "math-bracket-curly"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
 
@@ -344,6 +355,7 @@ class Math_bracket_curly(Leaf):
 class Math_bracket_angle(Leaf):
 
    KIND = "math-bracket-angle"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
 
@@ -361,6 +373,7 @@ class Math_bracket_angle(Leaf):
 class Math_bracket_line(Leaf):
 
    KIND = "math-bracket-line"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
 
@@ -429,6 +442,7 @@ class Math_pair(Leaf):
 class Math_triplet(Leaf):
 
    KIND = "math-triplet"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
    
@@ -464,20 +478,33 @@ class Math_triplet(Leaf):
          creator(**data).panic()
 
       box_top, box_main, box_bottom = boxes
-      whether_lateral = ((len(box_main) == 1) and box_main[0].LATERAL)
+      whether_lateral = True
+      if (len(box_main) == 1) and (not box_main[0].LATERAL):
+         whether_lateral = False
       top = AID.unite([tissue.write() for tissue in box_top])
       main = AID.unite([tissue.write() for tissue in box_main])
       bottom = AID.unite([tissue.write() for tissue in box_bottom])
       content = ''
       if (whether_lateral):
          many_content = []
-         many_content.append(AID.write_latex('', main))
-         many_content.append(AID.write_latex('^', top))
-         many_content.append(AID.write_latex('_', bottom))
+         if main:
+            many_content.append(AID.write_latex('', main))
+         else:
+            many_content.append('\\;')
+         if top:
+            many_content.append(AID.write_latex('^', top))
+         if bottom:
+            many_content.append(AID.write_latex('_', bottom))
          content = AID.unite(many_content)
       else:
-         underset = AID.write_latex("\\underset", bottom, main)
-         content = AID.write_latex("\\overset", top, underset)
+         if bottom:
+            underset = AID.write_latex("\\underset", bottom, main)
+            if top:
+               content = AID.write_latex("\\overset", top, underset)
+            else:
+               content = underset
+         elif content:
+            overset = AID.write_latex("\\overset", top, main)
       sink = self.write_math_outside(content)
       return sink
 
@@ -486,6 +513,7 @@ class Math_triplet(Leaf):
 class Math_tuple(Leaf):
 
    KIND = "math-tuple"
+   TAG = "span"
    OUTSIDE = False
    LATERAL = True
 
@@ -532,6 +560,9 @@ class Math_tuple(Leaf):
 class Math_cut_pair(Leaf):
 
    KIND = "math-cut-pair"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -542,6 +573,9 @@ class Math_cut_pair(Leaf):
 class Math_cut_triplet(Leaf):
 
    KIND = "math-cut-triplet"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -552,6 +586,9 @@ class Math_cut_triplet(Leaf):
 class Math_cut_tuple(Leaf):
 
    KIND = "math-cut-tuple"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -562,6 +599,9 @@ class Math_cut_tuple(Leaf):
 class Math_check(Leaf):
 
    KIND = "math-check"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
 
    def __init__(self, **data):
       self.fill_basic(**data)
@@ -578,6 +618,8 @@ class Math_check(Leaf):
 class Math_serif(Leaf):
 
    KIND = "math-serif"
+   TAG = "span"
+   OUTSIDE = False
    LATERAL = False
 
    def __init__(self, **data):
@@ -599,6 +641,8 @@ class Math_serif(Leaf):
 class Math_sans(Leaf):
 
    KIND = "math-sans"
+   TAG = "span"
+   OUTSIDE = False
    LATERAL = False
 
    def __init__(self, **data):
@@ -620,6 +664,8 @@ class Math_sans(Leaf):
 class Math_mono(Leaf):
 
    KIND = "math-mono"
+   TAG = "span"
+   OUTSIDE = False
    LATERAL = False
 
    def __init__(self, **data):
@@ -641,6 +687,9 @@ class Math_mono(Leaf):
 class Math_void(Leaf):
 
    KIND = "math-void"
+   TAG = "span"
+   OUTSIDE = False
+   LATERAL = True
 
    def __init__(self):
       pass

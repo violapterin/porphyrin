@@ -679,17 +679,6 @@ def be_cut_math(label):
    }
    return (label in many_label)
 
-def be_not_lateral_math(label):
-   many_label = {
-      "BOLD",
-      "BLACK",
-      "CURSIVE",
-      "GREEK",
-      "EQUIVALENCE_ONE",
-      "EQUIVALENCE_TWO",
-   }
-   return (label in many_label)
-
 def be_start_symbol_math(label):
    being = (
       be_start_letter_math(label)
