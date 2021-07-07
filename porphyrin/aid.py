@@ -295,39 +295,6 @@ def tune_hypertext(source):
       index += step
    return sink
 
-def tune_address(source):
-   many_escape = {
-      '!': "%21",
-      '\"': "%22",
-      '#': "%23",
-      '$': "%24",
-      '%': "%25",
-      '&': "%26",
-      '\'': "%27",
-      '(': "%28",
-      ')': "%29",
-      '*': "%2A",
-      '+': "%2B",
-      ',': "%2C",
-      '-': "%2D",
-      '.': "%2E",
-      '/': "%2F",
-   }
-   sink = source
-   index = 0
-   while True:
-      if (index >= len(sink)):
-         break
-      for glyph, escape in many_escape.items():
-         if (index >= len(sink)):
-            break
-         if (sink[index] == glyph):
-            sink = sink[:index] + escape + sink[index + 1:]
-            index += len(escape)
-            continue
-      index += 1
-   return sink
-
 def remove_token(many_token, source):
    sink = source
    for token in many_token:

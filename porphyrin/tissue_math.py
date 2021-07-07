@@ -253,24 +253,26 @@ class Math_plain(Leaf):
             "BLACK": "\\forall",
             "CURSIVE": "\\leftthreetimes",
             "GREEK": "\\exists",
-            #
             "ABSTRACTION": "\\wp",
-            "LINE": '/',
+            #
+            "LINE": '\\,/\\,',
             "OPERATION_ONE": '\\,+\\,',
             "OPERATION_TWO": '\\,-\\,',
-            "OPERATION_THREE": "\\cdot",
+            "OPERATION_THREE": "\\,\\cdot\\,",
+            #
             "EQUIVALENCE_ONE": '\\:=\\:',
             "EQUIVALENCE_TWO": "\\:\\sim\\:",
-            "ARROW_MIDDLE": "\\uparrow",
-            "ARROW_LEFT": "\\leftarrow",
-            "ARROW_RIGHT": "\\rightarrow",
+            "ARROW_MIDDLE": "\\:\\uparrow\\:",
+            "ARROW_LEFT": "\\:\\leftarrow\\:",
+            "ARROW_RIGHT": "\\:\\rightarrow\\:",
+            #
+            "CUT_PAIR": ',\\,',
+            "CUT_TRIPLET": ':\\,',
+            "CUT_TUPLE": ';\\,',
             #
             "SERIF": "\\prime",
             "SANS": "\\prime\\prime",
             "MONO": "\\prime\\prime\\prime",
-            "CUT_PAIR": ',\\,',
-            "CUT_TRIPLET": ':\\,',
-            "CUT_TUPLE": ';\\,',
             "CHECK": "\\quad",
             "ACCENT_ONE": '!',
             "ACCENT_TWO": '?',
@@ -627,11 +629,11 @@ class Math_serif(Leaf):
 
    def write(self):
       command = "\\mathrm"
-      if not self.source.isalnum():
+      if not self.source.replace('_', '').isalnum():
          data = self.give_data(0, len(self.source) - 1)
          from .caution import Allowing_only_alphabet as creator
          creator(**data).panic()
-      content = AID.write_latex(command, self.source)
+      content = AID.write_latex(command, self.source.replace('_', '\\_'))
       content = AID.insert_space_narrow_latex(content)
       sink = self.write_math_outside(content)
       return sink
@@ -650,11 +652,11 @@ class Math_sans(Leaf):
 
    def write(self):
       command = "\\mathsf"
-      if not self.source.isalnum():
+      if not self.source.replace('_', '').isalnum():
          data = self.give_data(0, len(self.source) - 1)
          from .caution import Allowing_only_alphabet as creator
          creator(**data).panic()
-      content = AID.write_latex(command, self.source)
+      content = AID.write_latex(command, self.source.replace('_', '\\_'))
       content = AID.insert_space_narrow_latex(content)
       sink = self.write_math_outside(content)
       return sink
@@ -673,11 +675,11 @@ class Math_mono(Leaf):
 
    def write(self):
       command = "\\mathtt"
-      if not self.source.isalnum():
+      if not self.source.replace('_', '').isalnum():
          data = self.give_data(0, len(self.source) - 1)
          from .caution import Allowing_only_alphabet as creator
          creator(**data).panic()
-      content = AID.write_latex(command, self.source)
+      content = AID.write_latex(command, self.source.replace('_', '\\_'))
       content = AID.insert_space_wide_latex(content)
       sink = self.write_math_outside(content)
       return sink
