@@ -248,34 +248,34 @@ class Math_plain(Leaf):
          symbol = tail
       else:
          table_symbol = {
-            "PLAIN": '.',
+            "PLAIN": ".",
             "BOLD": "\\aleph",
             "BLACK": "\\forall",
             "CURSIVE": "\\leftthreetimes",
             "GREEK": "\\exists",
             "ABSTRACTION": "\\wp",
             #
-            "LINE": '\\,/\\,',
-            "OPERATION_ONE": '\\,+\\,',
-            "OPERATION_TWO": '\\,-\\,',
-            "OPERATION_THREE": "\\,\\cdot\\,",
+            "LINE": ("\\," + "/" + "\\,"),
+            "OPERATION_ONE": ("\\," + "+" + "\\,"),
+            "OPERATION_TWO": ("\\," + "-" + "\\,"),
+            "OPERATION_THREE": ("\\," + "\\cdot" + "\\,"),
             #
-            "EQUIVALENCE_ONE": '\\:=\\:',
-            "EQUIVALENCE_TWO": "\\:\\sim\\:",
-            "ARROW_MIDDLE": "\\:\\uparrow\\:",
-            "ARROW_LEFT": "\\:\\leftarrow\\:",
-            "ARROW_RIGHT": "\\:\\rightarrow\\:",
+            "CUT_PAIR": ("," + "\\,"),
+            "CUT_TRIPLET": (":" + "\\,"),
+            "CUT_TUPLE": (";" + "\\,"),
             #
-            "CUT_PAIR": ',\\,',
-            "CUT_TRIPLET": ':\\,',
-            "CUT_TUPLE": ';\\,',
+            "ARROW_MIDDLE": ("\\:" + "\\uparrow" + "\\:"),
+            "ARROW_LEFT": ("\\:" + "\\leftarrow" + "\\:"),
+            "ARROW_RIGHT": ("\\:" + "\\rightarrow" + "\\:"),
+            "EQUIVALENCE_ONE": ("\\;" + "=" + "\\;"),
+            "EQUIVALENCE_TWO": ("\\;" + "\\sim" + "\\;"),
             #
             "SERIF": "\\prime",
             "SANS": "\\prime\\prime",
             "MONO": "\\prime\\prime\\prime",
             "CHECK": "\\quad",
-            "ACCENT_ONE": '!',
-            "ACCENT_TWO": '?',
+            "ACCENT_ONE": "!",
+            "ACCENT_TWO": "?",
          }
          symbol = table_symbol.get(label_tail)
 
