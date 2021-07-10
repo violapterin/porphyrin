@@ -314,8 +314,9 @@ def replace_token(many_token_out, source):
       sink = sink.replace(token_in, many_token_out[token_in])
    return sink
 
-def give_wide_space():
-   return "<span class=\"phrase\">&ensp;</span>"
+def give_wide_space(kind):
+   sink = f"<span class=\"{kind}\">&ensp;</span>"
+   return sink
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -409,7 +410,10 @@ def normalize_percentage(many_weight):
    return many_percentage
 
 def extract_caption(address):
-   caption = address.split('/')[-1]
+   base = address.split('/')[-1]
+   hold = base.split('.')
+   hold.pop()
+   caption = ''.join(hold)
    for index in range(len(caption)):
       glyph = caption[index]
       if not glyph.isalnum():
