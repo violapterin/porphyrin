@@ -10,7 +10,7 @@ def make_new(folder_in, folder_out):
    make(whether_all, folder_in, folder_out)
 
 def make(whether_all, folder_in, folder_out):
-   suffix_in = ".ppr"
+   suffix_in = ".txt"
    suffix_out = ".html"
    many_thing_in = os.scandir(folder_in)
    for thing in many_thing_in:
