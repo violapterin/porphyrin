@@ -1,7 +1,5 @@
 ===
-@@from@@ %%Elegy Written in a Country Churchyard%% '
+@@[hello world!]@@ _
+%%(who am I?)%% _
+##24601## '
 ===
-
-///
-@@Here $rests his head upon the lap of Earth@@ '
-///
