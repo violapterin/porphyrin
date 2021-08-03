@@ -18,6 +18,16 @@ sample_text = (
    + ' ' + "caused by inhaling very fine ash and sand dust"
 )
 
+'''
+sample_text = (
+   "To make the fried-cured-meat-with-garlic-leaf,"
+   + ' ' + "which I crave for every year or two,"
+   + ' ' + "one can’t go wrong with Nanmen’s,"
+   + ' ' + "or possibly the “Peng’s Hunan Cured Meat”"
+   + ' ' + "[彭記湖南臘肉]."
+)
+'''
+
 sample_code = (
    "char *s=\"char *s=%c%s%c;%cmain(){printf(s,34,s,34,10,10);}%c\";"
    + "main(){printf(s,34,s,34,10,10);}"
