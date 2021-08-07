@@ -1,0 +1,4 @@
+===
+@@Pythagorean theorem $states:@@ '
+^^[.2: 'sin' .[$q.]:] .+ [.2: 'cos' .[$q.]:] .= .1^^
+===

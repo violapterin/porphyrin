@@ -456,6 +456,8 @@ class Math_pair(Leaf):
       box_top, box_bottom = boxes
       top = AID.unite([tissue.write() for tissue in box_top])
       bottom = AID.unite([tissue.write() for tissue in box_bottom])
+      top = AID.winnow_space_latex(top)
+      bottom = AID.winnow_space_latex(bottom)
       command = "\\dfrac"
       content = AID.write_latex(command, top, bottom)
       sink = self.write_math_outside(content)
@@ -508,8 +510,11 @@ class Math_triplet(Leaf):
       top = AID.unite([tissue.write() for tissue in box_top])
       main = AID.unite([tissue.write() for tissue in box_main])
       bottom = AID.unite([tissue.write() for tissue in box_bottom])
+      top = AID.winnow_space_latex(top)
+      main = AID.winnow_space_latex(main)
+      bottom = AID.winnow_space_latex(bottom)
       content = ''
-      if (whether_lateral):
+      if whether_lateral:
          many_content = []
          if main:
             many_content.append(main)
@@ -527,8 +532,8 @@ class Math_triplet(Leaf):
                content = AID.write_latex("\\overset", top, underset)
             else:
                content = underset
-         elif content:
-            overset = AID.write_latex("\\overset", top, main)
+         elif top:
+            content = AID.write_latex("\\overset", top, main)
       sink = self.write_math_outside(content)
       return sink
 
@@ -571,8 +576,9 @@ class Math_tuple(Leaf):
       many_content = []
       many_content.append(AID.write_latex("\\begin", "matrix"))
       for box in boxes:
-         sink_tissue = AID.unite([tissue.write() for tissue in box])
-         many_content.append(sink_tissue + "\\\\")
+         main = AID.unite([tissue.write() for tissue in box])
+         main = AID.winnow_space_latex(main)
+         many_content.append(main + "\\\\")
       many_content.append(AID.write_latex("\\end", "matrix"))
       content = AID.unite(many_content, cut = '')
       content = AID.insert_space_wide_latex(content)

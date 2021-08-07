@@ -1,5 +1,5 @@
 ===
-@@By Taylor series around@@ ^^$p ./ .2^^ @@:@@ '
+@@by Taylor series around@@ ^^$p ./ .2^^ @@ we #have:@@ '
 ^^ [: 'lim': .x .| $B] .([.2: .x:] .('atan' .x .- (.p, .2).) .+ .x.)
    .= .0^^ '
 ===

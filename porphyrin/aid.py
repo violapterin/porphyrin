@@ -692,6 +692,30 @@ def surround_tuple_with_affix(affix, thing_tuple):
    result = tuple(thing_list)
    return result
 
+def winnow_space_latex(source):
+   sink = source
+   many_single = ("\\,", "\\:", "\\;")
+   many_double = {
+      "\\,\\,": "\\,",
+      "\\:\\,": "\\:",
+      "\\;\\,": "\\;",
+      "\\,\\:": "\\:",
+      "\\:\\:": "\\:",
+      "\\;\\:": "\\;",
+      "\\,\\;": "\\;",
+      "\\:\\;": "\\;",
+      "\\;\\;": "\\;",
+   }
+   for single in many_single:
+      if sink.startswith(single):
+         sink = sink[len(single):]
+   for single in many_single:
+      if sink.endswith(single):
+         sink = sink[:-len(single)]
+   for double, single in many_double.items():
+      sink = sink.replace(double, single)
+   return sink
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 def get_table_sign(targets):
