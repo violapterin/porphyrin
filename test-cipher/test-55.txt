@@ -1,0 +1,7 @@
+===
+@@when I #want to write:@@ '
+^^.a \0 .b^^ '
+@@I sometimes #write, for additional annotation:@@ '
+^^.c \0 .b^^ '
+^^.a \0 .c^^ '
+===
