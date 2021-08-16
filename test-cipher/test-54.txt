@@ -1,0 +1,7 @@
+===
+@@the parametric equation of a circle is:@@ '
+^^.<'sin' .t., 'cos' .t.>.,
+   `for` .0
+      <0 .t
+      <1 .2 $p.;^^
+===

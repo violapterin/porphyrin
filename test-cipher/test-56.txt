@@ -1,0 +1,16 @@
+===
+@@suppose a planet is moving around the sun, then its position and velocity can be found as thus:@@ '
+<<<
+^^`Position`.:
+   .r
+   .= .<'cos' $q .- $g.,
+      $b 'sin' $q.>.;^^ '
+^^`Velocity`.:
+   .v
+   .= .<.- [:$q: .'] 'sin' $q.,
+      $b 'cos' $q.>.;^^ '
+>>>
+^^[: .P: .n]
+   =1 [: %0: .p!! <6 [: &p: .n]] .p!!.,
+   `for` .n .= .1., /6 .,.N.;^^ '
+===
