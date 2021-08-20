@@ -100,6 +100,8 @@ def get_mark_right(mark_left):
    return mark_right
 
 def unite(many_source, cut = ' '):
+   if not many_source:
+      return ''
    for index in range(len(many_source)):
       many_source[index] = (many_source[index]).strip()
    sink = (cut.join(many_source)).strip(" \t\n")
@@ -648,7 +650,8 @@ def write_latex(command, *many_option):
    many_sink = []
    many_sink.append(command)
    for option in many_option:
-      many_sink.append('{' + option + '}')
+      if option:
+         many_sink.append('{' + option + '}')
    sink = unite(many_sink, cut = '')
    return sink
 
