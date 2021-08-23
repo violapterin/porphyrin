@@ -1,0 +1,10 @@
+
+"""
+@@usage@@ _ @@past@@ _ @@present@@ '
+%%intention, certainty%% _ ##would## _ ##will## '
+%%ability, possibility%% _ ##could## _ ##can## '
+%%responsibility%% _ ##must## _ ##must## '
+%%allowance%% _ ##could## _ ##may## '
+%%likely event%% _ ##could## _ ##can## '
+%%unlikely event%% _ ##might## _ ##might## '
+"""

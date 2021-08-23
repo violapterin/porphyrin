@@ -1,6 +1,4 @@
-from pdb import set_trace
 import copy
-
 from .organ import Leaf
 from . import aid as AID
 
@@ -52,7 +50,7 @@ class Math_letter(Leaf):
             "\\bot", "\\top", "\\S",
             "\\Lambda", "\\mho", "\\nabla",
             "\\%", "\\Pi", "\\Theta",
-            "\\surd", "\\Sigma", "\\eth",
+            "\\surd", "\\Sigma", "\\mathrm{d}",
             "\\Upsilon", "\\$", "\\Omega",
             "\\#", "\\Psi", "\\partial",
          )
@@ -60,11 +58,11 @@ class Math_letter(Leaf):
             "\\alpha", "\\beta", "\\xi",
             "\\delta", "\\varepsilon",
             "\\varphi", "\\gamma", "\\eta",
-            "\\iota", "\\imath","\\kappa",
+            "\\iota", "\\mathring{\\imath}","\\kappa",
             "\\lambda", "\\mu", "\\nu",
             "\\varnothing", "\\pi", "\\vartheta",
             "\\rho", "\\sigma", "\\tau",
-            "\\upsilon", "\\digamma", "\\omega",
+            "\\upsilon", "\\eth", "\\omega",
             "\\chi", "\\psi", "\\zeta",
          )
          table_upper = AID.get_table_upper(uppers)

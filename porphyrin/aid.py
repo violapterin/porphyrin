@@ -1,5 +1,4 @@
 import os
-from pdb import set_trace
 
 def make_all(folder_in, folder_out):
    whether_all = True
@@ -559,19 +558,20 @@ def give_punctuation_fullwidth():
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 def normalize_percentage(many_weight):
-   many_percentage = []
-   many_gross = many_weight
-   partition = 100
+   many_percentage = [None] * len(many_weight)
+   many_gross = many_weight.copy()
+   hundred = 100
    lowest = 5
    while (True):
       if not many_gross:
          break
       gross = min(many_gross)
-      percentage = round(partition * gross / sum(many_gross))
-      many_gross.pop(many_gross.index(gross))
+      percentage = round(hundred * gross / sum(many_gross))
+      spot = many_gross.index(gross)
+      many_gross.pop(spot)
       percentage = max(lowest, percentage)
-      partition -= percentage
-      many_percentage.append(percentage)
+      hundred -= percentage
+      many_percentage[spot] = percentage
    return many_percentage
 
 def extract_caption(address):
