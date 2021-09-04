@@ -1,0 +1,9 @@
+
+"""
+@@case@@ _ @@masculine@@ _ @@feminine@@ _ @@neuter@@ _ @@plural@@ '
+
+@@nominative@@ _ @@schwieriger Fall@@ _ @@rote Tinte@@ _ @@schönes Haus@@ _ @@alkoholfreie Getränke@@ '
+@@accusative@@ _ @@schwierigen Fall@@ _ @@rote Tinte@@ _ @@schönes Haus@@ _ @@alkoholfreie Getränke@@ '
+@@dative@@ _ @@schwierigem Fall@@ _ @@roter Tinte@@ _ @@schönem Hau@@ _ @@ alkoholfreien Getränken@@ '
+@@genitive@@ _ @@schwierigen Falles@@ _ @@roter Tinte@@ _ @@schönen Hauses@@ _ @@alkoholfreier Getränke @@ '
+"""
